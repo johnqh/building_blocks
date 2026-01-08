@@ -1,5 +1,4 @@
-/// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { resolve } from 'path';
 
 export default defineConfig({
@@ -22,9 +21,11 @@ export default defineConfig({
     },
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules/', 'dist/', '.git/'],
-    server: {
-      deps: {
-        inline: ['@testing-library/jest-dom'],
+    deps: {
+      optimizer: {
+        web: {
+          include: ['@testing-library/jest-dom'],
+        },
       },
     },
   },
