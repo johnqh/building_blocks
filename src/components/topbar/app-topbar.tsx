@@ -3,10 +3,12 @@ import {
   Topbar,
   TopbarProvider,
   TopbarLeft,
+  TopbarCenter,
   TopbarRight,
   TopbarLogo,
   TopbarNavigation,
   TopbarActions,
+  TopbarMobileContent,
   type TopbarNavItem,
 } from '@sudobility/components';
 import { cn } from '../../utils';
@@ -49,6 +51,12 @@ export interface AppTopBarProps {
 
   /** Render prop for account/auth section (right side of topbar) */
   renderAccountSection?: () => ReactNode;
+
+  /** Render prop for center section (e.g., search bar) - shown on desktop */
+  renderCenterSection?: () => ReactNode;
+
+  /** Render prop for mobile-specific content (e.g., mobile search) - shown below main topbar on mobile */
+  renderMobileContent?: () => ReactNode;
 
   /** Custom Link component for navigation (for react-router-dom, Next.js, etc.) */
   LinkComponent?: ComponentType<LinkComponentProps>;
@@ -108,6 +116,8 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
   languageSelectorProps,
   collapseBelow = 'lg',
   renderAccountSection,
+  renderCenterSection,
+  renderMobileContent,
   LinkComponent = DefaultLinkComponent,
   sticky = true,
   variant = 'default',
@@ -184,6 +194,10 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
           </TopbarNavigation>
         </TopbarLeft>
 
+        {renderCenterSection && (
+          <TopbarCenter>{renderCenterSection()}</TopbarCenter>
+        )}
+
         <TopbarRight>
           <TopbarActions gap='md'>
             {!hideLanguageSelector && (
@@ -198,6 +212,10 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
             {renderAccountSection?.()}
           </TopbarActions>
         </TopbarRight>
+
+        {renderMobileContent && (
+          <TopbarMobileContent>{renderMobileContent()}</TopbarMobileContent>
+        )}
       </Topbar>
     </TopbarProvider>
   );
