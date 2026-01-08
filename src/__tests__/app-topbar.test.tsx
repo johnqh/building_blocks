@@ -60,6 +60,23 @@ vi.mock('@sudobility/components', () => ({
   TopbarActions: ({ children }: { children: React.ReactNode }) => (
     <div data-testid='topbar-actions'>{children}</div>
   ),
+  Logo: ({
+    logoSrc,
+    logoText,
+    logoAlt,
+    showText,
+  }: {
+    size?: string;
+    logoSrc?: string;
+    logoText?: string;
+    logoAlt?: string;
+    showText?: boolean;
+  }) => (
+    <div data-testid='logo'>
+      {logoSrc && <img src={logoSrc} alt={logoAlt || logoText} />}
+      {showText && logoText && <span>{logoText}</span>}
+    </div>
+  ),
 }));
 
 // Mock the LanguageSelector

@@ -9,6 +9,7 @@ import {
   TopbarNavigation,
   TopbarActions,
   TopbarMobileContent,
+  Logo,
   type TopbarNavItem,
 } from '@sudobility/components';
 import { cn } from '../../utils';
@@ -102,7 +103,9 @@ const DefaultLinkComponent: ComponentType<LinkComponentProps> = ({
  * - Logo with app name on the left
  * - Navigation menu items with icons
  * - Language selector
+ * - Render prop for center section (e.g., search bar)
  * - Render prop for account/auth section
+ * - Render prop for mobile-specific content
  * - Responsive with hamburger menu on mobile
  * - Dark mode support
  */
@@ -180,16 +183,13 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
             mobileMenuLabel={mobileMenuLabel}
           >
             <TopbarLogo onClick={handleLogoClick} size='md'>
-              <div className='flex items-center gap-2'>
-                <img
-                  src={logo.src}
-                  alt={logo.alt || logo.appName}
-                  className='h-8 w-8 object-contain'
-                />
-                <span className='text-lg font-semibold text-gray-900 dark:text-white'>
-                  {logo.appName}
-                </span>
-              </div>
+              <Logo
+                size='md'
+                logoSrc={logo.src}
+                logoText={logo.appName}
+                logoAlt={logo.alt || logo.appName}
+                showText={true}
+              />
             </TopbarLogo>
           </TopbarNavigation>
         </TopbarLeft>
