@@ -1,0 +1,98 @@
+{
+  "name": "@sudobility/building_blocks",
+  "version": "0.0.1",
+  "description": "Higher-level shared UI building blocks for Sudobility apps",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "dev": "vite build --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext ts,tsx --ignore-pattern 'dist' --ignore-pattern 'node_modules' --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --ignore-pattern 'dist' --ignore-pattern 'node_modules' --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "prepublishOnly": "bun run build"
+  },
+  "peerDependencies": {
+    "@heroicons/react": "^2.0.0",
+    "@sudobility/components": "*",
+    "@sudobility/design": "*",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "tailwind-merge": "^2.0.0 || ^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@sudobility/auth-components": {
+      "optional": true
+    },
+    "@sudobility/auth_lib": {
+      "optional": true
+    },
+    "@sudobility/web3-components": {
+      "optional": true
+    },
+    "@sudobility/devops-components": {
+      "optional": true
+    },
+    "@sudobility/types": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.38.0",
+    "@heroicons/react": "^2.2.0",
+    "@sudobility/components": "*",
+    "@sudobility/design": "*",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^18.0.0 || ^19.0.0",
+    "@types/react-dom": "^18.0.0 || ^19.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "@vitejs/plugin-react": "^4.5.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.4.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sudobility/building_blocks.git"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,206 @@
+import React, { useMemo, type ComponentType, type ReactNode } from 'react';
+import {
+  Topbar,
+  TopbarProvider,
+  TopbarLeft,
+  TopbarRight,
+  TopbarLogo,
+  TopbarNavigation,
+  TopbarActions,
+  type TopbarNavItem,
+} from '@sudobility/components';
+import { cn } from '../../utils';
+import {
+  LanguageSelector,
+  type LanguageSelectorProps,
+} from './language-selector';
+import type {
+  MenuItemConfig,
+  LogoConfig,
+  LanguageConfig,
+  LinkComponentProps,
+} from '../../types';
+import { DEFAULT_LANGUAGES } from '../../constants/languages';
+
+export interface AppTopBarProps {
+  /** Logo configuration */
+  logo: LogoConfig;
+
+  /** Navigation menu items */
+  menuItems: MenuItemConfig[];
+
+  /** Available languages for selector (defaults to 16 built-in languages) */
+  languages?: LanguageConfig[];
+
+  /** Current language code */
+  currentLanguage?: string;
+
+  /** Language change handler */
+  onLanguageChange?: (languageCode: string) => void;
+
+  /** Hide language selector */
+  hideLanguageSelector?: boolean;
+
+  /** Language selector props override */
+  languageSelectorProps?: Partial<LanguageSelectorProps>;
+
+  /** Breakpoint to collapse navigation to hamburger menu */
+  collapseBelow?: 'sm' | 'md' | 'lg' | 'xl';
+
+  /** Render prop for account/auth section (right side of topbar) */
+  renderAccountSection?: () => ReactNode;
+
+  /** Custom Link component for navigation (for react-router-dom, Next.js, etc.) */
+  LinkComponent?: ComponentType<LinkComponentProps>;
+
+  /** Optional sticky positioning */
+  sticky?: boolean;
+
+  /** Optional variant */
+  variant?: 'default' | 'app';
+
+  /** Mobile menu label for accessibility */
+  mobileMenuLabel?: string;
+
+  /** Custom className for topbar */
+  className?: string;
+
+  /** z-index level */
+  zIndex?: 'default' | 'highest' | 'high';
+
+  /** Aria label for navigation */
+  ariaLabel?: string;
+}
+
+/**
+ * Default Link component that renders a plain anchor tag.
+ * Apps should provide their own LinkComponent for router integration.
+ */
+const DefaultLinkComponent: ComponentType<LinkComponentProps> = ({
+  href,
+  className,
+  children,
+  onClick,
+}) => (
+  <a href={href} className={className} onClick={onClick}>
+    {children}
+  </a>
+);
+
+/**
+ * AppTopBar - Base topbar component for Sudobility apps.
+ *
+ * Features:
+ * - Logo with app name on the left
+ * - Navigation menu items with icons
+ * - Language selector
+ * - Render prop for account/auth section
+ * - Responsive with hamburger menu on mobile
+ * - Dark mode support
+ */
+export const AppTopBar: React.FC<AppTopBarProps> = ({
+  logo,
+  menuItems,
+  languages = DEFAULT_LANGUAGES,
+  currentLanguage = 'en',
+  onLanguageChange,
+  hideLanguageSelector = false,
+  languageSelectorProps,
+  collapseBelow = 'lg',
+  renderAccountSection,
+  LinkComponent = DefaultLinkComponent,
+  sticky = true,
+  variant = 'default',
+  mobileMenuLabel = 'Menu',
+  className,
+  zIndex = 'highest',
+  ariaLabel = 'Main navigation',
+}) => {
+  // Filter menu items that should be shown
+  const visibleMenuItems = useMemo(
+    () => menuItems.filter(item => item.show !== false),
+    [menuItems]
+  );
+
+  // Convert MenuItemConfig to TopbarNavItem
+  const navItems: TopbarNavItem[] = useMemo(
+    () =>
+      visibleMenuItems.map(item => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        href: item.href,
+      })),
+    [visibleMenuItems]
+  );
+
+  // Wrapper to adapt LinkComponent to TopbarNavigation expected interface
+  const LinkWrapper: ComponentType<{
+    href: string;
+    className?: string;
+    children: ReactNode;
+  }> = useMemo(
+    () =>
+      ({ href, className, children }) => (
+        <LinkComponent href={href} className={className}>
+          {children}
+        </LinkComponent>
+      ),
+    [LinkComponent]
+  );
+
+  const handleLogoClick = () => {
+    logo.onClick?.();
+  };
+
+  return (
+    <TopbarProvider variant={variant} sticky={sticky}>
+      <Topbar
+        variant={variant}
+        sticky={sticky}
+        zIndex={zIndex}
+        aria-label={ariaLabel}
+        className={cn(className)}
+      >
+        <TopbarLeft>
+          <TopbarNavigation
+            items={navItems}
+            collapseBelow={collapseBelow}
+            LinkComponent={LinkWrapper}
+            mobileMenuLabel={mobileMenuLabel}
+          >
+            <TopbarLogo onClick={handleLogoClick} size='md'>
+              <div className='flex items-center gap-2'>
+                <img
+                  src={logo.src}
+                  alt={logo.alt || logo.appName}
+                  className='h-8 w-8 object-contain'
+                />
+                <span className='text-lg font-semibold text-gray-900 dark:text-white'>
+                  {logo.appName}
+                </span>
+              </div>
+            </TopbarLogo>
+          </TopbarNavigation>
+        </TopbarLeft>
+
+        <TopbarRight>
+          <TopbarActions gap='md'>
+            {!hideLanguageSelector && (
+              <LanguageSelector
+                languages={languages}
+                currentLanguage={currentLanguage}
+                onLanguageChange={onLanguageChange}
+                variant='compact'
+                {...languageSelectorProps}
+              />
+            )}
+            {renderAccountSection?.()}
+          </TopbarActions>
+        </TopbarRight>
+      </Topbar>
+    </TopbarProvider>
+  );
+};
+
+export default AppTopBar;
