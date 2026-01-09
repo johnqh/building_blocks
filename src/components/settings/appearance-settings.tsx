@@ -144,7 +144,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
 
   return (
     <div className={className}>
-      <div className="space-y-6">
+      <div className='space-y-6'>
         <div>
           <h2 className={`${textVariants.heading.h4()} mb-2`}>
             {getText('heading')}
@@ -156,11 +156,11 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className='space-y-6'>
           {/* Theme Setting */}
-          <div className="space-y-2">
+          <div className='space-y-2'>
             <Label
-              htmlFor="theme-select"
+              htmlFor='theme-select'
               className={textVariants.label.default()}
             >
               {getText('themeLabel')}
@@ -169,7 +169,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
               value={theme}
               onValueChange={(value: string) => onThemeChange(value as Theme)}
             >
-              <SelectTrigger id="theme-select">
+              <SelectTrigger id='theme-select'>
                 <SelectValue placeholder={getText('themeSelectPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -192,9 +192,9 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
           </div>
 
           {/* Font Size Setting */}
-          <div className="space-y-2">
+          <div className='space-y-2'>
             <Label
-              htmlFor="font-size-select"
+              htmlFor='font-size-select'
               className={textVariants.label.default()}
             >
               {getText('fontSizeLabel')}
@@ -205,7 +205,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                 onFontSizeChange(value as FontSize)
               }
             >
-              <SelectTrigger id="font-size-select">
+              <SelectTrigger id='font-size-select'>
                 <SelectValue
                   placeholder={getText('fontSizeSelectPlaceholder')}
                 />
@@ -232,11 +232,11 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
 
         {/* Information Box */}
         {showInfoBox && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+          <div className='bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800'>
+            <h4 className='text-sm font-medium text-blue-900 dark:text-blue-100 mb-2'>
               {getText('infoHeading')}
             </h4>
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+            <p className='text-sm text-blue-700 dark:text-blue-300'>
               {getText('infoDescription')}
             </p>
           </div>
