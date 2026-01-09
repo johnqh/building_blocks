@@ -9,3 +9,6 @@ export * from './footer';
 
 // Layout components
 export * from './layout';
+
+// Settings components
+export * from './settings';
