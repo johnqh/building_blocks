@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "main": "./dist/index.js",
@@ -56,6 +56,9 @@
     },
     "@sudobility/types": {
       "optional": true
+    },
+    "@sudobility/subscription-components": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -63,6 +66,8 @@
     "@heroicons/react": "^2.2.0",
     "@sudobility/components": "^4.0.134",
     "@sudobility/design": "^1.1.17",
+    "@sudobility/subscription-components": "^1.0.13",
+    "@sudobility/types": "^1.9.43",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -82,6 +87,7 @@
     "prettier": "^3.6.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-helmet-async": "^2.0.5",
     "tailwind-merge": "^3.0.0",
     "typescript": "~5.9.3",
     "vite": "^6.3.5",
