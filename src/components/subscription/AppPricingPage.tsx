@@ -246,7 +246,9 @@ export function AppPricingPage({
             <SegmentedControl
               options={billingPeriodOptions}
               value={billingPeriod}
-              onChange={setBillingPeriod}
+              onChange={(value: string) =>
+                setBillingPeriod(value as BillingPeriod)
+              }
             />
           </div>
 
