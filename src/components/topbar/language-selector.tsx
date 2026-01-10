@@ -130,8 +130,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               'absolute right-0 mt-2 w-48 py-1 z-50',
               'bg-white dark:bg-gray-800',
               'border border-gray-200 dark:border-gray-700',
-              'rounded-lg shadow-lg',
-              'max-h-64 overflow-y-auto'
+              'rounded-lg shadow-lg'
             )}
             role='listbox'
             aria-label='Languages'
@@ -203,8 +202,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               'absolute left-0 right-0 mt-1 py-1 z-50',
               'bg-white dark:bg-gray-800',
               'border border-gray-200 dark:border-gray-700',
-              'rounded-md shadow-lg',
-              'max-h-64 overflow-y-auto'
+              'rounded-md shadow-lg'
             )}
             role='listbox'
             aria-label='Languages'
