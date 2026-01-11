@@ -8,21 +8,15 @@ export type {
   QuickLink,
 } from './app-sitemap-page';
 
-export { AppPrivacyPolicyPage } from './app-privacy-policy-page';
+export { AppTextPage } from './app-text-page';
 export type {
-  AppPrivacyPolicyPageProps,
-  PrivacyPolicyPageText,
-  PrivacySectionWithList,
-  PrivacySectionWithContent,
-  PrivacySubsection,
-  PrivacyContactInfo,
-} from './app-privacy-policy-page';
-
-export { AppTermsOfServicePage } from './app-terms-of-service-page';
-export type {
-  AppTermsOfServicePageProps,
-  TermsOfServicePageText,
-  TermsSectionWithContent,
-  TermsSectionWithList,
-  TermsContactInfo,
-} from './app-terms-of-service-page';
+  AppTextPageProps,
+  TextPageContent,
+  TextSection,
+  TextSectionWithContent,
+  TextSectionWithList,
+  TextSectionWithSubsections,
+  TextPageContact,
+  TextPageContactInfo,
+  GdprNotice,
+} from './app-text-page';
