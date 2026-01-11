@@ -1,4 +1,4 @@
-import React, { type ComponentType } from 'react';
+import React, { useCallback, type ComponentType } from 'react';
 import {
   Logo,
   Footer as FooterContainer,
@@ -17,6 +17,7 @@ import type {
   LinkComponentProps,
   FooterLinkSection as FooterLinkSectionConfig,
   SocialLinksConfig,
+  AnalyticsTrackingParams,
 } from '../../types';
 import type { SystemStatusIndicatorProps } from './app-footer';
 
@@ -73,6 +74,9 @@ export interface AppFooterForHomePageProps {
 
   /** Number of columns for link grid (default: auto based on section count) */
   gridColumns?: 2 | 3 | 4 | 5;
+
+  /** Optional analytics tracking callback */
+  onTrack?: (params: AnalyticsTrackingParams) => void;
 }
 
 /**
@@ -184,9 +188,42 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
   isNetworkOnline = true,
   className,
   gridColumns,
+  onTrack,
 }) => {
   const year = copyrightYear || getCopyrightYear();
   const gridClass = getGridColumnsClass(linkSections.length, gridColumns);
+
+  // Helper to track analytics events
+  const track = useCallback(
+    (label: string, params?: Record<string, unknown>) => {
+      onTrack?.({
+        eventType: 'link_click',
+        componentName: 'AppFooterForHomePage',
+        label,
+        params,
+      });
+    },
+    [onTrack]
+  );
+
+  // Create a tracked link click handler
+  const createTrackedLinkHandler = useCallback(
+    (
+      linkLabel: string,
+      linkHref: string,
+      sectionTitle: string,
+      originalOnClick?: (e: React.MouseEvent) => void
+    ) =>
+      (e: React.MouseEvent) => {
+        track('footer_link_clicked', {
+          link_label: linkLabel,
+          link_href: linkHref,
+          section_title: sectionTitle,
+        });
+        originalOnClick?.(e);
+      },
+    [track]
+  );
 
   const companyLink = companyUrl ? (
     <LinkComponent
@@ -208,11 +245,28 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
             {section.links.map((link, linkIndex) => (
               <FooterLink key={link.href || linkIndex}>
                 {link.onClick ? (
-                  <button onClick={link.onClick} className='text-left'>
+                  <button
+                    onClick={createTrackedLinkHandler(
+                      link.label,
+                      link.href,
+                      section.title,
+                      link.onClick
+                    )}
+                    className='text-left'
+                  >
                     {link.label}
                   </button>
                 ) : (
-                  <LinkComponent href={link.href}>{link.label}</LinkComponent>
+                  <LinkComponent
+                    href={link.href}
+                    onClick={createTrackedLinkHandler(
+                      link.label,
+                      link.href,
+                      section.title
+                    )}
+                  >
+                    {link.label}
+                  </LinkComponent>
                 )}
               </FooterLink>
             ))}

@@ -8,6 +8,7 @@ import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
+import type { AnalyticsTrackingParams } from '../../types';
 
 type BillingPeriod = 'monthly' | 'yearly';
 
@@ -104,6 +105,8 @@ export interface AppPricingPageProps {
   faqItems?: FAQItem[];
   /** Optional className for the container */
   className?: string;
+  /** Optional analytics tracking callback */
+  onTrack?: (params: AnalyticsTrackingParams) => void;
 }
 
 /**
@@ -125,8 +128,50 @@ export function AppPricingPage({
   onFreePlanClick,
   faqItems,
   className,
+  onTrack,
 }: AppPricingPageProps) {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+
+  // Helper to track analytics events
+  const track = useCallback(
+    (label: string, params?: Record<string, unknown>) => {
+      onTrack?.({
+        eventType: 'subscription_action',
+        componentName: 'AppPricingPage',
+        label,
+        params,
+      });
+    },
+    [onTrack]
+  );
+
+  // Handle billing period change with tracking
+  const handleBillingPeriodChange = useCallback(
+    (value: string) => {
+      const newPeriod = value as BillingPeriod;
+      setBillingPeriod(newPeriod);
+      track('billing_period_changed', { billing_period: newPeriod });
+    },
+    [track]
+  );
+
+  // Handle free plan click with tracking
+  const handleFreePlanClick = useCallback(() => {
+    track('free_plan_clicked', { plan: 'free' });
+    onFreePlanClick();
+  }, [track, onFreePlanClick]);
+
+  // Handle paid plan click with tracking
+  const handlePlanClick = useCallback(
+    (planIdentifier: string, actionType: 'login' | 'upgrade') => {
+      track('plan_clicked', {
+        plan_identifier: planIdentifier,
+        action_type: actionType,
+      });
+      onPlanClick(planIdentifier);
+    },
+    [track, onPlanClick]
+  );
 
   // Get entitlement level for a product (0 for free/none)
   const getProductLevel = useCallback(
@@ -246,9 +291,7 @@ export function AppPricingPage({
             <SegmentedControl
               options={billingPeriodOptions}
               value={billingPeriod}
-              onChange={(value: string) =>
-                setBillingPeriod(value as BillingPeriod)
-              }
+              onChange={handleBillingPeriodChange}
             />
           </div>
 
@@ -285,7 +328,7 @@ export function AppPricingPage({
                 !isAuthenticated
                   ? {
                       label: labels.ctaTryFree,
-                      onClick: onFreePlanClick,
+                      onClick: handleFreePlanClick,
                     }
                   : undefined
               }
@@ -303,7 +346,7 @@ export function AppPricingPage({
                 // Not logged in: show "Log in to Continue"
                 ctaButton = {
                   label: labels.ctaLogIn,
-                  onClick: () => onPlanClick(product.identifier),
+                  onClick: () => handlePlanClick(product.identifier, 'login'),
                 };
               } else if (isCurrent) {
                 // Current plan: no CTA
@@ -312,7 +355,7 @@ export function AppPricingPage({
                 // Higher tier: show "Upgrade"
                 ctaButton = {
                   label: labels.ctaUpgrade,
-                  onClick: () => onPlanClick(product.identifier),
+                  onClick: () => handlePlanClick(product.identifier, 'upgrade'),
                 };
               }
               // Lower tier than current: no CTA (implicit downgrade not shown)

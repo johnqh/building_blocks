@@ -10,6 +10,7 @@ import {
   SegmentedControl,
 } from '@sudobility/subscription-components';
 import type { RateLimitsConfigData, RateLimitTier } from '@sudobility/types';
+import type { AnalyticsTrackingParams } from '../../types';
 
 type BillingPeriod = 'monthly' | 'yearly';
 
@@ -38,8 +39,13 @@ export interface SubscriptionContextValue {
   currentSubscription: CurrentSubscription | null;
   isLoading: boolean;
   error: string | null;
-  purchase: (productId: string) => Promise<boolean>;
-  restore: () => Promise<boolean>;
+  /** Purchase a subscription product. subscriptionUserId identifies which user/entity the subscription is for. */
+  purchase: (
+    productId: string,
+    subscriptionUserId?: string
+  ) => Promise<boolean>;
+  /** Restore purchases. subscriptionUserId identifies which user/entity to restore for. */
+  restore: (subscriptionUserId?: string) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -138,6 +144,8 @@ export interface AppSubscriptionsPageProps {
   onError?: (title: string, message: string) => void;
   /** Called on warning */
   onWarning?: (title: string, message: string) => void;
+  /** Optional analytics tracking callback */
+  onTrack?: (params: AnalyticsTrackingParams) => void;
 }
 
 // Default package ID to entitlement mapping
@@ -156,6 +164,7 @@ const DEFAULT_PACKAGE_ENTITLEMENT_MAP: Record<string, string> = {
 export function AppSubscriptionsPage({
   subscription,
   rateLimitsConfig,
+  subscriptionUserId,
   labels,
   formatters,
   packageEntitlementMap = DEFAULT_PACKAGE_ENTITLEMENT_MAP,
@@ -163,6 +172,7 @@ export function AppSubscriptionsPage({
   onRestoreSuccess,
   onError,
   onWarning,
+  onTrack,
 }: AppSubscriptionsPageProps) {
   const {
     products,
@@ -178,6 +188,19 @@ export function AppSubscriptionsPage({
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+
+  // Helper to track analytics events
+  const track = useCallback(
+    (label: string, params?: Record<string, unknown>) => {
+      onTrack?.({
+        eventType: 'subscription_action',
+        componentName: 'AppSubscriptionsPage',
+        label,
+        params,
+      });
+    },
+    [onTrack]
+  );
 
   // Show error via callback
   useEffect(() => {
@@ -197,53 +220,102 @@ export function AppSubscriptionsPage({
     })
     .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
 
-  const handlePeriodChange = (period: BillingPeriod) => {
-    setBillingPeriod(period);
-    setSelectedPlan(null);
-  };
+  const handlePeriodChange = useCallback(
+    (period: BillingPeriod) => {
+      setBillingPeriod(period);
+      setSelectedPlan(null);
+      track('billing_period_changed', { billing_period: period });
+    },
+    [track]
+  );
 
-  const handlePurchase = async () => {
+  const handlePurchase = useCallback(async () => {
     if (!selectedPlan) return;
 
     setIsPurchasing(true);
     clearError();
+    track('purchase_initiated', { plan_identifier: selectedPlan });
 
     try {
-      const result = await purchase(selectedPlan);
+      const result = await purchase(selectedPlan, subscriptionUserId);
       if (result) {
+        track('purchase_completed', { plan_identifier: selectedPlan });
         onPurchaseSuccess?.();
         setSelectedPlan(null);
+      } else {
+        track('purchase_failed', {
+          plan_identifier: selectedPlan,
+          reason: 'purchase_returned_false',
+        });
       }
     } catch (err) {
-      onError?.(
-        labels.errorTitle,
-        err instanceof Error ? err.message : labels.purchaseError
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : labels.purchaseError;
+      track('purchase_failed', {
+        plan_identifier: selectedPlan,
+        reason: errorMessage,
+      });
+      onError?.(labels.errorTitle, errorMessage);
     } finally {
       setIsPurchasing(false);
     }
-  };
+  }, [
+    selectedPlan,
+    clearError,
+    track,
+    purchase,
+    subscriptionUserId,
+    onPurchaseSuccess,
+    labels.errorTitle,
+    labels.purchaseError,
+    onError,
+  ]);
 
-  const handleRestore = async () => {
+  const handlePlanSelect = useCallback(
+    (planIdentifier: string | null) => {
+      setSelectedPlan(planIdentifier);
+      track('plan_selected', {
+        plan_identifier: planIdentifier ?? 'free',
+        is_free_tier: planIdentifier === null,
+      });
+    },
+    [track]
+  );
+
+  const handleRestore = useCallback(async () => {
     setIsRestoring(true);
     clearError();
+    track('restore_initiated');
 
     try {
-      const result = await restore();
+      const result = await restore(subscriptionUserId);
       if (result) {
+        track('restore_completed');
         onRestoreSuccess?.();
       } else {
+        track('restore_failed', { reason: 'no_purchases_found' });
         onWarning?.(labels.errorTitle, labels.restoreNoPurchases);
       }
     } catch (err) {
-      onError?.(
-        labels.errorTitle,
-        err instanceof Error ? err.message : labels.restoreError
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : labels.restoreError;
+      track('restore_failed', { reason: errorMessage });
+      onError?.(labels.errorTitle, errorMessage);
     } finally {
       setIsRestoring(false);
     }
-  };
+  }, [
+    clearError,
+    track,
+    restore,
+    subscriptionUserId,
+    onRestoreSuccess,
+    labels.errorTitle,
+    labels.restoreNoPurchases,
+    labels.restoreError,
+    onWarning,
+    onError,
+  ]);
 
   const formatExpirationDate = useCallback((date?: Date) => {
     if (!date) return '';
@@ -523,7 +595,7 @@ export function AppSubscriptionsPage({
             periodLabel={labels.periodMonth}
             features={getFreeTierFeatures()}
             isSelected={!currentSubscription?.isActive && selectedPlan === null}
-            onSelect={() => setSelectedPlan(null)}
+            onSelect={() => handlePlanSelect(null)}
             topBadge={
               !currentSubscription?.isActive
                 ? {
@@ -545,7 +617,7 @@ export function AppSubscriptionsPage({
               periodLabel={getPeriodLabel(product.period)}
               features={getProductFeatures(product.identifier)}
               isSelected={selectedPlan === product.identifier}
-              onSelect={() => setSelectedPlan(product.identifier)}
+              onSelect={() => handlePlanSelect(product.identifier)}
               isBestValue={product.identifier.includes('pro')}
               discountBadge={
                 product.period?.includes('Y')

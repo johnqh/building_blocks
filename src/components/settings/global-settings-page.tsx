@@ -9,6 +9,7 @@ import { PaintBrushIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { cn } from '../../utils';
 import { AppearanceSettings } from './appearance-settings';
 import { Theme, FontSize } from './appearance-settings';
+import type { AnalyticsTrackingParams } from '../../types';
 
 /**
  * Configuration for a settings section in the navigation.
@@ -79,6 +80,9 @@ export interface GlobalSettingsPageProps {
 
   /** Whether to show the info box in appearance settings */
   showAppearanceInfoBox?: boolean;
+
+  /** Optional analytics tracking callback */
+  onTrack?: (params: AnalyticsTrackingParams) => void;
 }
 
 /**
@@ -128,10 +132,41 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   appearanceT,
   className,
   showAppearanceInfoBox = true,
+  onTrack,
 }) => {
   const [selectedSection, setSelectedSection] = useState('appearance');
   const [mobileView, setMobileView] = useState<'navigation' | 'content'>(
     'navigation'
+  );
+
+  // Helper to track analytics events
+  const track = useCallback(
+    (label: string, params?: Record<string, unknown>) => {
+      onTrack?.({
+        eventType: 'settings_change',
+        componentName: 'GlobalSettingsPage',
+        label,
+        params,
+      });
+    },
+    [onTrack]
+  );
+
+  // Wrapped handlers with tracking
+  const handleThemeChange = useCallback(
+    (newTheme: Theme) => {
+      track('theme_changed', { theme: newTheme });
+      onThemeChange(newTheme);
+    },
+    [track, onThemeChange]
+  );
+
+  const handleFontSizeChange = useCallback(
+    (newFontSize: FontSize) => {
+      track('font_size_changed', { font_size: newFontSize });
+      onFontSizeChange(newFontSize);
+    },
+    [track, onFontSizeChange]
   );
 
   // Helper to get translated string with fallback
@@ -155,8 +190,8 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
           <AppearanceSettings
             theme={theme}
             fontSize={fontSize}
-            onThemeChange={onThemeChange}
-            onFontSizeChange={onFontSizeChange}
+            onThemeChange={handleThemeChange}
+            onFontSizeChange={handleFontSizeChange}
             t={appearanceT}
             showInfoBox={showAppearanceInfoBox}
           />
@@ -169,8 +204,8 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
       getText,
       theme,
       fontSize,
-      onThemeChange,
-      onFontSizeChange,
+      handleThemeChange,
+      handleFontSizeChange,
       appearanceT,
       showAppearanceInfoBox,
     ]
@@ -180,11 +215,13 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
     allSections.find(s => s.id === selectedSection) || allSections[0];
 
   const handleSectionSelect = (sectionId: string) => {
+    track('section_selected', { section_id: sectionId });
     setSelectedSection(sectionId);
     setMobileView('content');
   };
 
   const handleBackToNavigation = () => {
+    track('back_to_navigation');
     setMobileView('navigation');
   };
 

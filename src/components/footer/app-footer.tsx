@@ -1,4 +1,4 @@
-import React, { type ComponentType } from 'react';
+import React, { useCallback, type ComponentType } from 'react';
 import {
   Footer as FooterContainer,
   FooterCompact,
@@ -12,6 +12,7 @@ import type {
   StatusIndicatorConfig,
   LinkComponentProps,
   FooterLinkItem,
+  AnalyticsTrackingParams,
 } from '../../types';
 
 /**
@@ -65,6 +66,9 @@ export interface AppFooterProps {
 
   /** Custom className */
   className?: string;
+
+  /** Optional analytics tracking callback */
+  onTrack?: (params: AnalyticsTrackingParams) => void;
 }
 
 /**
@@ -140,8 +144,39 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   sticky = true,
   isNetworkOnline = true,
   className,
+  onTrack,
 }) => {
   const year = copyrightYear || getCopyrightYear();
+
+  // Helper to track analytics events
+  const track = useCallback(
+    (label: string, params?: Record<string, unknown>) => {
+      onTrack?.({
+        eventType: 'link_click',
+        componentName: 'AppFooter',
+        label,
+        params,
+      });
+    },
+    [onTrack]
+  );
+
+  // Create a tracked link click handler
+  const createTrackedLinkHandler = useCallback(
+    (
+      linkLabel: string,
+      linkHref: string,
+      originalOnClick?: (e: React.MouseEvent) => void
+    ) =>
+      (e: React.MouseEvent) => {
+        track('footer_link_clicked', {
+          link_label: linkLabel,
+          link_href: linkHref,
+        });
+        originalOnClick?.(e);
+      },
+    [track]
+  );
 
   const companyLink = companyUrl ? (
     <LinkComponent
@@ -183,7 +218,11 @@ export const AppFooter: React.FC<AppFooterProps> = ({
             <React.Fragment key={link.href || index}>
               {link.onClick ? (
                 <button
-                  onClick={link.onClick}
+                  onClick={createTrackedLinkHandler(
+                    link.label,
+                    link.href,
+                    link.onClick
+                  )}
                   className='text-gray-400 hover:text-white transition-colors'
                 >
                   {link.label}
@@ -191,6 +230,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               ) : (
                 <LinkComponent
                   href={link.href}
+                  onClick={createTrackedLinkHandler(link.label, link.href)}
                   className='text-gray-400 hover:text-white transition-colors'
                 >
                   {link.label}
