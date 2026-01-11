@@ -20,3 +20,6 @@ export type {
   TextPageContactInfo,
   GdprNotice,
 } from './app-text-page';
+
+export { LoginPage } from './login-page';
+export type { LoginPageProps, LoginPageText } from './login-page';
