@@ -34,6 +34,18 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 /**
+ * Auth error info passed to onAuthError callback
+ */
+export interface AuthErrorInfo {
+  /** Firebase error code (e.g., 'auth/popup-closed-by-user') */
+  code: string;
+  /** Error message */
+  message: string;
+  /** Whether this is a user-initiated action (like closing popup) vs actual error */
+  isUserAction: boolean;
+}
+
+/**
  * Props for the LoginPage component
  */
 export interface LoginPageProps {
@@ -45,6 +57,8 @@ export interface LoginPageProps {
   auth: Auth;
   /** Callback fired on successful authentication */
   onSuccess: () => void;
+  /** Callback fired on auth errors - if provided, errors won't be shown inline */
+  onAuthError?: (error: AuthErrorInfo) => void;
   /** Whether to show Google sign-in option (default: true) */
   showGoogleSignIn?: boolean;
   /** Whether to show sign-up option (default: true) */
@@ -110,11 +124,19 @@ const defaultText: LoginPageText = {
  * }
  * ```
  */
+// Error codes that represent user actions rather than actual errors
+const USER_ACTION_ERROR_CODES = [
+  'auth/popup-closed-by-user',
+  'auth/cancelled-popup-request',
+  'auth/user-cancelled',
+];
+
 export function LoginPage({
   appName,
   logo,
   auth,
   onSuccess,
+  onAuthError,
   showGoogleSignIn = true,
   showSignUp = true,
   className = '',
@@ -125,6 +147,20 @@ export function LoginPage({
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleAuthError = (err: unknown) => {
+    const firebaseError = err as { code?: string; message?: string };
+    const code = firebaseError.code || 'unknown';
+    const message = firebaseError.message || 'Authentication failed';
+    const isUserAction = USER_ACTION_ERROR_CODES.includes(code);
+
+    if (onAuthError) {
+      onAuthError({ code, message, isUserAction });
+    } else if (!isUserAction) {
+      // Only show inline error for actual errors, not user actions
+      setError(message);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,7 +176,7 @@ export function LoginPage({
       }
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed');
+      handleAuthError(err);
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +192,7 @@ export function LoginPage({
       await signInWithPopup(auth, provider);
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google sign-in failed');
+      handleAuthError(err);
     } finally {
       setIsLoading(false);
     }

@@ -22,4 +22,8 @@ export type {
 } from './app-text-page';
 
 export { LoginPage } from './login-page';
-export type { LoginPageProps, LoginPageText } from './login-page';
+export type {
+  LoginPageProps,
+  LoginPageText,
+  AuthErrorInfo,
+} from './login-page';
