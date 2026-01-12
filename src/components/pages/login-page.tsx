@@ -1,4 +1,4 @@
-import React, { useState, type ReactNode } from 'react';
+import React, { useState, useEffect, useRef, type ReactNode } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -147,6 +147,28 @@ export function LoginPage({
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleSignInPending, setIsGoogleSignInPending] = useState(false);
+  const googleSignInStartTime = useRef<number | null>(null);
+
+  // Reset Google sign-in state when window regains focus
+  // This handles the case where browser opens a new tab instead of popup
+  useEffect(() => {
+    const handleFocus = () => {
+      if (isGoogleSignInPending && googleSignInStartTime.current) {
+        // If more than 2 seconds have passed since sign-in started,
+        // and we're back in focus, the user likely closed the tab/popup
+        const elapsed = Date.now() - googleSignInStartTime.current;
+        if (elapsed > 2000) {
+          setIsLoading(false);
+          setIsGoogleSignInPending(false);
+          googleSignInStartTime.current = null;
+        }
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [isGoogleSignInPending]);
 
   const handleAuthError = (err: unknown) => {
     const firebaseError = err as { code?: string; message?: string };
@@ -185,6 +207,8 @@ export function LoginPage({
   const handleGoogleSignIn = async () => {
     setError(null);
     setIsLoading(true);
+    setIsGoogleSignInPending(true);
+    googleSignInStartTime.current = Date.now();
 
     try {
       if (!auth) throw new Error('Firebase not configured');
@@ -195,6 +219,8 @@ export function LoginPage({
       handleAuthError(err);
     } finally {
       setIsLoading(false);
+      setIsGoogleSignInPending(false);
+      googleSignInStartTime.current = null;
     }
   };
 
