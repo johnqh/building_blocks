@@ -9,7 +9,7 @@ import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
-import type { RateLimitsConfigData, RateLimitTier } from '@sudobility/types';
+import type { RateLimitsConfigData } from '@sudobility/types';
 import type { AnalyticsTrackingParams } from '../../types';
 
 type BillingPeriod = 'monthly' | 'yearly';
@@ -121,12 +121,24 @@ export interface SubscriptionPageFormatters {
   formatSavePercent: (percent: number) => string;
   /** Format intro price note */
   formatIntroNote: (price: string) => string;
+  /** Get features for a product by its identifier (required - same as pricing page) */
+  getProductFeatures: (productId: string) => string[];
+}
+
+/** Package ID to entitlement mapping (same as PricingPage) */
+export interface EntitlementMap {
+  [packageId: string]: string;
+}
+
+/** Entitlement to level mapping for comparing plan tiers (same as PricingPage) */
+export interface EntitlementLevels {
+  [entitlement: string]: number;
 }
 
 export interface AppSubscriptionsPageProps {
   /** Subscription context value */
   subscription: SubscriptionContextValue;
-  /** Rate limit configuration */
+  /** Rate limit configuration (for displaying current usage, not for features) */
   rateLimitsConfig?: RateLimitsConfigData | null;
   /** User ID used for subscription (the selected entity's ID when logged in) */
   subscriptionUserId?: string;
@@ -134,8 +146,10 @@ export interface AppSubscriptionsPageProps {
   labels: SubscriptionPageLabels;
   /** Formatter functions for dynamic strings */
   formatters: SubscriptionPageFormatters;
-  /** Package ID to entitlement mapping */
-  packageEntitlementMap?: Record<string, string>;
+  /** Package ID to entitlement mapping (same as PricingPage) */
+  entitlementMap: EntitlementMap;
+  /** Entitlement to level mapping for comparing tiers (same as PricingPage) */
+  entitlementLevels: EntitlementLevels;
   /** Called when purchase succeeds */
   onPurchaseSuccess?: () => void;
   /** Called when restore succeeds */
@@ -148,18 +162,9 @@ export interface AppSubscriptionsPageProps {
   onTrack?: (params: AnalyticsTrackingParams) => void;
 }
 
-// Default package ID to entitlement mapping
-const DEFAULT_PACKAGE_ENTITLEMENT_MAP: Record<string, string> = {
-  ultra_yearly: 'bandwidth_ultra',
-  ultra_monthly: 'bandwidth_ultra',
-  pro_yearly: 'bandwidth_pro',
-  pro_monthly: 'bandwidth_pro',
-  dev_yearly: 'bandwidth_dev',
-  dev_monthly: 'bandwidth_dev',
-};
-
 /**
  * Page for managing app subscriptions.
+ * Uses the same entitlement mapping and features display as AppPricingPage.
  */
 export function AppSubscriptionsPage({
   subscription,
@@ -167,7 +172,8 @@ export function AppSubscriptionsPage({
   subscriptionUserId,
   labels,
   formatters,
-  packageEntitlementMap = DEFAULT_PACKAGE_ENTITLEMENT_MAP,
+  entitlementMap,
+  entitlementLevels: _entitlementLevels,
   onPurchaseSuccess,
   onRestoreSuccess,
   onError,
@@ -355,22 +361,6 @@ export function AppSubscriptionsPage({
     [formatters]
   );
 
-  const getRateLimitTierForProduct = useCallback(
-    (packageId: string): RateLimitTier | undefined => {
-      if (!rateLimitsConfig?.tiers) return undefined;
-
-      const entitlement = packageEntitlementMap[packageId];
-      if (entitlement) {
-        return rateLimitsConfig.tiers.find(
-          tier => tier.entitlement === entitlement
-        );
-      }
-
-      return rateLimitsConfig.tiers.find(tier => tier.entitlement === 'none');
-    },
-    [rateLimitsConfig, packageEntitlementMap]
-  );
-
   const formatRateLimit = useCallback(
     (limit: number | null): string => {
       if (limit === null) return labels.unlimited;
@@ -379,90 +369,22 @@ export function AppSubscriptionsPage({
     [labels.unlimited]
   );
 
-  const getRateLimitFeatures = useCallback(
-    (packageId: string): string[] => {
-      const tier = getRateLimitTierForProduct(packageId);
-      if (!tier) return [];
-
-      const features: string[] = [];
-
-      if (tier.limits.hourly !== null) {
-        features.push(
-          formatters.formatHourlyLimit(formatRateLimit(tier.limits.hourly))
-        );
-      }
-      if (tier.limits.daily !== null) {
-        features.push(
-          formatters.formatDailyLimit(formatRateLimit(tier.limits.daily))
-        );
-      }
-      if (tier.limits.monthly !== null) {
-        features.push(
-          formatters.formatMonthlyLimit(formatRateLimit(tier.limits.monthly))
-        );
-      }
-
-      if (
-        tier.limits.hourly === null &&
-        tier.limits.daily === null &&
-        tier.limits.monthly === null
-      ) {
-        features.push(labels.unlimitedRequests);
-      }
-
-      return features;
-    },
-    [
-      getRateLimitTierForProduct,
-      formatRateLimit,
-      formatters,
-      labels.unlimitedRequests,
-    ]
-  );
-
+  // Use formatters.getProductFeatures directly (same as AppPricingPage)
   const getProductFeatures = useCallback(
     (packageId: string): string[] => {
-      return getRateLimitFeatures(packageId);
+      return formatters.getProductFeatures(packageId);
     },
-    [getRateLimitFeatures]
+    [formatters]
   );
 
+  // Free tier features come from labels (same as AppPricingPage)
   const getFreeTierFeatures = useCallback((): string[] => {
-    const benefits = [...labels.freeTierFeatures];
-
-    if (rateLimitsConfig?.tiers) {
-      const freeTier = rateLimitsConfig.tiers.find(
-        tier => tier.entitlement === 'none'
-      );
-      if (freeTier) {
-        if (freeTier.limits.hourly !== null) {
-          benefits.push(
-            formatters.formatHourlyLimit(
-              formatRateLimit(freeTier.limits.hourly)
-            )
-          );
-        }
-        if (freeTier.limits.daily !== null) {
-          benefits.push(
-            formatters.formatDailyLimit(formatRateLimit(freeTier.limits.daily))
-          );
-        }
-        if (freeTier.limits.monthly !== null) {
-          benefits.push(
-            formatters.formatMonthlyLimit(
-              formatRateLimit(freeTier.limits.monthly)
-            )
-          );
-        }
-      }
-    }
-
-    return benefits;
-  }, [rateLimitsConfig, formatRateLimit, formatters, labels.freeTierFeatures]);
+    return labels.freeTierFeatures;
+  }, [labels.freeTierFeatures]);
 
   const getYearlySavingsPercent = useCallback(
     (yearlyPackageId: string): number | undefined => {
-      const yearlyEntitlement = packageEntitlementMap[yearlyPackageId];
+      const yearlyEntitlement = entitlementMap[yearlyPackageId];
       if (!yearlyEntitlement) return undefined;
 
       const yearlyProduct = products.find(
@@ -470,7 +392,7 @@ export function AppSubscriptionsPage({
       );
       if (!yearlyProduct) return undefined;
 
-      const monthlyPackageId = Object.entries(packageEntitlementMap).find(
+      const monthlyPackageId = Object.entries(entitlementMap).find(
         ([pkgId, ent]) => ent === yearlyEntitlement && pkgId.includes('monthly')
       )?.[0];
       if (!monthlyPackageId) return undefined;
@@ -491,7 +413,7 @@ export function AppSubscriptionsPage({
 
       return Math.round(savings);
     },
-    [products, packageEntitlementMap]
+    [products, entitlementMap]
   );
 
   const billingPeriodOptions = [

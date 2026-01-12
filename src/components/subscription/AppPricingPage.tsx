@@ -301,7 +301,9 @@ export function AppPricingPage({
               display: 'grid',
               gridTemplateColumns:
                 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+              gridAutoRows: '1fr',
               gap: '1.5rem',
+              overflow: 'visible',
             }}
           >
             {/* Free Tier */}
