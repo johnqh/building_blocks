@@ -24,6 +24,7 @@ export default defineConfig({
         '@sudobility/auth_lib',
         '@sudobility/web3-components',
         '@sudobility/devops-components',
+        '@sudobility/subscription-components',
         '@sudobility/types',
         'class-variance-authority',
         'clsx',
