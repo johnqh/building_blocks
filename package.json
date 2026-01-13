@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "main": "./dist/index.js",

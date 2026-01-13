@@ -1,6 +1,9 @@
 /**
  * @fileoverview App Pricing Page
- * @description Public pricing page for displaying subscription options
+ * @description Public pricing page for displaying subscription options.
+ *
+ * This component uses Section internally for proper page layout.
+ * Do NOT wrap this component in a Section when consuming it.
  */
 
 import { useState, useCallback } from 'react';

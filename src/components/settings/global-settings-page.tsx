@@ -13,8 +13,12 @@ import React, {
   type ReactNode,
   type ComponentType,
 } from 'react';
-import { PaintBrushIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
-import { Section } from '@sudobility/components';
+import { PaintBrushIcon } from '@heroicons/react/24/outline';
+import {
+  Section,
+  MasterDetailLayout,
+  MasterListItem,
+} from '@sudobility/components';
 import { cn } from '../../utils';
 import { AppearanceSettings } from './appearance-settings';
 import { Theme, FontSize } from './appearance-settings';
@@ -234,91 +238,36 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
     setMobileView('navigation');
   };
 
-  // Navigation list
+  // Navigation list using MasterListItem
   const navigationList = (
-    <div className='space-y-0'>
-      {allSections.map(section => {
-        const Icon = section.icon;
-        const isSelected = selectedSection === section.id;
-        return (
-          <div
-            key={section.id}
-            onClick={() => handleSectionSelect(section.id)}
-            className={cn(
-              'flex items-start p-4 cursor-pointer transition-colors',
-              'border-b border-gray-200 dark:border-gray-700 last:border-b-0',
-              isSelected
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-            )}
-          >
-            <Icon className='h-5 w-5 mt-0.5 mr-3 flex-shrink-0' />
-            <div>
-              <div className='font-medium'>{section.label}</div>
-              <div className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>
-                {section.description}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+    <div>
+      {allSections.map(section => (
+        <MasterListItem
+          key={section.id}
+          isSelected={selectedSection === section.id}
+          onClick={() => handleSectionSelect(section.id)}
+          icon={section.icon}
+          label={section.label}
+          description={section.description}
+        />
+      ))}
     </div>
   );
 
   return (
-    <Section spacing='lg' fullWidth className={cn(className)}>
-      {/* Desktop Layout */}
-      <div className='hidden md:flex h-full'>
-        {/* Master (Navigation) */}
-        <div className='w-80 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'>
-          <div className='p-4 border-b border-gray-200 dark:border-gray-700'>
-            <h1 className='text-xl font-semibold text-gray-900 dark:text-white'>
-              {getText('title')}
-            </h1>
-          </div>
-          <div className='overflow-y-auto'>{navigationList}</div>
-        </div>
-
-        {/* Detail (Content) */}
-        <div className='flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-800'>
-          <div className='p-6'>
-            <h2 className='text-lg font-semibold text-gray-900 dark:text-white mb-6'>
-              {currentSection.label}
-            </h2>
-            {currentSection.content}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Layout */}
-      <div className='md:hidden'>
-        {mobileView === 'navigation' ? (
-          <div className='bg-white dark:bg-gray-900 min-h-full'>
-            <div className='p-4 border-b border-gray-200 dark:border-gray-700'>
-              <h1 className='text-xl font-semibold text-gray-900 dark:text-white'>
-                {getText('title')}
-              </h1>
-            </div>
-            {navigationList}
-          </div>
-        ) : (
-          <div className='bg-white dark:bg-gray-900 min-h-full'>
-            <div className='p-4 border-b border-gray-200 dark:border-gray-700 flex items-center'>
-              <button
-                onClick={handleBackToNavigation}
-                className='flex items-center text-blue-600 dark:text-blue-400 mr-4'
-              >
-                <ChevronLeftIcon className='h-5 w-5 mr-1' />
-                <span>{getText('backButton')}</span>
-              </button>
-              <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                {currentSection.label}
-              </h2>
-            </div>
-            <div className='p-4'>{currentSection.content}</div>
-          </div>
-        )}
-      </div>
+    <Section spacing='lg' maxWidth='6xl' className={cn(className)}>
+      <MasterDetailLayout
+        masterTitle={getText('title')}
+        backButtonText={getText('backButton')}
+        masterContent={navigationList}
+        detailContent={currentSection.content}
+        detailTitle={currentSection.label}
+        mobileView={mobileView}
+        onBackToNavigation={handleBackToNavigation}
+        masterWidth={280}
+        stickyMaster={true}
+        enableAnimations={true}
+      />
     </Section>
   );
 };

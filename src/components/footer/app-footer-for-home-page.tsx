@@ -294,13 +294,16 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
             )}
           </LinkComponent>
         </FooterBrand>
-        {version && <FooterVersion version={version} />}
-        <FooterCopyright
-          year={year}
-          companyName={companyName}
-          rightsText={rightsText}
-          companyLink={companyLink}
-        />
+        <div className='space-y-2'>
+          {version && <FooterVersion version={version} className='block' />}
+          <FooterCopyright
+            year={year}
+            companyName={companyName}
+            rightsText={rightsText}
+            companyLink={companyLink}
+            className='block'
+          />
+        </div>
         {statusIndicator && StatusIndicatorComponent && (
           <StatusIndicatorComponent
             statusPageUrl={statusIndicator.statusPageUrl}
