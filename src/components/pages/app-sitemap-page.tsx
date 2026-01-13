@@ -7,6 +7,7 @@ import {
   CogIcon,
   LanguageIcon,
 } from '@heroicons/react/24/outline';
+import { Section } from '@sudobility/components';
 import type { LinkComponentProps } from '../../types';
 
 /**
@@ -153,7 +154,7 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
   className,
 }) => {
   const content = (
-    <div className={`max-w-7xl mx-auto px-4 py-12 ${className || ''}`}>
+    <Section spacing='2xl' containerClassName={className}>
       {/* Header */}
       <div className='text-center mb-12'>
         <h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-4'>
@@ -265,7 +266,7 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </Section>
   );
 
   if (PageWrapper) {

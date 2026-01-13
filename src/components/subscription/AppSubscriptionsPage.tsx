@@ -9,6 +9,7 @@ import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
+import { Section } from '@sudobility/components';
 import type { RateLimitsConfigData } from '@sudobility/types';
 import type { AnalyticsTrackingParams } from '../../types';
 
@@ -422,152 +423,160 @@ export function AppSubscriptionsPage({
   ];
 
   return (
-    <SubscriptionLayout
-      title={labels.title}
-      error={error}
-      currentStatusLabel={labels.currentStatusLabel}
-      currentStatus={{
-        isActive: currentSubscription?.isActive ?? false,
-        activeContent: currentSubscription?.isActive
-          ? {
-              title: labels.statusActive,
-              fields: [
-                {
-                  label: labels.labelPlan,
-                  value:
-                    currentSubscription.productIdentifier ||
-                    labels.labelPremium,
-                },
-                {
-                  label: labels.labelExpires,
-                  value: formatExpirationDate(
-                    currentSubscription.expirationDate
-                  ),
-                },
-                {
-                  label: labels.labelWillRenew,
-                  value: currentSubscription.willRenew ? labels.yes : labels.no,
-                },
-                ...(rateLimitsConfig
-                  ? [
-                      {
-                        label: labels.labelMonthlyUsage,
-                        value: `${rateLimitsConfig.currentUsage.monthly.toLocaleString()} / ${formatRateLimit(rateLimitsConfig.currentLimits.monthly)}`,
-                      },
-                      {
-                        label: labels.labelDailyUsage,
-                        value: `${rateLimitsConfig.currentUsage.daily.toLocaleString()} / ${formatRateLimit(rateLimitsConfig.currentLimits.daily)}`,
-                      },
-                    ]
-                  : []),
-              ],
-            }
-          : undefined,
-        inactiveContent: !currentSubscription?.isActive
-          ? {
-              title: labels.statusInactive,
-              message: labels.statusInactiveMessage,
-            }
-          : undefined,
-      }}
-      aboveProducts={
-        !isLoading && products.length > 0 ? (
-          <div className='flex justify-center mb-6'>
-            <SegmentedControl
-              options={billingPeriodOptions}
-              value={billingPeriod}
-              onChange={handlePeriodChange}
-            />
+    <Section spacing='xl'>
+      <SubscriptionLayout
+        title={labels.title}
+        error={error}
+        currentStatusLabel={labels.currentStatusLabel}
+        currentStatus={{
+          isActive: currentSubscription?.isActive ?? false,
+          activeContent: currentSubscription?.isActive
+            ? {
+                title: labels.statusActive,
+                fields: [
+                  {
+                    label: labels.labelPlan,
+                    value:
+                      currentSubscription.productIdentifier ||
+                      labels.labelPremium,
+                  },
+                  {
+                    label: labels.labelExpires,
+                    value: formatExpirationDate(
+                      currentSubscription.expirationDate
+                    ),
+                  },
+                  {
+                    label: labels.labelWillRenew,
+                    value: currentSubscription.willRenew
+                      ? labels.yes
+                      : labels.no,
+                  },
+                  ...(rateLimitsConfig
+                    ? [
+                        {
+                          label: labels.labelMonthlyUsage,
+                          value: `${rateLimitsConfig.currentUsage.monthly.toLocaleString()} / ${formatRateLimit(rateLimitsConfig.currentLimits.monthly)}`,
+                        },
+                        {
+                          label: labels.labelDailyUsage,
+                          value: `${rateLimitsConfig.currentUsage.daily.toLocaleString()} / ${formatRateLimit(rateLimitsConfig.currentLimits.daily)}`,
+                        },
+                      ]
+                    : []),
+                ],
+              }
+            : undefined,
+          inactiveContent: !currentSubscription?.isActive
+            ? {
+                title: labels.statusInactive,
+                message: labels.statusInactiveMessage,
+              }
+            : undefined,
+        }}
+        aboveProducts={
+          !isLoading && products.length > 0 ? (
+            <div className='flex justify-center mb-6'>
+              <SegmentedControl
+                options={billingPeriodOptions}
+                value={billingPeriod}
+                onChange={handlePeriodChange}
+              />
+            </div>
+          ) : null
+        }
+        primaryAction={{
+          label: isPurchasing
+            ? labels.buttonPurchasing
+            : labels.buttonSubscribe,
+          onClick: handlePurchase,
+          disabled: !selectedPlan || isPurchasing || isRestoring,
+          loading: isPurchasing,
+        }}
+        secondaryAction={{
+          label: isRestoring ? labels.buttonRestoring : labels.buttonRestore,
+          onClick: handleRestore,
+          disabled: isPurchasing || isRestoring,
+          loading: isRestoring,
+        }}
+      >
+        {isLoading ? (
+          <div className='flex items-center justify-center py-12'>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600' />
           </div>
-        ) : null
-      }
-      primaryAction={{
-        label: isPurchasing ? labels.buttonPurchasing : labels.buttonSubscribe,
-        onClick: handlePurchase,
-        disabled: !selectedPlan || isPurchasing || isRestoring,
-        loading: isPurchasing,
-      }}
-      secondaryAction={{
-        label: isRestoring ? labels.buttonRestoring : labels.buttonRestore,
-        onClick: handleRestore,
-        disabled: isPurchasing || isRestoring,
-        loading: isRestoring,
-      }}
-    >
-      {isLoading ? (
-        <div className='flex items-center justify-center py-12'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600' />
-        </div>
-      ) : products.length === 0 ? (
-        <div className='text-center py-12 text-theme-text-secondary'>
-          {labels.noProducts}
-        </div>
-      ) : filteredProducts.length === 0 ? (
-        <div className='text-center py-12 text-theme-text-secondary'>
-          {labels.noProductsForPeriod}
-        </div>
-      ) : (
-        <>
-          {/* Free tier tile */}
-          <SubscriptionTile
-            key='free'
-            id='free'
-            title={labels.freeTierTitle}
-            price={labels.freeTierPrice}
-            periodLabel={labels.periodMonth}
-            features={getFreeTierFeatures()}
-            isSelected={!currentSubscription?.isActive && selectedPlan === null}
-            onSelect={() => handlePlanSelect(null)}
-            topBadge={
-              !currentSubscription?.isActive
-                ? {
-                    text: labels.currentPlanBadge,
-                    color: 'green',
-                  }
-                : undefined
-            }
-            disabled={isPurchasing || isRestoring}
-            hideSelectionIndicator
-          />
-          {/* Paid plans */}
-          {filteredProducts.map(product => (
+        ) : products.length === 0 ? (
+          <div className='text-center py-12 text-theme-text-secondary'>
+            {labels.noProducts}
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className='text-center py-12 text-theme-text-secondary'>
+            {labels.noProductsForPeriod}
+          </div>
+        ) : (
+          <>
+            {/* Free tier tile */}
             <SubscriptionTile
-              key={product.identifier}
-              id={product.identifier}
-              title={product.title}
-              price={product.priceString}
-              periodLabel={getPeriodLabel(product.period)}
-              features={getProductFeatures(product.identifier)}
-              isSelected={selectedPlan === product.identifier}
-              onSelect={() => handlePlanSelect(product.identifier)}
-              isBestValue={product.identifier.includes('pro')}
-              discountBadge={
-                product.period?.includes('Y')
-                  ? (() => {
-                      const savings = getYearlySavingsPercent(
-                        product.identifier
-                      );
-                      return savings && savings > 0
-                        ? {
-                            text: formatters.formatSavePercent(savings),
-                            isBestValue: true,
-                          }
-                        : undefined;
-                    })()
+              key='free'
+              id='free'
+              title={labels.freeTierTitle}
+              price={labels.freeTierPrice}
+              periodLabel={labels.periodMonth}
+              features={getFreeTierFeatures()}
+              isSelected={
+                !currentSubscription?.isActive && selectedPlan === null
+              }
+              onSelect={() => handlePlanSelect(null)}
+              topBadge={
+                !currentSubscription?.isActive
+                  ? {
+                      text: labels.currentPlanBadge,
+                      color: 'green',
+                    }
                   : undefined
               }
-              introPriceNote={
-                product.freeTrialPeriod
-                  ? getTrialLabel(product.freeTrialPeriod)
-                  : product.introPrice
-                    ? formatters.formatIntroNote(product.introPrice)
-                    : undefined
-              }
               disabled={isPurchasing || isRestoring}
+              hideSelectionIndicator
             />
-          ))}
-        </>
-      )}
-    </SubscriptionLayout>
+            {/* Paid plans */}
+            {filteredProducts.map(product => (
+              <SubscriptionTile
+                key={product.identifier}
+                id={product.identifier}
+                title={product.title}
+                price={product.priceString}
+                periodLabel={getPeriodLabel(product.period)}
+                features={getProductFeatures(product.identifier)}
+                isSelected={selectedPlan === product.identifier}
+                onSelect={() => handlePlanSelect(product.identifier)}
+                isBestValue={product.identifier.includes('pro')}
+                discountBadge={
+                  product.period?.includes('Y')
+                    ? (() => {
+                        const savings = getYearlySavingsPercent(
+                          product.identifier
+                        );
+                        return savings && savings > 0
+                          ? {
+                              text: formatters.formatSavePercent(savings),
+                              isBestValue: true,
+                            }
+                          : undefined;
+                      })()
+                    : undefined
+                }
+                introPriceNote={
+                  product.freeTrialPeriod
+                    ? getTrialLabel(product.freeTrialPeriod)
+                    : product.introPrice
+                      ? formatters.formatIntroNote(product.introPrice)
+                      : undefined
+                }
+                disabled={isPurchasing || isRestoring}
+              />
+            ))}
+          </>
+        )}
+      </SubscriptionLayout>
+    </Section>
   );
 }

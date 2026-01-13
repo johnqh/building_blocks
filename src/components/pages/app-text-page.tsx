@@ -1,4 +1,5 @@
 import React, { type ReactNode, type ComponentType } from 'react';
+import { Section } from '@sudobility/components';
 
 /**
  * Configuration for a text section with paragraph content
@@ -222,7 +223,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
   className,
 }) => {
   const content = (
-    <div className={`max-w-7xl mx-auto px-4 py-12 ${className || ''}`}>
+    <Section spacing='2xl' containerClassName={className}>
       <h1 className='text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8'>
         {text.title}
       </h1>
@@ -339,7 +340,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
           </>
         )}
       </div>
-    </div>
+    </Section>
   );
 
   if (PageWrapper) {
