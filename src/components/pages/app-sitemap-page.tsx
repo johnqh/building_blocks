@@ -163,7 +163,7 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
   className,
 }) => {
   const content = (
-    <Section spacing="3xl" maxWidth="6xl" className={cn(className)}>
+    <Section spacing='3xl' maxWidth='6xl' className={cn(className)}>
       {/* Header */}
       <div className='text-center mb-12'>
         <h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-4'>

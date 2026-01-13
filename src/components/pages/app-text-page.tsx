@@ -232,7 +232,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
   className,
 }) => {
   const content = (
-    <Section spacing="3xl" maxWidth="4xl" className={cn(className)}>
+    <Section spacing='3xl' maxWidth='4xl' className={cn(className)}>
       <h1 className='text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8'>
         {text.title}
       </h1>

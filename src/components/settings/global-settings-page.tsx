@@ -266,7 +266,7 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   );
 
   return (
-    <Section spacing="lg" fullWidth className={cn(className)}>
+    <Section spacing='lg' fullWidth className={cn(className)}>
       {/* Desktop Layout */}
       <div className='hidden md:flex h-full'>
         {/* Master (Navigation) */}

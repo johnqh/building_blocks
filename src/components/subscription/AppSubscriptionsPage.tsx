@@ -426,7 +426,7 @@ export function AppSubscriptionsPage({
   ];
 
   return (
-    <Section spacing="lg" maxWidth="4xl">
+    <Section spacing='lg' maxWidth='4xl'>
       <SubscriptionLayout
         title={labels.title}
         error={error}
