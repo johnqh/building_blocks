@@ -9,7 +9,6 @@ import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
-import { Section } from '@sudobility/components';
 import type { RateLimitsConfigData } from '@sudobility/types';
 import type { AnalyticsTrackingParams } from '../../types';
 
@@ -423,8 +422,7 @@ export function AppSubscriptionsPage({
   ];
 
   return (
-    <Section spacing='xl'>
-      <SubscriptionLayout
+    <SubscriptionLayout
         title={labels.title}
         error={error}
         currentStatusLabel={labels.currentStatusLabel}
@@ -576,7 +574,6 @@ export function AppSubscriptionsPage({
             ))}
           </>
         )}
-      </SubscriptionLayout>
-    </Section>
+    </SubscriptionLayout>
   );
 }

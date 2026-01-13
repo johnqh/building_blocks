@@ -8,6 +8,7 @@ import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
+import { Section } from '@sudobility/components';
 import type { AnalyticsTrackingParams } from '../../types';
 
 type BillingPeriod = 'monthly' | 'yearly';
@@ -274,172 +275,168 @@ export function AppPricingPage({
   return (
     <div className={className}>
       {/* Header */}
-      <section className='py-16 px-4 sm:px-6 lg:px-8'>
-        <div className='max-w-4xl mx-auto text-center'>
+      <Section spacing='2xl' maxWidth='4xl'>
+        <div className='text-center'>
           <h1 className='text-4xl sm:text-5xl font-bold text-theme-text-primary mb-4'>
             {labels.title}
           </h1>
           <p className='text-lg text-theme-text-secondary'>{labels.subtitle}</p>
         </div>
-      </section>
+      </Section>
 
       {/* Pricing Cards */}
-      <section className='pb-20 px-4 sm:px-6 lg:px-8'>
-        <div className='max-w-6xl mx-auto'>
-          {/* Billing Period Selector */}
-          <div className='flex justify-center mb-8'>
-            <SegmentedControl
-              options={billingPeriodOptions}
-              value={billingPeriod}
-              onChange={handleBillingPeriodChange}
-            />
-          </div>
-
-          {/* Subscription Tiles Grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns:
-                'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-              gridAutoRows: '1fr',
-              gap: '1.5rem',
-              overflow: 'visible',
-            }}
-          >
-            {/* Free Tier */}
-            <SubscriptionTile
-              id='free'
-              title={labels.freeTierTitle}
-              price={labels.freeTierPrice}
-              periodLabel={labels.periodMonth}
-              features={labels.freeTierFeatures}
-              isSelected={false}
-              onSelect={() => {}}
-              topBadge={
-                isAuthenticated && !hasActiveSubscription
-                  ? {
-                      text: labels.currentPlanBadge,
-                      color: 'green',
-                    }
-                  : undefined
-              }
-              ctaButton={
-                // Not logged in: show "Try it for Free"
-                // Logged in on free plan: no CTA (current plan)
-                // Logged in with subscription: no CTA (can't downgrade here)
-                !isAuthenticated
-                  ? {
-                      label: labels.ctaTryFree,
-                      onClick: handleFreePlanClick,
-                    }
-                  : undefined
-              }
-              hideSelectionIndicator={isAuthenticated}
-            />
-
-            {/* Paid Plans */}
-            {filteredProducts.map(product => {
-              const isCurrent = isCurrentPlan(product.identifier);
-              const canUpgrade = isUpgrade(product.identifier);
-
-              // Determine CTA button
-              let ctaButton: { label: string; onClick: () => void } | undefined;
-              if (!isAuthenticated) {
-                // Not logged in: show "Log in to Continue"
-                ctaButton = {
-                  label: labels.ctaLogIn,
-                  onClick: () => handlePlanClick(product.identifier, 'login'),
-                };
-              } else if (isCurrent) {
-                // Current plan: no CTA
-                ctaButton = undefined;
-              } else if (canUpgrade) {
-                // Higher tier: show "Upgrade"
-                ctaButton = {
-                  label: labels.ctaUpgrade,
-                  onClick: () => handlePlanClick(product.identifier, 'upgrade'),
-                };
-              }
-              // Lower tier than current: no CTA (implicit downgrade not shown)
-
-              // Determine top badge
-              let topBadge:
-                | {
-                    text: string;
-                    color: 'purple' | 'green' | 'blue' | 'yellow' | 'red';
-                  }
-                | undefined;
-              if (isCurrent) {
-                topBadge = {
-                  text: labels.currentPlanBadge,
-                  color: 'green',
-                };
-              } else if (product.identifier.includes('pro')) {
-                topBadge = {
-                  text: labels.mostPopularBadge,
-                  color: 'yellow',
-                };
-              }
-
-              return (
-                <SubscriptionTile
-                  key={product.identifier}
-                  id={product.identifier}
-                  title={product.title}
-                  price={product.priceString}
-                  periodLabel={getPeriodLabel(product.period)}
-                  features={formatters.getProductFeatures(product.identifier)}
-                  isSelected={false}
-                  onSelect={() => {}}
-                  isBestValue={product.identifier.includes('pro')}
-                  topBadge={topBadge}
-                  discountBadge={
-                    product.period?.includes('Y')
-                      ? (() => {
-                          const savings = getYearlySavingsPercent(
-                            product.identifier
-                          );
-                          return savings && savings > 0
-                            ? {
-                                text: formatters.formatSavePercent(savings),
-                                isBestValue: true,
-                              }
-                            : undefined;
-                        })()
-                      : undefined
-                  }
-                  ctaButton={ctaButton}
-                  hideSelectionIndicator={!ctaButton}
-                />
-              );
-            })}
-          </div>
+      <Section spacing='3xl' maxWidth='6xl'>
+        {/* Billing Period Selector */}
+        <div className='flex justify-center mb-8'>
+          <SegmentedControl
+            options={billingPeriodOptions}
+            value={billingPeriod}
+            onChange={handleBillingPeriodChange}
+          />
         </div>
-      </section>
+
+        {/* Subscription Tiles Grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns:
+              'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+            gridAutoRows: '1fr',
+            gap: '1.5rem',
+            overflow: 'visible',
+          }}
+        >
+          {/* Free Tier */}
+          <SubscriptionTile
+            id='free'
+            title={labels.freeTierTitle}
+            price={labels.freeTierPrice}
+            periodLabel={labels.periodMonth}
+            features={labels.freeTierFeatures}
+            isSelected={false}
+            onSelect={() => {}}
+            topBadge={
+              isAuthenticated && !hasActiveSubscription
+                ? {
+                    text: labels.currentPlanBadge,
+                    color: 'green',
+                  }
+                : undefined
+            }
+            ctaButton={
+              // Not logged in: show "Try it for Free"
+              // Logged in on free plan: no CTA (current plan)
+              // Logged in with subscription: no CTA (can't downgrade here)
+              !isAuthenticated
+                ? {
+                    label: labels.ctaTryFree,
+                    onClick: handleFreePlanClick,
+                  }
+                : undefined
+            }
+            hideSelectionIndicator={isAuthenticated}
+          />
+
+          {/* Paid Plans */}
+          {filteredProducts.map(product => {
+            const isCurrent = isCurrentPlan(product.identifier);
+            const canUpgrade = isUpgrade(product.identifier);
+
+            // Determine CTA button
+            let ctaButton: { label: string; onClick: () => void } | undefined;
+            if (!isAuthenticated) {
+              // Not logged in: show "Log in to Continue"
+              ctaButton = {
+                label: labels.ctaLogIn,
+                onClick: () => handlePlanClick(product.identifier, 'login'),
+              };
+            } else if (isCurrent) {
+              // Current plan: no CTA
+              ctaButton = undefined;
+            } else if (canUpgrade) {
+              // Higher tier: show "Upgrade"
+              ctaButton = {
+                label: labels.ctaUpgrade,
+                onClick: () => handlePlanClick(product.identifier, 'upgrade'),
+              };
+            }
+            // Lower tier than current: no CTA (implicit downgrade not shown)
+
+            // Determine top badge
+            let topBadge:
+              | {
+                  text: string;
+                  color: 'purple' | 'green' | 'blue' | 'yellow' | 'red';
+                }
+              | undefined;
+            if (isCurrent) {
+              topBadge = {
+                text: labels.currentPlanBadge,
+                color: 'green',
+              };
+            } else if (product.identifier.includes('pro')) {
+              topBadge = {
+                text: labels.mostPopularBadge,
+                color: 'yellow',
+              };
+            }
+
+            return (
+              <SubscriptionTile
+                key={product.identifier}
+                id={product.identifier}
+                title={product.title}
+                price={product.priceString}
+                periodLabel={getPeriodLabel(product.period)}
+                features={formatters.getProductFeatures(product.identifier)}
+                isSelected={false}
+                onSelect={() => {}}
+                isBestValue={product.identifier.includes('pro')}
+                topBadge={topBadge}
+                discountBadge={
+                  product.period?.includes('Y')
+                    ? (() => {
+                        const savings = getYearlySavingsPercent(
+                          product.identifier
+                        );
+                        return savings && savings > 0
+                          ? {
+                              text: formatters.formatSavePercent(savings),
+                              isBestValue: true,
+                            }
+                          : undefined;
+                      })()
+                    : undefined
+                }
+                ctaButton={ctaButton}
+                hideSelectionIndicator={!ctaButton}
+              />
+            );
+          })}
+        </div>
+      </Section>
 
       {/* FAQ Section */}
       {faqItems && faqItems.length > 0 && (
-        <section className='py-20 px-4 sm:px-6 lg:px-8 bg-theme-bg-secondary'>
-          <div className='max-w-3xl mx-auto'>
-            <h2 className='text-3xl font-bold text-theme-text-primary text-center mb-12'>
-              {labels.faqTitle}
-            </h2>
+        <Section spacing='3xl' background='surface' maxWidth='3xl'>
+          <h2 className='text-3xl font-bold text-theme-text-primary text-center mb-12'>
+            {labels.faqTitle}
+          </h2>
 
-            <div className='space-y-6'>
-              {faqItems.map((item, index) => (
-                <div
-                  key={index}
-                  className='bg-theme-bg-primary p-6 rounded-xl border border-theme-border'
-                >
-                  <h3 className='text-lg font-semibold text-theme-text-primary mb-2'>
-                    {item.question}
-                  </h3>
-                  <p className='text-theme-text-secondary'>{item.answer}</p>
-                </div>
-              ))}
-            </div>
+          <div className='space-y-6'>
+            {faqItems.map((item, index) => (
+              <div
+                key={index}
+                className='bg-theme-bg-primary p-6 rounded-xl border border-theme-border'
+              >
+                <h3 className='text-lg font-semibold text-theme-text-primary mb-2'>
+                  {item.question}
+                </h3>
+                <p className='text-theme-text-secondary'>{item.answer}</p>
+              </div>
+            ))}
           </div>
-        </section>
+        </Section>
       )}
     </div>
   );
