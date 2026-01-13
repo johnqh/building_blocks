@@ -1,4 +1,13 @@
+/**
+ * @fileoverview App Text Page
+ * @description Reusable page component for text-heavy content like Privacy Policy, Terms, etc.
+ *
+ * This component uses Section internally for proper page layout.
+ * Do NOT wrap this component in a Section when consuming it.
+ */
+
 import React, { type ReactNode, type ComponentType } from 'react';
+import { Section } from '@sudobility/components';
 import { cn } from '../../utils';
 
 /**
@@ -223,7 +232,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
   className,
 }) => {
   const content = (
-    <div className={cn(className)}>
+    <Section spacing="3xl" maxWidth="4xl" className={cn(className)}>
       <h1 className='text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8'>
         {text.title}
       </h1>
@@ -340,7 +349,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
           </>
         )}
       </div>
-    </div>
+    </Section>
   );
 
   if (PageWrapper) {

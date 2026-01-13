@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Global Settings Page
+ * @description Reusable settings page with sidebar navigation.
+ *
+ * This component uses Section internally for proper page layout.
+ * Do NOT wrap this component in a Section when consuming it.
+ */
+
 import React, {
   useState,
   useMemo,
@@ -6,6 +14,7 @@ import React, {
   type ComponentType,
 } from 'react';
 import { PaintBrushIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { Section } from '@sudobility/components';
 import { cn } from '../../utils';
 import { AppearanceSettings } from './appearance-settings';
 import { Theme, FontSize } from './appearance-settings';
@@ -257,7 +266,7 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   );
 
   return (
-    <div className={cn('flex-1', className)}>
+    <Section spacing="lg" fullWidth className={cn(className)}>
       {/* Desktop Layout */}
       <div className='hidden md:flex h-full'>
         {/* Master (Navigation) */}
@@ -310,7 +319,7 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </Section>
   );
 };
 

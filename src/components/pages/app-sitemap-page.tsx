@@ -1,3 +1,11 @@
+/**
+ * @fileoverview App Sitemap Page
+ * @description Reusable sitemap page component with categorized links.
+ *
+ * This component uses Section internally for proper page layout.
+ * Do NOT wrap this component in a Section when consuming it.
+ */
+
 import React, { type ComponentType, type ReactNode } from 'react';
 import {
   ChevronRightIcon,
@@ -7,6 +15,7 @@ import {
   CogIcon,
   LanguageIcon,
 } from '@heroicons/react/24/outline';
+import { Section } from '@sudobility/components';
 import { cn } from '../../utils';
 import type { LinkComponentProps } from '../../types';
 
@@ -154,7 +163,7 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
   className,
 }) => {
   const content = (
-    <div className={cn(className)}>
+    <Section spacing="3xl" maxWidth="6xl" className={cn(className)}>
       {/* Header */}
       <div className='text-center mb-12'>
         <h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-4'>
@@ -266,7 +275,7 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </Section>
   );
 
   if (PageWrapper) {

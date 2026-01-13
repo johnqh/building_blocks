@@ -1,6 +1,9 @@
 /**
  * @fileoverview App Subscriptions Page
- * @description Page for managing app subscriptions and viewing rate limits
+ * @description Page for managing app subscriptions and viewing rate limits.
+ *
+ * This component uses Section internally for proper page layout.
+ * Do NOT wrap this component in a Section when consuming it.
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,6 +12,7 @@ import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
+import { Section } from '@sudobility/components';
 import type { RateLimitsConfigData } from '@sudobility/types';
 import type { AnalyticsTrackingParams } from '../../types';
 
@@ -422,7 +426,8 @@ export function AppSubscriptionsPage({
   ];
 
   return (
-    <SubscriptionLayout
+    <Section spacing="lg" maxWidth="4xl">
+      <SubscriptionLayout
         title={labels.title}
         error={error}
         currentStatusLabel={labels.currentStatusLabel}
@@ -574,6 +579,7 @@ export function AppSubscriptionsPage({
             ))}
           </>
         )}
-    </SubscriptionLayout>
+      </SubscriptionLayout>
+    </Section>
   );
 }
