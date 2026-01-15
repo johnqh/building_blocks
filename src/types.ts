@@ -42,6 +42,8 @@ export interface MenuItemConfig {
   href: string;
   /** Optional: show only when condition is true */
   show?: boolean;
+  /** Optional: custom CSS classes for this menu item */
+  className?: string;
 }
 
 /**

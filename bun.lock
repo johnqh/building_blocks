@@ -39,7 +39,7 @@
       },
       "peerDependencies": {
         "@heroicons/react": "^2.0.0",
-        "@sudobility/components": "^4.0.157",
+        "@sudobility/components": "^4.0.158",
         "@sudobility/design": "^1.1.18",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.0.0",

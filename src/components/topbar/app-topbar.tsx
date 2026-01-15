@@ -143,6 +143,7 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
         label: item.label,
         icon: item.icon,
         href: item.href,
+        className: item.className,
       })),
     [visibleMenuItems]
   );
