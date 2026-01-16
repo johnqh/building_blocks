@@ -43,11 +43,10 @@ export interface SubscriptionContextValue {
   currentSubscription: CurrentSubscription | null;
   isLoading: boolean;
   error: string | null;
-  /** Purchase a subscription product. subscriptionUserId identifies which user/entity the subscription is for. email pre-fills the checkout form. */
+  /** Purchase a subscription product. subscriptionUserId identifies which user/entity the subscription is for. */
   purchase: (
     productId: string,
-    subscriptionUserId?: string,
-    email?: string
+    subscriptionUserId?: string
   ) => Promise<boolean>;
   /** Restore purchases. subscriptionUserId identifies which user/entity to restore for. */
   restore: (subscriptionUserId?: string) => Promise<boolean>;
@@ -147,8 +146,6 @@ export interface AppSubscriptionsPageProps {
   rateLimitsConfig?: RateLimitsConfigData | null;
   /** User ID used for subscription (the selected entity's ID when logged in) */
   subscriptionUserId?: string;
-  /** User email to pre-fill in the checkout form */
-  userEmail?: string;
   /** All localized labels */
   labels: SubscriptionPageLabels;
   /** Formatter functions for dynamic strings */
@@ -177,7 +174,6 @@ export function AppSubscriptionsPage({
   subscription,
   rateLimitsConfig,
   subscriptionUserId,
-  userEmail,
   labels,
   formatters,
   entitlementMap,
@@ -251,11 +247,7 @@ export function AppSubscriptionsPage({
     track('purchase_initiated', { plan_identifier: selectedPlan });
 
     try {
-      const result = await purchase(
-        selectedPlan,
-        subscriptionUserId,
-        userEmail
-      );
+      const result = await purchase(selectedPlan, subscriptionUserId);
       if (result) {
         track('purchase_completed', { plan_identifier: selectedPlan });
         onPurchaseSuccess?.();
@@ -283,7 +275,6 @@ export function AppSubscriptionsPage({
     track,
     purchase,
     subscriptionUserId,
-    userEmail,
     onPurchaseSuccess,
     labels.errorTitle,
     labels.purchaseError,
