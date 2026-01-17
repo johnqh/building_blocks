@@ -180,7 +180,13 @@ export function AppSubscriptionsPage({
     subscription: currentSubscription,
     isLoading: subscriptionLoading,
     error: subscriptionError,
+    update: updateSubscription,
   } = useUserSubscription();
+
+  // Refresh subscription data when page becomes visible (e.g., returning from purchase flow)
+  useEffect(() => {
+    updateSubscription();
+  }, [updateSubscription]);
 
   const isLoading =
     periodsLoading ||
