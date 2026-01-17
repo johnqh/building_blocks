@@ -16,6 +16,4 @@ export type {
   FAQItem,
   PricingPageLabels,
   PricingPageFormatters,
-  EntitlementMap,
-  EntitlementLevels,
 } from './AppPricingPage';

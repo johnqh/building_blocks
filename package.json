@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.54",
+  "version": "0.0.60",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "main": "./dist/index.js",
@@ -63,6 +63,9 @@
     },
     "@sudobility/subscription-components": {
       "optional": true
+    },
+    "@sudobility/subscription_lib": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -71,7 +74,8 @@
     "@sudobility/components": "^4.0.159",
     "@sudobility/design": "^1.1.18",
     "firebase": "^12.4.0",
-    "@sudobility/subscription-components": "^1.0.20",
+    "@sudobility/subscription-components": "^1.0.22",
+    "@sudobility/subscription_lib": "^0.0.1",
     "@sudobility/types": "^1.9.45",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

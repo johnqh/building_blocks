@@ -11,6 +11,7 @@ import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
+import { useSubscribable } from '@sudobility/subscription_lib';
 import { Section } from '@sudobility/components';
 import type { AnalyticsTrackingParams } from '../../types';
 
@@ -72,16 +73,6 @@ export interface PricingPageFormatters {
   getProductFeatures: (productId: string) => string[];
 }
 
-/** Package ID to entitlement mapping */
-export interface EntitlementMap {
-  [packageId: string]: string;
-}
-
-/** Entitlement to level mapping for comparing plan tiers */
-export interface EntitlementLevels {
-  [entitlement: string]: number;
-}
-
 export interface AppPricingPageProps {
   /** Available subscription products */
   products: PricingProduct[];
@@ -97,10 +88,6 @@ export interface AppPricingPageProps {
   labels: PricingPageLabels;
   /** Formatter functions */
   formatters: PricingPageFormatters;
-  /** Package ID to entitlement mapping for calculating savings */
-  entitlementMap: EntitlementMap;
-  /** Entitlement to level mapping for comparing tiers (higher = better) */
-  entitlementLevels: EntitlementLevels;
   /** Called when user clicks on a plan */
   onPlanClick: (planIdentifier: string) => void;
   /** Called when user clicks on free plan */
@@ -111,6 +98,11 @@ export interface AppPricingPageProps {
   className?: string;
   /** Optional analytics tracking callback */
   onTrack?: (params: AnalyticsTrackingParams) => void;
+  /**
+   * Offer ID for subscription_lib hooks (e.g., "api", "default").
+   * Uses useSubscribable hook to determine which packages are enabled.
+   */
+  offerId: string;
 }
 
 /**
@@ -126,15 +118,17 @@ export function AppPricingPage({
   currentProductIdentifier,
   labels,
   formatters,
-  entitlementMap,
-  entitlementLevels,
   onPlanClick,
   onFreePlanClick,
   faqItems,
   className,
   onTrack,
+  offerId,
 }: AppPricingPageProps) {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+
+  // Use subscription_lib hook to get subscribable package IDs
+  const { subscribablePackageIds } = useSubscribable(offerId);
 
   // Helper to track analytics events
   const track = useCallback(
@@ -177,21 +171,6 @@ export function AppPricingPage({
     [track, onPlanClick]
   );
 
-  // Get entitlement level for a product (0 for free/none)
-  const getProductLevel = useCallback(
-    (productId: string): number => {
-      const entitlement = entitlementMap[productId];
-      if (!entitlement) return 0;
-      return entitlementLevels[entitlement] ?? 0;
-    },
-    [entitlementMap, entitlementLevels]
-  );
-
-  // Get current user's subscription level
-  const currentLevel = currentProductIdentifier
-    ? getProductLevel(currentProductIdentifier)
-    : 0;
-
   // Filter products by billing period and sort by price
   const filteredProducts = products
     .filter(product => {
@@ -218,19 +197,13 @@ export function AppPricingPage({
 
   const getYearlySavingsPercent = useCallback(
     (yearlyPackageId: string): number | undefined => {
-      const yearlyEntitlement = entitlementMap[yearlyPackageId];
-      if (!yearlyEntitlement) return undefined;
-
       const yearlyProduct = products.find(
         p => p.identifier === yearlyPackageId
       );
       if (!yearlyProduct) return undefined;
 
-      const monthlyPackageId = Object.entries(entitlementMap).find(
-        ([pkgId, ent]) => ent === yearlyEntitlement && pkgId.includes('monthly')
-      )?.[0];
-      if (!monthlyPackageId) return undefined;
-
+      // Find monthly equivalent by naming convention (replace _yearly with _monthly)
+      const monthlyPackageId = yearlyPackageId.replace('_yearly', '_monthly');
       const monthlyProduct = products.find(
         p => p.identifier === monthlyPackageId
       );
@@ -247,7 +220,7 @@ export function AppPricingPage({
 
       return Math.round(savings);
     },
-    [products, entitlementMap]
+    [products]
   );
 
   const billingPeriodOptions = [
@@ -255,24 +228,35 @@ export function AppPricingPage({
     { value: 'yearly' as const, label: labels.billingYearly },
   ];
 
-  // Determine if a product is the current plan (same entitlement level)
+  // Determine if a product is the current plan (exact product identifier match)
   const isCurrentPlan = useCallback(
     (productId: string): boolean => {
       if (!isAuthenticated) return false;
       if (!hasActiveSubscription) return false;
-      // Compare entitlement levels (handles monthly/yearly variants of same tier)
-      return getProductLevel(productId) === currentLevel && currentLevel > 0;
+      return productId === currentProductIdentifier;
     },
-    [isAuthenticated, hasActiveSubscription, getProductLevel, currentLevel]
+    [isAuthenticated, hasActiveSubscription, currentProductIdentifier]
   );
 
-  // Determine if a product is an upgrade from current plan
-  const isUpgrade = useCallback(
+  // Determine if a package is subscribable (enabled)
+  const isPackageEnabled = useCallback(
     (productId: string): boolean => {
-      const productLevel = getProductLevel(productId);
-      return productLevel > currentLevel;
+      // Non-authenticated users can see all plans
+      if (!isAuthenticated) return true;
+
+      // Use subscription_lib hook results
+      return subscribablePackageIds.includes(productId);
     },
-    [getProductLevel, currentLevel]
+    [isAuthenticated, subscribablePackageIds]
+  );
+
+  // Determine if a product can be upgraded to
+  const canUpgradeTo = useCallback(
+    (productId: string): boolean => {
+      // If the product is in subscribablePackageIds and it's not the current plan
+      return isPackageEnabled(productId) && !isCurrentPlan(productId);
+    },
+    [isPackageEnabled, isCurrentPlan]
   );
 
   return (
@@ -317,7 +301,12 @@ export function AppPricingPage({
             periodLabel={labels.periodMonth}
             features={labels.freeTierFeatures}
             isSelected={false}
+            isCurrentPlan={isAuthenticated && !hasActiveSubscription}
             onSelect={() => {}}
+            enabled={
+              // Free tier enabled: not authenticated, or in subscribable list
+              !isAuthenticated || subscribablePackageIds.includes('free')
+            }
             topBadge={
               isAuthenticated && !hasActiveSubscription
                 ? {
@@ -343,7 +332,8 @@ export function AppPricingPage({
           {/* Paid Plans */}
           {filteredProducts.map(product => {
             const isCurrent = isCurrentPlan(product.identifier);
-            const canUpgrade = isUpgrade(product.identifier);
+            const isEnabled = isPackageEnabled(product.identifier);
+            const canUpgrade = canUpgradeTo(product.identifier);
 
             // Determine CTA button
             let ctaButton: { label: string; onClick: () => void } | undefined;
@@ -357,13 +347,13 @@ export function AppPricingPage({
               // Current plan: no CTA
               ctaButton = undefined;
             } else if (canUpgrade) {
-              // Higher tier: show "Upgrade"
+              // Enabled and not current: show "Upgrade"
               ctaButton = {
                 label: labels.ctaUpgrade,
                 onClick: () => handlePlanClick(product.identifier, 'upgrade'),
               };
             }
-            // Lower tier than current: no CTA (implicit downgrade not shown)
+            // Not enabled (downgrade): no CTA
 
             // Determine top badge
             let topBadge:
@@ -393,7 +383,9 @@ export function AppPricingPage({
                 periodLabel={getPeriodLabel(product.period)}
                 features={formatters.getProductFeatures(product.identifier)}
                 isSelected={false}
+                isCurrentPlan={isCurrent}
                 onSelect={() => {}}
+                enabled={isEnabled}
                 isBestValue={product.identifier.includes('pro')}
                 topBadge={topBadge}
                 discountBadge={
