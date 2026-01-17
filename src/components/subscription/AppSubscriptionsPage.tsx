@@ -63,6 +63,8 @@ export interface SubscriptionPageLabels {
   // Buttons
   buttonSubscribe: string;
   buttonPurchasing: string;
+  buttonUpgrade: string;
+  buttonUpgrading: string;
   buttonRestore: string;
   buttonRestoring: string;
 
@@ -408,6 +410,36 @@ export function AppSubscriptionsPage({
     onError,
   ]);
 
+  // Determine if the action is an upgrade (user has active subscription and selected different plan)
+  const isUpgrading = useMemo(() => {
+    if (!currentSubscription?.isActive) return false;
+    if (!selectedPlan) return false;
+    // It's an upgrade if the selected plan is different from current
+    return (
+      selectedPlan !== currentSubscription.packageId &&
+      selectedPlan !== currentSubscription.productId
+    );
+  }, [currentSubscription, selectedPlan]);
+
+  // Handle upgrade - opens customer portal
+  const handleUpgrade = useCallback(() => {
+    if (!currentSubscription?.managementUrl) {
+      onError?.(
+        labels.errorTitle,
+        'Unable to open subscription management. Please try again.'
+      );
+      return;
+    }
+
+    track('upgrade_initiated', {
+      current_plan: currentSubscription.packageId,
+      target_plan: selectedPlan,
+    });
+
+    // Open customer portal in new tab
+    window.open(currentSubscription.managementUrl, '_blank');
+  }, [currentSubscription, selectedPlan, track, onError, labels.errorTitle]);
+
   const formatExpirationDate = useCallback((date?: Date) => {
     if (!date) return '';
     return new Intl.DateTimeFormat(undefined, {
@@ -511,8 +543,12 @@ export function AppSubscriptionsPage({
         ) : null
       }
       primaryAction={{
-        label: isPurchasing ? labels.buttonPurchasing : labels.buttonSubscribe,
-        onClick: handlePurchase,
+        label: isPurchasing
+          ? labels.buttonPurchasing
+          : isUpgrading
+            ? labels.buttonUpgrade
+            : labels.buttonSubscribe,
+        onClick: isUpgrading ? handleUpgrade : handlePurchase,
         disabled: !selectedPlan || isPurchasing || isRestoring,
         loading: isPurchasing,
       }}
