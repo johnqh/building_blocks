@@ -151,7 +151,8 @@ export function AppSubscriptionsPage({
   } = useSubscriptionPeriods(offerId);
 
   // Default to first available period, or 'monthly' as fallback
-  const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
+  const [selectedPeriod, setSelectedPeriod] =
+    useState<SubscriptionPeriod>('monthly');
 
   // Update selected period when periods become available
   useEffect(() => {
@@ -181,8 +182,13 @@ export function AppSubscriptionsPage({
     error: subscriptionError,
   } = useUserSubscription();
 
-  const isLoading = periodsLoading || packagesLoading || subscribableLoading || subscriptionLoading;
-  const error = periodsError || packagesError || subscribableError || subscriptionError;
+  const isLoading =
+    periodsLoading ||
+    packagesLoading ||
+    subscribableLoading ||
+    subscriptionLoading;
+  const error =
+    periodsError || packagesError || subscribableError || subscriptionError;
 
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -230,11 +236,17 @@ export function AppSubscriptionsPage({
 
   // Calculate yearly savings compared to monthly
   const getYearlySavingsPercent = useCallback(
-    (yearlyPackage: { packageId: string; product?: { price: number } }): number | undefined => {
+    (yearlyPackage: {
+      packageId: string;
+      product?: { price: number };
+    }): number | undefined => {
       if (!yearlyPackage.product) return undefined;
 
       // Find monthly equivalent by naming convention (replace _yearly with _monthly)
-      const monthlyPackageId = yearlyPackage.packageId.replace('_yearly', '_monthly');
+      const monthlyPackageId = yearlyPackage.packageId.replace(
+        '_yearly',
+        '_monthly'
+      );
       const monthlyPkg = packages.find(p => p.packageId === monthlyPackageId);
       if (!monthlyPkg?.product) return undefined;
 
@@ -256,7 +268,8 @@ export function AppSubscriptionsPage({
   const billingPeriodOptions = useMemo(() => {
     return periods.map(period => ({
       value: period,
-      label: period === 'monthly' ? labels.billingMonthly : labels.billingYearly,
+      label:
+        period === 'monthly' ? labels.billingMonthly : labels.billingYearly,
     }));
   }, [periods, labels]);
 
@@ -264,7 +277,10 @@ export function AppSubscriptionsPage({
   const isCurrentPlan = useCallback(
     (packageId: string, productId?: string): boolean => {
       if (!currentSubscription?.isActive) return false;
-      return productId === currentSubscription.productId || packageId === currentSubscription.packageId;
+      return (
+        productId === currentSubscription.productId ||
+        packageId === currentSubscription.packageId
+      );
     },
     [currentSubscription]
   );
@@ -273,7 +289,8 @@ export function AppSubscriptionsPage({
   const isPackageEnabled = useCallback(
     (packageId: string): boolean => {
       // If still loading or no data, enable all as fallback
-      if (subscribableLoading || subscribablePackageIds.length === 0) return true;
+      if (subscribableLoading || subscribablePackageIds.length === 0)
+        return true;
       return subscribablePackageIds.includes(packageId);
     },
     [subscribableLoading, subscribablePackageIds]
@@ -282,7 +299,9 @@ export function AppSubscriptionsPage({
   // Determine if a package can be upgraded to
   const canUpgradeTo = useCallback(
     (packageId: string, productId?: string): boolean => {
-      return isPackageEnabled(packageId) && !isCurrentPlan(packageId, productId);
+      return (
+        isPackageEnabled(packageId) && !isCurrentPlan(packageId, productId)
+      );
     },
     [isPackageEnabled, isCurrentPlan]
   );
@@ -292,7 +311,10 @@ export function AppSubscriptionsPage({
     if (currentSubscription?.isActive && currentSubscription.packageId) {
       setSelectedPlan(currentSubscription.packageId);
       // Also set billing period to match current plan
-      if (currentSubscription.period && periods.includes(currentSubscription.period)) {
+      if (
+        currentSubscription.period &&
+        periods.includes(currentSubscription.period)
+      ) {
         setSelectedPeriod(currentSubscription.period);
       }
     }
@@ -441,7 +463,9 @@ export function AppSubscriptionsPage({
                 },
                 {
                   label: labels.labelExpires,
-                  value: formatExpirationDate(currentSubscription.expirationDate),
+                  value: formatExpirationDate(
+                    currentSubscription.expirationDate
+                  ),
                 },
                 {
                   label: labels.labelWillRenew,
@@ -533,9 +557,15 @@ export function AppSubscriptionsPage({
 
           {/* Paid plans */}
           {paidPackages.map(pkg => {
-            const isCurrent = isCurrentPlan(pkg.packageId, pkg.product?.productId);
+            const isCurrent = isCurrentPlan(
+              pkg.packageId,
+              pkg.product?.productId
+            );
             const isEnabled = isPackageEnabled(pkg.packageId);
-            const canUpgrade = canUpgradeTo(pkg.packageId, pkg.product?.productId);
+            const canUpgrade = canUpgradeTo(
+              pkg.packageId,
+              pkg.product?.productId
+            );
             // Can only select if it's an upgrade or it's the current plan
             const canSelect = canUpgrade || isCurrent;
 
@@ -578,9 +608,14 @@ export function AppSubscriptionsPage({
                     ? (() => {
                         const period = pkg.product?.trialPeriod;
                         if (!period) return undefined;
-                        const num = parseInt(period.replace(/\D/g, '') || '1', 10);
-                        if (period.includes('W')) return formatters.formatTrialWeeks(num);
-                        if (period.includes('M')) return formatters.formatTrialMonths(num);
+                        const num = parseInt(
+                          period.replace(/\D/g, '') || '1',
+                          10
+                        );
+                        if (period.includes('W'))
+                          return formatters.formatTrialWeeks(num);
+                        if (period.includes('M'))
+                          return formatters.formatTrialMonths(num);
                         return formatters.formatTrialDays(num);
                       })()
                     : pkg.product?.introPrice
