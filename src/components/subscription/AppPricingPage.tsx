@@ -4,27 +4,27 @@
  *
  * This component uses Section internally for proper page layout.
  * Do NOT wrap this component in a Section when consuming it.
+ *
+ * Uses subscription_lib hooks directly for all subscription data:
+ * - useSubscriptionPeriods: Get available billing periods
+ * - useSubscriptionForPeriod: Get packages for selected period
+ * - useSubscribable: Determine which packages are enabled
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
-import { useSubscribable } from '@sudobility/subscription_lib';
+import {
+  useSubscribable,
+  useSubscriptionPeriods,
+  useSubscriptionForPeriod,
+  useUserSubscription,
+} from '@sudobility/subscription_lib';
+import type { SubscriptionPeriod } from '@sudobility/subscription_lib';
 import { Section } from '@sudobility/components';
 import type { AnalyticsTrackingParams } from '../../types';
-
-type BillingPeriod = 'monthly' | 'yearly';
-
-/** Product from subscription provider */
-export interface PricingProduct {
-  identifier: string;
-  title: string;
-  price: string;
-  priceString: string;
-  period?: string;
-}
 
 /** FAQ item */
 export interface FAQItem {
@@ -74,16 +74,8 @@ export interface PricingPageFormatters {
 }
 
 export interface AppPricingPageProps {
-  /** Available subscription products */
-  products: PricingProduct[];
   /** Whether user is authenticated */
   isAuthenticated: boolean;
-  /** Whether user has an active subscription */
-  hasActiveSubscription: boolean;
-  /** Current subscription product identifier (if any) */
-  currentProductIdentifier?: string;
-  /** User ID used for subscription (the selected entity's ID when logged in) */
-  subscriptionUserId?: string;
   /** All localized labels */
   labels: PricingPageLabels;
   /** Formatter functions */
@@ -98,24 +90,20 @@ export interface AppPricingPageProps {
   className?: string;
   /** Optional analytics tracking callback */
   onTrack?: (params: AnalyticsTrackingParams) => void;
-  /**
-   * Offer ID for subscription_lib hooks (e.g., "api", "default").
-   * Uses useSubscribable hook to determine which packages are enabled.
-   */
+  /** Offer ID for subscription_lib hooks */
   offerId: string;
 }
 
 /**
  * Public pricing page for displaying subscription options.
+ * Uses subscription_lib hooks directly for all subscription data.
+ *
  * - Non-authenticated: Free tile shows "Try it for Free", paid tiles show "Log in to Continue"
  * - Authenticated on free: Free tile shows "Current Plan" badge (no CTA), paid tiles show "Upgrade"
  * - Authenticated with subscription: Current plan shows badge (no CTA), higher tiers show "Upgrade"
  */
 export function AppPricingPage({
-  products,
   isAuthenticated,
-  hasActiveSubscription,
-  currentProductIdentifier,
   labels,
   formatters,
   onPlanClick,
@@ -125,10 +113,78 @@ export function AppPricingPage({
   onTrack,
   offerId,
 }: AppPricingPageProps) {
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+  // Get current user subscription from subscription_lib (single source of truth)
+  const {
+    subscription: currentSubscription,
+    isLoading: subscriptionLoading,
+    error: subscriptionError,
+  } = useUserSubscription();
 
-  // Use subscription_lib hook to get subscribable package IDs
-  const { subscribablePackageIds } = useSubscribable(offerId);
+  // Derive subscription state from hook
+  const hasActiveSubscription = currentSubscription?.isActive ?? false;
+  const currentProductIdentifier = currentSubscription?.productId;
+
+  // Get available periods from subscription_lib
+  const {
+    periods,
+    isLoading: periodsLoading,
+    error: periodsError,
+  } = useSubscriptionPeriods(offerId);
+
+  // Default to first available period, or 'monthly' as fallback
+  const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
+
+  // Update selected period when periods become available
+  useEffect(() => {
+    if (periods.length > 0 && !periods.includes(selectedPeriod)) {
+      setSelectedPeriod(periods[0]);
+    }
+  }, [periods, selectedPeriod]);
+
+  // Get packages for selected period
+  const {
+    packages,
+    isLoading: packagesLoading,
+    error: packagesError,
+  } = useSubscriptionForPeriod(offerId, selectedPeriod);
+
+  // Get subscribable package IDs
+  const {
+    subscribablePackageIds,
+    isLoading: subscribableLoading,
+    error: subscribableError,
+  } = useSubscribable(offerId);
+
+  const isLoading = periodsLoading || packagesLoading || subscribableLoading || subscriptionLoading;
+  const error = periodsError || packagesError || subscribableError || subscriptionError;
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[AppPricingPage] Debug info:', {
+      offerId,
+      isAuthenticated,
+      hasActiveSubscription,
+      currentProductIdentifier,
+      periods,
+      selectedPeriod,
+      packagesCount: packages.length,
+      packageIds: packages.map(p => p.packageId),
+      subscribablePackageIds,
+      isLoading,
+      error: error?.message,
+    });
+  }, [
+    offerId,
+    isAuthenticated,
+    hasActiveSubscription,
+    currentProductIdentifier,
+    periods,
+    selectedPeriod,
+    packages,
+    subscribablePackageIds,
+    isLoading,
+    error,
+  ]);
 
   // Helper to track analytics events
   const track = useCallback(
@@ -146,8 +202,8 @@ export function AppPricingPage({
   // Handle billing period change with tracking
   const handleBillingPeriodChange = useCallback(
     (value: string) => {
-      const newPeriod = value as BillingPeriod;
-      setBillingPeriod(newPeriod);
+      const newPeriod = value as SubscriptionPeriod;
+      setSelectedPeriod(newPeriod);
       track('billing_period_changed', { billing_period: newPeriod });
     },
     [track]
@@ -171,46 +227,34 @@ export function AppPricingPage({
     [track, onPlanClick]
   );
 
-  // Filter products by billing period and sort by price
-  const filteredProducts = products
-    .filter(product => {
-      if (!product.period) return false;
-      const isYearly =
-        product.period.includes('Y') || product.period.includes('year');
-      return billingPeriod === 'yearly' ? isYearly : !isYearly;
-    })
-    .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-
   const getPeriodLabel = useCallback(
-    (period?: string) => {
-      if (!period) return '';
-      if (period.includes('Y') || period.includes('year'))
-        return labels.periodYear;
-      if (period.includes('M') || period.includes('month'))
-        return labels.periodMonth;
-      if (period.includes('W') || period.includes('week'))
-        return labels.periodWeek;
-      return '';
+    (period: SubscriptionPeriod) => {
+      switch (period) {
+        case 'yearly':
+          return labels.periodYear;
+        case 'monthly':
+          return labels.periodMonth;
+        case 'weekly':
+          return labels.periodWeek;
+        default:
+          return period;
+      }
     },
     [labels]
   );
 
+  // Calculate yearly savings compared to monthly
   const getYearlySavingsPercent = useCallback(
-    (yearlyPackageId: string): number | undefined => {
-      const yearlyProduct = products.find(
-        p => p.identifier === yearlyPackageId
-      );
-      if (!yearlyProduct) return undefined;
+    (yearlyPackage: { packageId: string; product?: { price: number } }): number | undefined => {
+      if (!yearlyPackage.product) return undefined;
 
       // Find monthly equivalent by naming convention (replace _yearly with _monthly)
-      const monthlyPackageId = yearlyPackageId.replace('_yearly', '_monthly');
-      const monthlyProduct = products.find(
-        p => p.identifier === monthlyPackageId
-      );
-      if (!monthlyProduct) return undefined;
+      const monthlyPackageId = yearlyPackage.packageId.replace('_yearly', '_monthly');
+      const monthlyPkg = packages.find(p => p.packageId === monthlyPackageId);
+      if (!monthlyPkg?.product) return undefined;
 
-      const yearlyPrice = parseFloat(yearlyProduct.price);
-      const monthlyPrice = parseFloat(monthlyProduct.price);
+      const yearlyPrice = yearlyPackage.product.price;
+      const monthlyPrice = monthlyPkg.product.price;
 
       if (monthlyPrice <= 0 || yearlyPrice <= 0) return undefined;
 
@@ -220,44 +264,53 @@ export function AppPricingPage({
 
       return Math.round(savings);
     },
-    [products]
+    [packages]
   );
 
-  const billingPeriodOptions = [
-    { value: 'monthly' as const, label: labels.billingMonthly },
-    { value: 'yearly' as const, label: labels.billingYearly },
-  ];
+  // Build period options for segmented control
+  const billingPeriodOptions = useMemo(() => {
+    return periods.map(period => ({
+      value: period,
+      label: period === 'monthly' ? labels.billingMonthly : labels.billingYearly,
+    }));
+  }, [periods, labels]);
 
-  // Determine if a product is the current plan (exact product identifier match)
+  // Determine if a package is the current plan
   const isCurrentPlan = useCallback(
-    (productId: string): boolean => {
+    (packageId: string, productId?: string): boolean => {
       if (!isAuthenticated) return false;
       if (!hasActiveSubscription) return false;
-      return productId === currentProductIdentifier;
+      return productId === currentProductIdentifier || packageId === currentProductIdentifier;
     },
     [isAuthenticated, hasActiveSubscription, currentProductIdentifier]
   );
 
   // Determine if a package is subscribable (enabled)
   const isPackageEnabled = useCallback(
-    (productId: string): boolean => {
+    (packageId: string): boolean => {
       // Non-authenticated users can see all plans
       if (!isAuthenticated) return true;
 
+      // If still loading or no data, enable all as fallback
+      if (subscribableLoading || subscribablePackageIds.length === 0) return true;
+
       // Use subscription_lib hook results
-      return subscribablePackageIds.includes(productId);
+      return subscribablePackageIds.includes(packageId);
     },
-    [isAuthenticated, subscribablePackageIds]
+    [isAuthenticated, subscribableLoading, subscribablePackageIds]
   );
 
-  // Determine if a product can be upgraded to
+  // Determine if a package can be upgraded to
   const canUpgradeTo = useCallback(
-    (productId: string): boolean => {
-      // If the product is in subscribablePackageIds and it's not the current plan
-      return isPackageEnabled(productId) && !isCurrentPlan(productId);
+    (packageId: string, productId?: string): boolean => {
+      return isPackageEnabled(packageId) && !isCurrentPlan(packageId, productId);
     },
     [isPackageEnabled, isCurrentPlan]
   );
+
+  // Separate free tier from paid packages
+  const freeTierPackage = packages.find(p => !p.product);
+  const paidPackages = packages.filter(p => p.product);
 
   return (
     <div className={className}>
@@ -273,142 +326,157 @@ export function AppPricingPage({
 
       {/* Pricing Cards */}
       <Section spacing='3xl' maxWidth='6xl'>
-        {/* Billing Period Selector */}
-        <div className='flex justify-center mb-8'>
-          <SegmentedControl
-            options={billingPeriodOptions}
-            value={billingPeriod}
-            onChange={handleBillingPeriodChange}
-          />
-        </div>
+        {/* Billing Period Selector - only show if multiple periods available */}
+        {periods.length > 1 && (
+          <div className='flex justify-center mb-8'>
+            <SegmentedControl
+              options={billingPeriodOptions}
+              value={selectedPeriod}
+              onChange={handleBillingPeriodChange}
+            />
+          </div>
+        )}
+
+        {/* Loading state */}
+        {isLoading && (
+          <div className='flex items-center justify-center py-12'>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600' />
+          </div>
+        )}
+
+        {/* Error state */}
+        {error && !isLoading && (
+          <div className='text-center py-12 text-red-500'>
+            {error.message}
+          </div>
+        )}
 
         {/* Subscription Tiles Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns:
-              'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-            gridAutoRows: '1fr',
-            gap: '1.5rem',
-            overflow: 'visible',
-          }}
-        >
-          {/* Free Tier */}
-          <SubscriptionTile
-            id='free'
-            title={labels.freeTierTitle}
-            price={labels.freeTierPrice}
-            periodLabel={labels.periodMonth}
-            features={labels.freeTierFeatures}
-            isSelected={false}
-            isCurrentPlan={isAuthenticated && !hasActiveSubscription}
-            onSelect={() => {}}
-            enabled={
-              // Free tier enabled: not authenticated, or in subscribable list
-              !isAuthenticated || subscribablePackageIds.includes('free')
-            }
-            topBadge={
-              isAuthenticated && !hasActiveSubscription
-                ? {
-                    text: labels.currentPlanBadge,
-                    color: 'green',
-                  }
-                : undefined
-            }
-            ctaButton={
-              // Not logged in: show "Try it for Free"
-              // Logged in on free plan: no CTA (current plan)
-              // Logged in with subscription: no CTA (can't downgrade here)
-              !isAuthenticated
-                ? {
-                    label: labels.ctaTryFree,
-                    onClick: handleFreePlanClick,
-                  }
-                : undefined
-            }
-            hideSelectionIndicator={isAuthenticated}
-          />
-
-          {/* Paid Plans */}
-          {filteredProducts.map(product => {
-            const isCurrent = isCurrentPlan(product.identifier);
-            const isEnabled = isPackageEnabled(product.identifier);
-            const canUpgrade = canUpgradeTo(product.identifier);
-
-            // Determine CTA button
-            let ctaButton: { label: string; onClick: () => void } | undefined;
-            if (!isAuthenticated) {
-              // Not logged in: show "Log in to Continue"
-              ctaButton = {
-                label: labels.ctaLogIn,
-                onClick: () => handlePlanClick(product.identifier, 'login'),
-              };
-            } else if (isCurrent) {
-              // Current plan: no CTA
-              ctaButton = undefined;
-            } else if (canUpgrade) {
-              // Enabled and not current: show "Upgrade"
-              ctaButton = {
-                label: labels.ctaUpgrade,
-                onClick: () => handlePlanClick(product.identifier, 'upgrade'),
-              };
-            }
-            // Not enabled (downgrade): no CTA
-
-            // Determine top badge
-            let topBadge:
-              | {
-                  text: string;
-                  color: 'purple' | 'green' | 'blue' | 'yellow' | 'red';
-                }
-              | undefined;
-            if (isCurrent) {
-              topBadge = {
-                text: labels.currentPlanBadge,
-                color: 'green',
-              };
-            } else if (product.identifier.includes('pro')) {
-              topBadge = {
-                text: labels.mostPopularBadge,
-                color: 'yellow',
-              };
-            }
-
-            return (
+        {!isLoading && !error && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns:
+                'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+              gridAutoRows: '1fr',
+              gap: '1.5rem',
+              overflow: 'visible',
+            }}
+          >
+            {/* Free Tier */}
+            {freeTierPackage && (
               <SubscriptionTile
-                key={product.identifier}
-                id={product.identifier}
-                title={product.title}
-                price={product.priceString}
-                periodLabel={getPeriodLabel(product.period)}
-                features={formatters.getProductFeatures(product.identifier)}
+                id='free'
+                title={labels.freeTierTitle}
+                price={labels.freeTierPrice}
+                periodLabel={labels.periodMonth}
+                features={labels.freeTierFeatures}
                 isSelected={false}
-                isCurrentPlan={isCurrent}
+                isCurrentPlan={isAuthenticated && !hasActiveSubscription}
                 onSelect={() => {}}
-                enabled={isEnabled}
-                isBestValue={product.identifier.includes('pro')}
-                topBadge={topBadge}
-                discountBadge={
-                  product.period?.includes('Y')
-                    ? (() => {
-                        const savings = getYearlySavingsPercent(
-                          product.identifier
-                        );
-                        return savings && savings > 0
-                          ? {
-                              text: formatters.formatSavePercent(savings),
-                              isBestValue: true,
-                            }
-                          : undefined;
-                      })()
+                enabled={isPackageEnabled('free')}
+                topBadge={
+                  isAuthenticated && !hasActiveSubscription
+                    ? {
+                        text: labels.currentPlanBadge,
+                        color: 'green',
+                      }
                     : undefined
                 }
-                ctaButton={ctaButton}
-                hideSelectionIndicator={!ctaButton}
+                ctaButton={
+                  // Not logged in: show "Try it for Free"
+                  // Logged in on free plan: no CTA (current plan)
+                  // Logged in with subscription: no CTA (can't downgrade here)
+                  !isAuthenticated
+                    ? {
+                        label: labels.ctaTryFree,
+                        onClick: handleFreePlanClick,
+                      }
+                    : undefined
+                }
+                hideSelectionIndicator={isAuthenticated}
               />
-            );
-          })}
-        </div>
+            )}
+
+            {/* Paid Plans */}
+            {paidPackages.map(pkg => {
+              const isCurrent = isCurrentPlan(pkg.packageId, pkg.product?.productId);
+              const isEnabled = isPackageEnabled(pkg.packageId);
+              const canUpgrade = canUpgradeTo(pkg.packageId, pkg.product?.productId);
+
+              // Determine CTA button
+              let ctaButton: { label: string; onClick: () => void } | undefined;
+              if (!isAuthenticated) {
+                // Not logged in: show "Log in to Continue"
+                ctaButton = {
+                  label: labels.ctaLogIn,
+                  onClick: () => handlePlanClick(pkg.packageId, 'login'),
+                };
+              } else if (isCurrent) {
+                // Current plan: no CTA
+                ctaButton = undefined;
+              } else if (canUpgrade) {
+                // Enabled and not current: show "Upgrade"
+                ctaButton = {
+                  label: labels.ctaUpgrade,
+                  onClick: () => handlePlanClick(pkg.packageId, 'upgrade'),
+                };
+              }
+              // Not enabled (downgrade): no CTA
+
+              // Determine top badge
+              let topBadge:
+                | {
+                    text: string;
+                    color: 'purple' | 'green' | 'blue' | 'yellow' | 'red';
+                  }
+                | undefined;
+              if (isCurrent) {
+                topBadge = {
+                  text: labels.currentPlanBadge,
+                  color: 'green',
+                };
+              } else if (pkg.packageId.includes('pro')) {
+                topBadge = {
+                  text: labels.mostPopularBadge,
+                  color: 'yellow',
+                };
+              }
+
+              return (
+                <SubscriptionTile
+                  key={pkg.packageId}
+                  id={pkg.packageId}
+                  title={pkg.name}
+                  price={pkg.product?.priceString ?? '$0'}
+                  periodLabel={getPeriodLabel(pkg.product?.period ?? 'monthly')}
+                  features={formatters.getProductFeatures(pkg.packageId)}
+                  isSelected={false}
+                  isCurrentPlan={isCurrent}
+                  onSelect={() => {}}
+                  enabled={isEnabled}
+                  isBestValue={pkg.packageId.includes('pro')}
+                  topBadge={topBadge}
+                  discountBadge={
+                    selectedPeriod === 'yearly'
+                      ? (() => {
+                          const savings = getYearlySavingsPercent(pkg);
+                          return savings && savings > 0
+                            ? {
+                                text: formatters.formatSavePercent(savings),
+                                isBestValue: true,
+                              }
+                            : undefined;
+                        })()
+                      : undefined
+                  }
+                  ctaButton={ctaButton}
+                  hideSelectionIndicator={!ctaButton}
+                />
+              );
+            })}
+          </div>
+        )}
       </Section>
 
       {/* FAQ Section */}

@@ -1,54 +1,29 @@
 /**
  * @fileoverview App Subscriptions Page
  * @description Page for managing app subscriptions and viewing rate limits.
+ *
+ * Uses subscription_lib hooks directly for all subscription data:
+ * - useSubscriptionPeriods: Get available billing periods
+ * - useSubscriptionForPeriod: Get packages for selected period
+ * - useSubscribable: Determine which packages are enabled
+ * - useUserSubscription: Get current user's subscription
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   SubscriptionLayout,
   SubscriptionTile,
   SegmentedControl,
 } from '@sudobility/subscription-components';
-import { useSubscribable } from '@sudobility/subscription_lib';
+import {
+  useSubscribable,
+  useSubscriptionPeriods,
+  useSubscriptionForPeriod,
+  useUserSubscription,
+} from '@sudobility/subscription_lib';
+import type { SubscriptionPeriod } from '@sudobility/subscription_lib';
 import type { RateLimitsConfigData } from '@sudobility/types';
 import type { AnalyticsTrackingParams } from '../../types';
-
-type BillingPeriod = 'monthly' | 'yearly';
-
-/** Product from subscription provider */
-export interface SubscriptionProduct {
-  identifier: string;
-  title: string;
-  price: string;
-  priceString: string;
-  period?: string;
-  freeTrialPeriod?: string;
-  introPrice?: string;
-}
-
-/** Current subscription state */
-export interface CurrentSubscription {
-  isActive: boolean;
-  productIdentifier?: string;
-  expirationDate?: Date;
-  willRenew?: boolean;
-}
-
-/** Subscription context value passed from consumer */
-export interface SubscriptionContextValue {
-  products: SubscriptionProduct[];
-  currentSubscription: CurrentSubscription | null;
-  isLoading: boolean;
-  error: string | null;
-  /** Purchase a subscription product. subscriptionUserId identifies which user/entity the subscription is for. */
-  purchase: (
-    productId: string,
-    subscriptionUserId?: string
-  ) => Promise<boolean>;
-  /** Restore purchases. subscriptionUserId identifies which user/entity to restore for. */
-  restore: (subscriptionUserId?: string) => Promise<boolean>;
-  clearError: () => void;
-}
 
 /** All localized labels for the subscription page */
 export interface SubscriptionPageLabels {
@@ -122,21 +97,23 @@ export interface SubscriptionPageFormatters {
   formatSavePercent: (percent: number) => string;
   /** Format intro price note */
   formatIntroNote: (price: string) => string;
-  /** Get features for a product by its identifier (required - same as pricing page) */
+  /** Get features for a product by its identifier */
   getProductFeatures: (productId: string) => string[];
 }
 
 export interface AppSubscriptionsPageProps {
-  /** Subscription context value */
-  subscription: SubscriptionContextValue;
-  /** Rate limit configuration (for displaying current usage, not for features) */
+  /** Offer ID for subscription_lib hooks (e.g., "api", "default") */
+  offerId: string;
+  /** Rate limit configuration (for displaying current usage) */
   rateLimitsConfig?: RateLimitsConfigData | null;
-  /** User ID used for subscription (the selected entity's ID when logged in) */
-  subscriptionUserId?: string;
   /** All localized labels */
   labels: SubscriptionPageLabels;
   /** Formatter functions for dynamic strings */
   formatters: SubscriptionPageFormatters;
+  /** Purchase handler - called with packageId */
+  onPurchase: (packageId: string) => Promise<boolean>;
+  /** Restore purchases handler */
+  onRestore: () => Promise<boolean>;
   /** Called when purchase succeeds */
   onPurchaseSuccess?: () => void;
   /** Called when restore succeeds */
@@ -147,100 +124,69 @@ export interface AppSubscriptionsPageProps {
   onWarning?: (title: string, message: string) => void;
   /** Optional analytics tracking callback */
   onTrack?: (params: AnalyticsTrackingParams) => void;
-  /**
-   * Offer ID for subscription_lib hooks (e.g., "api", "default").
-   * Uses useSubscribable hook to determine which packages are enabled.
-   */
-  offerId: string;
 }
 
 /**
  * Page for managing app subscriptions.
- * Uses useSubscribable hook to determine which packages are enabled.
+ * Uses subscription_lib hooks directly for all subscription data.
  */
 export function AppSubscriptionsPage({
-  subscription,
+  offerId,
   rateLimitsConfig,
-  subscriptionUserId,
   labels,
   formatters,
+  onPurchase,
+  onRestore,
   onPurchaseSuccess,
   onRestoreSuccess,
   onError,
   onWarning,
   onTrack,
-  offerId,
 }: AppSubscriptionsPageProps) {
-  // Use subscription_lib hook to get subscribable package IDs
-  const { subscribablePackageIds } = useSubscribable(offerId);
-
+  // Get available periods from subscription_lib
   const {
-    products,
-    currentSubscription,
-    isLoading,
-    error,
-    purchase,
-    restore,
-    clearError,
-  } = subscription;
+    periods,
+    isLoading: periodsLoading,
+    error: periodsError,
+  } = useSubscriptionPeriods(offerId);
 
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+  // Default to first available period, or 'monthly' as fallback
+  const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
+
+  // Update selected period when periods become available
+  useEffect(() => {
+    if (periods.length > 0 && !periods.includes(selectedPeriod)) {
+      setSelectedPeriod(periods[0]);
+    }
+  }, [periods, selectedPeriod]);
+
+  // Get packages for selected period
+  const {
+    packages,
+    isLoading: packagesLoading,
+    error: packagesError,
+  } = useSubscriptionForPeriod(offerId, selectedPeriod);
+
+  // Get subscribable package IDs
+  const {
+    subscribablePackageIds,
+    isLoading: subscribableLoading,
+    error: subscribableError,
+  } = useSubscribable(offerId);
+
+  // Get current user subscription
+  const {
+    subscription: currentSubscription,
+    isLoading: subscriptionLoading,
+    error: subscriptionError,
+  } = useUserSubscription();
+
+  const isLoading = periodsLoading || packagesLoading || subscribableLoading || subscriptionLoading;
+  const error = periodsError || packagesError || subscribableError || subscriptionError;
+
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
-
-  /**
-   * Check if a product is the current plan (exact product identifier match).
-   */
-  const isCurrentPlanProduct = useCallback(
-    (productId: string): boolean => {
-      return !!(
-        currentSubscription?.isActive &&
-        currentSubscription.productIdentifier === productId
-      );
-    },
-    [currentSubscription]
-  );
-
-  /**
-   * Check if a package is subscribable (enabled).
-   */
-  const isPackageEnabled = useCallback(
-    (productId: string): boolean => {
-      return subscribablePackageIds.includes(productId);
-    },
-    [subscribablePackageIds]
-  );
-
-  /**
-   * Check if a product can be upgraded to.
-   */
-  const canUpgradeTo = useCallback(
-    (productId: string): boolean => {
-      return isPackageEnabled(productId) && !isCurrentPlanProduct(productId);
-    },
-    [isPackageEnabled, isCurrentPlanProduct]
-  );
-
-  // Auto-select current plan on mount and when subscription changes
-  useEffect(() => {
-    if (
-      currentSubscription?.isActive &&
-      currentSubscription.productIdentifier
-    ) {
-      setSelectedPlan(currentSubscription.productIdentifier);
-      // Also set billing period to match current plan
-      const currentProduct = products.find(
-        p => p.identifier === currentSubscription.productIdentifier
-      );
-      if (currentProduct?.period) {
-        const isYearly =
-          currentProduct.period.includes('Y') ||
-          currentProduct.period.includes('year');
-        setBillingPeriod(isYearly ? 'yearly' : 'monthly');
-      }
-    }
-  }, [currentSubscription, products]);
 
   // Helper to track analytics events
   const track = useCallback(
@@ -255,29 +201,110 @@ export function AppSubscriptionsPage({
     [onTrack]
   );
 
-  // Show error via callback
-  useEffect(() => {
-    if (error) {
-      onError?.(labels.errorTitle, error);
-      clearError();
-    }
-  }, [error, clearError, labels.errorTitle, onError]);
-
-  // Filter products by billing period and sort by price
-  const filteredProducts = products
-    .filter(product => {
-      if (!product.period) return false;
-      const isYearly =
-        product.period.includes('Y') || product.period.includes('year');
-      return billingPeriod === 'yearly' ? isYearly : !isYearly;
-    })
-    .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-
+  // Handle billing period change with tracking
   const handlePeriodChange = useCallback(
-    (period: BillingPeriod) => {
-      setBillingPeriod(period);
+    (value: string) => {
+      const newPeriod = value as SubscriptionPeriod;
+      setSelectedPeriod(newPeriod);
       setSelectedPlan(null);
-      track('billing_period_changed', { billing_period: period });
+      track('billing_period_changed', { billing_period: newPeriod });
+    },
+    [track]
+  );
+
+  const getPeriodLabel = useCallback(
+    (period: SubscriptionPeriod) => {
+      switch (period) {
+        case 'yearly':
+          return labels.periodYear;
+        case 'monthly':
+          return labels.periodMonth;
+        case 'weekly':
+          return labels.periodWeek;
+        default:
+          return period;
+      }
+    },
+    [labels]
+  );
+
+  // Calculate yearly savings compared to monthly
+  const getYearlySavingsPercent = useCallback(
+    (yearlyPackage: { packageId: string; product?: { price: number } }): number | undefined => {
+      if (!yearlyPackage.product) return undefined;
+
+      // Find monthly equivalent by naming convention (replace _yearly with _monthly)
+      const monthlyPackageId = yearlyPackage.packageId.replace('_yearly', '_monthly');
+      const monthlyPkg = packages.find(p => p.packageId === monthlyPackageId);
+      if (!monthlyPkg?.product) return undefined;
+
+      const yearlyPrice = yearlyPackage.product.price;
+      const monthlyPrice = monthlyPkg.product.price;
+
+      if (monthlyPrice <= 0 || yearlyPrice <= 0) return undefined;
+
+      const annualizedMonthly = monthlyPrice * 12;
+      const savings =
+        ((annualizedMonthly - yearlyPrice) / annualizedMonthly) * 100;
+
+      return Math.round(savings);
+    },
+    [packages]
+  );
+
+  // Build period options for segmented control
+  const billingPeriodOptions = useMemo(() => {
+    return periods.map(period => ({
+      value: period,
+      label: period === 'monthly' ? labels.billingMonthly : labels.billingYearly,
+    }));
+  }, [periods, labels]);
+
+  // Determine if a package is the current plan
+  const isCurrentPlan = useCallback(
+    (packageId: string, productId?: string): boolean => {
+      if (!currentSubscription?.isActive) return false;
+      return productId === currentSubscription.productId || packageId === currentSubscription.packageId;
+    },
+    [currentSubscription]
+  );
+
+  // Determine if a package is subscribable (enabled)
+  const isPackageEnabled = useCallback(
+    (packageId: string): boolean => {
+      // If still loading or no data, enable all as fallback
+      if (subscribableLoading || subscribablePackageIds.length === 0) return true;
+      return subscribablePackageIds.includes(packageId);
+    },
+    [subscribableLoading, subscribablePackageIds]
+  );
+
+  // Determine if a package can be upgraded to
+  const canUpgradeTo = useCallback(
+    (packageId: string, productId?: string): boolean => {
+      return isPackageEnabled(packageId) && !isCurrentPlan(packageId, productId);
+    },
+    [isPackageEnabled, isCurrentPlan]
+  );
+
+  // Auto-select current plan on mount and when subscription changes
+  useEffect(() => {
+    if (currentSubscription?.isActive && currentSubscription.packageId) {
+      setSelectedPlan(currentSubscription.packageId);
+      // Also set billing period to match current plan
+      if (currentSubscription.period && periods.includes(currentSubscription.period)) {
+        setSelectedPeriod(currentSubscription.period);
+      }
+    }
+  }, [currentSubscription, periods]);
+
+  const handlePlanSelect = useCallback(
+    (planIdentifier: string | null) => {
+      setSelectedPlan(planIdentifier);
+      track('plan_selected', {
+        plan_identifier: planIdentifier ?? 'free',
+        is_free_tier: planIdentifier === null,
+      });
     },
     [track]
   );
@@ -286,11 +313,10 @@ export function AppSubscriptionsPage({
     if (!selectedPlan) return;
 
     setIsPurchasing(true);
-    clearError();
     track('purchase_initiated', { plan_identifier: selectedPlan });
 
     try {
-      const result = await purchase(selectedPlan, subscriptionUserId);
+      const result = await onPurchase(selectedPlan);
       if (result) {
         track('purchase_completed', { plan_identifier: selectedPlan });
         onPurchaseSuccess?.();
@@ -314,34 +340,20 @@ export function AppSubscriptionsPage({
     }
   }, [
     selectedPlan,
-    clearError,
     track,
-    purchase,
-    subscriptionUserId,
+    onPurchase,
     onPurchaseSuccess,
     labels.errorTitle,
     labels.purchaseError,
     onError,
   ]);
 
-  const handlePlanSelect = useCallback(
-    (planIdentifier: string | null) => {
-      setSelectedPlan(planIdentifier);
-      track('plan_selected', {
-        plan_identifier: planIdentifier ?? 'free',
-        is_free_tier: planIdentifier === null,
-      });
-    },
-    [track]
-  );
-
   const handleRestore = useCallback(async () => {
     setIsRestoring(true);
-    clearError();
     track('restore_initiated');
 
     try {
-      const result = await restore(subscriptionUserId);
+      const result = await onRestore();
       if (result) {
         track('restore_completed');
         onRestoreSuccess?.();
@@ -358,10 +370,8 @@ export function AppSubscriptionsPage({
       setIsRestoring(false);
     }
   }, [
-    clearError,
     track,
-    restore,
-    subscriptionUserId,
+    onRestore,
     onRestoreSuccess,
     labels.errorTitle,
     labels.restoreNoPurchases,
@@ -379,56 +389,24 @@ export function AppSubscriptionsPage({
     }).format(date);
   }, []);
 
-  /**
-   * Format a product identifier into a user-friendly display name.
-   * Used as fallback when the product isn't in the products list.
-   * e.g., "pro_monthly" → "Pro Monthly", "enterprise_yearly" → "Enterprise Yearly"
-   */
-  const formatProductIdentifier = useCallback(
-    (identifier?: string): string => {
-      if (!identifier) return labels.labelPremium;
+  const formatProductName = useCallback(
+    (packageId?: string, productId?: string): string => {
+      if (!packageId && !productId) return labels.labelPremium;
 
-      // First try to find the product in the list
-      const product = products.find(p => p.identifier === identifier);
-      if (product?.title) return product.title;
+      // Try to find the package in current packages
+      const pkg = packages.find(
+        p => p.packageId === packageId || p.product?.productId === productId
+      );
+      if (pkg?.name) return pkg.name;
 
       // Fallback: format the identifier into a readable name
-      // Split by underscore or hyphen, capitalize each word
+      const identifier = packageId || productId || '';
       return identifier
         .split(/[_-]/)
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
     },
-    [products, labels.labelPremium]
-  );
-
-  const getPeriodLabel = useCallback(
-    (period?: string) => {
-      if (!period) return '';
-      if (period.includes('Y') || period.includes('year'))
-        return labels.periodYear;
-      if (period.includes('M') || period.includes('month'))
-        return labels.periodMonth;
-      if (period.includes('W') || period.includes('week'))
-        return labels.periodWeek;
-      return '';
-    },
-    [labels]
-  );
-
-  const getTrialLabel = useCallback(
-    (trialPeriod?: string) => {
-      if (!trialPeriod) return undefined;
-      const num = parseInt(trialPeriod.replace(/\D/g, '') || '1', 10);
-      if (trialPeriod.includes('W')) {
-        return formatters.formatTrialWeeks(num);
-      }
-      if (trialPeriod.includes('M')) {
-        return formatters.formatTrialMonths(num);
-      }
-      return formatters.formatTrialDays(num);
-    },
-    [formatters]
+    [packages, labels.labelPremium]
   );
 
   const formatRateLimit = useCallback(
@@ -439,56 +417,14 @@ export function AppSubscriptionsPage({
     [labels.unlimited]
   );
 
-  // Use formatters.getProductFeatures directly (same as AppPricingPage)
-  const getProductFeatures = useCallback(
-    (packageId: string): string[] => {
-      return formatters.getProductFeatures(packageId);
-    },
-    [formatters]
-  );
-
-  // Free tier features come from labels (same as AppPricingPage)
-  const getFreeTierFeatures = useCallback((): string[] => {
-    return labels.freeTierFeatures;
-  }, [labels.freeTierFeatures]);
-
-  const getYearlySavingsPercent = useCallback(
-    (yearlyPackageId: string): number | undefined => {
-      const yearlyProduct = products.find(
-        p => p.identifier === yearlyPackageId
-      );
-      if (!yearlyProduct) return undefined;
-
-      // Find monthly equivalent by naming convention (replace _yearly with _monthly)
-      const monthlyPackageId = yearlyPackageId.replace('_yearly', '_monthly');
-      const monthlyProduct = products.find(
-        p => p.identifier === monthlyPackageId
-      );
-      if (!monthlyProduct) return undefined;
-
-      const yearlyPrice = parseFloat(yearlyProduct.price);
-      const monthlyPrice = parseFloat(monthlyProduct.price);
-
-      if (monthlyPrice <= 0 || yearlyPrice <= 0) return undefined;
-
-      const annualizedMonthly = monthlyPrice * 12;
-      const savings =
-        ((annualizedMonthly - yearlyPrice) / annualizedMonthly) * 100;
-
-      return Math.round(savings);
-    },
-    [products]
-  );
-
-  const billingPeriodOptions = [
-    { value: 'monthly' as const, label: labels.billingMonthly },
-    { value: 'yearly' as const, label: labels.billingYearly },
-  ];
+  // Separate free tier from paid packages
+  const freeTierPackage = packages.find(p => !p.product);
+  const paidPackages = packages.filter(p => p.product);
 
   return (
     <SubscriptionLayout
       title={labels.title}
-      error={error}
+      error={error?.message}
       currentStatusLabel={labels.currentStatusLabel}
       currentStatus={{
         isActive: currentSubscription?.isActive ?? false,
@@ -498,15 +434,14 @@ export function AppSubscriptionsPage({
               fields: [
                 {
                   label: labels.labelPlan,
-                  value: formatProductIdentifier(
-                    currentSubscription.productIdentifier
+                  value: formatProductName(
+                    currentSubscription.packageId,
+                    currentSubscription.productId
                   ),
                 },
                 {
                   label: labels.labelExpires,
-                  value: formatExpirationDate(
-                    currentSubscription.expirationDate
-                  ),
+                  value: formatExpirationDate(currentSubscription.expirationDate),
                 },
                 {
                   label: labels.labelWillRenew,
@@ -535,11 +470,11 @@ export function AppSubscriptionsPage({
           : undefined,
       }}
       aboveProducts={
-        !isLoading && products.length > 0 ? (
+        !isLoading && periods.length > 1 ? (
           <div className='flex justify-center mb-6'>
             <SegmentedControl
               options={billingPeriodOptions}
-              value={billingPeriod}
+              value={selectedPeriod}
               onChange={handlePeriodChange}
             />
           </div>
@@ -562,29 +497,31 @@ export function AppSubscriptionsPage({
         <div className='flex items-center justify-center py-12'>
           <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600' />
         </div>
-      ) : products.length === 0 ? (
+      ) : error ? (
+        <div className='text-center py-12 text-red-500'>{error.message}</div>
+      ) : packages.length === 0 ? (
         <div className='text-center py-12 text-theme-text-secondary'>
           {labels.noProducts}
         </div>
-      ) : filteredProducts.length === 0 ? (
+      ) : paidPackages.length === 0 ? (
         <div className='text-center py-12 text-theme-text-secondary'>
           {labels.noProductsForPeriod}
         </div>
       ) : (
         <>
           {/* Free tier tile - only show if user has no subscription */}
-          {!currentSubscription?.isActive && (
+          {freeTierPackage && !currentSubscription?.isActive && (
             <SubscriptionTile
               key='free'
               id='free'
               title={labels.freeTierTitle}
               price={labels.freeTierPrice}
               periodLabel={labels.periodMonth}
-              features={getFreeTierFeatures()}
+              features={labels.freeTierFeatures}
               isSelected={selectedPlan === null}
               isCurrentPlan={!currentSubscription?.isActive}
               onSelect={() => handlePlanSelect(null)}
-              enabled={subscribablePackageIds.includes('free')}
+              enabled={isPackageEnabled('free')}
               topBadge={{
                 text: labels.currentPlanBadge,
                 color: 'green',
@@ -593,29 +530,28 @@ export function AppSubscriptionsPage({
               hideSelectionIndicator
             />
           )}
+
           {/* Paid plans */}
-          {filteredProducts.map(product => {
-            const isCurrent = isCurrentPlanProduct(product.identifier);
-            const isEnabled = isPackageEnabled(product.identifier);
-            const canUpgrade = canUpgradeTo(product.identifier);
+          {paidPackages.map(pkg => {
+            const isCurrent = isCurrentPlan(pkg.packageId, pkg.product?.productId);
+            const isEnabled = isPackageEnabled(pkg.packageId);
+            const canUpgrade = canUpgradeTo(pkg.packageId, pkg.product?.productId);
             // Can only select if it's an upgrade or it's the current plan
             const canSelect = canUpgrade || isCurrent;
 
             return (
               <SubscriptionTile
-                key={product.identifier}
-                id={product.identifier}
-                title={product.title}
-                price={product.priceString}
-                periodLabel={getPeriodLabel(product.period)}
-                features={getProductFeatures(product.identifier)}
-                isSelected={selectedPlan === product.identifier}
+                key={pkg.packageId}
+                id={pkg.packageId}
+                title={pkg.name}
+                price={pkg.product?.priceString ?? '$0'}
+                periodLabel={getPeriodLabel(pkg.product?.period ?? 'monthly')}
+                features={formatters.getProductFeatures(pkg.packageId)}
+                isSelected={selectedPlan === pkg.packageId}
                 isCurrentPlan={isCurrent}
-                onSelect={() =>
-                  canSelect && handlePlanSelect(product.identifier)
-                }
+                onSelect={() => canSelect && handlePlanSelect(pkg.packageId)}
                 enabled={isEnabled}
-                isBestValue={product.identifier.includes('pro')}
+                isBestValue={pkg.packageId.includes('pro')}
                 topBadge={
                   isCurrent
                     ? {
@@ -625,11 +561,9 @@ export function AppSubscriptionsPage({
                     : undefined
                 }
                 discountBadge={
-                  product.period?.includes('Y')
+                  selectedPeriod === 'yearly'
                     ? (() => {
-                        const savings = getYearlySavingsPercent(
-                          product.identifier
-                        );
+                        const savings = getYearlySavingsPercent(pkg);
                         return savings && savings > 0
                           ? {
                               text: formatters.formatSavePercent(savings),
@@ -640,10 +574,17 @@ export function AppSubscriptionsPage({
                     : undefined
                 }
                 introPriceNote={
-                  product.freeTrialPeriod
-                    ? getTrialLabel(product.freeTrialPeriod)
-                    : product.introPrice
-                      ? formatters.formatIntroNote(product.introPrice)
+                  pkg.product?.trialPeriod
+                    ? (() => {
+                        const period = pkg.product?.trialPeriod;
+                        if (!period) return undefined;
+                        const num = parseInt(period.replace(/\D/g, '') || '1', 10);
+                        if (period.includes('W')) return formatters.formatTrialWeeks(num);
+                        if (period.includes('M')) return formatters.formatTrialMonths(num);
+                        return formatters.formatTrialDays(num);
+                      })()
+                    : pkg.product?.introPrice
+                      ? formatters.formatIntroNote(pkg.product.introPrice)
                       : undefined
                 }
                 disabled={isPurchasing || isRestoring || !canSelect}

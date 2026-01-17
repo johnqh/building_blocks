@@ -25,6 +25,7 @@ export default defineConfig({
         '@sudobility/web3-components',
         '@sudobility/devops-components',
         '@sudobility/subscription-components',
+        '@sudobility/subscription_lib',
         '@sudobility/types',
         'class-variance-authority',
         'clsx',
