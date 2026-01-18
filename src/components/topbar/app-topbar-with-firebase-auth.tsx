@@ -112,6 +112,7 @@ export const AppTopBarWithFirebaseAuth: React.FC<
       loginButtonText={loginButtonText}
       loginButtonClassName={cn(
         GRADIENT_CLASSES.headerButton,
+        'py-1.5',
         loginButtonClassName
       )}
     />
