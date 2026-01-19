@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.71",
+  "version": "0.0.72",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "main": "./dist/index.js",
@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@heroicons/react": "^2.0.0",
-    "@sudobility/components": "^4.0.162",
+    "@sudobility/components": "^4.0.163",
     "@sudobility/design": "^1.1.18",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
@@ -71,7 +71,7 @@
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "@heroicons/react": "^2.2.0",
-    "@sudobility/components": "^4.0.162",
+    "@sudobility/components": "^4.0.163",
     "@sudobility/design": "^1.1.18",
     "firebase": "^12.4.0",
     "@sudobility/subscription-components": "^1.0.24",
