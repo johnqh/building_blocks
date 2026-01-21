@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.76",
+  "version": "0.0.77",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "main": "./dist/index.js",
@@ -10,6 +10,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./firebase": {
+      "import": "./dist/firebase.js",
+      "types": "./dist/firebase.d.ts"
     }
   },
   "files": [

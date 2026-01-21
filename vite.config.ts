@@ -6,10 +6,12 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        firebase: resolve(__dirname, 'src/firebase.ts'),
+      },
       name: 'BuildingBlocks',
       formats: ['es'],
-      fileName: 'index',
     },
     rollupOptions: {
       external: [
