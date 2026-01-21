@@ -46,6 +46,12 @@ export interface SudobilityAppWithFirebaseAuthProps extends Omit<
    * These are rendered inside ApiProvider but outside BrowserRouter.
    */
   AppProviders?: ComponentType<{ children: ReactNode }>;
+
+  /**
+   * Whether running in test/sandbox mode (optional).
+   * Passed to ApiProvider. Defaults to false.
+   */
+  testMode?: boolean;
 }
 
 /**
@@ -200,6 +206,7 @@ export function SudobilityAppWithFirebaseAuth({
   enableAnonymousAuth = false,
   ApiProvider: ApiProviderProp,
   AppProviders,
+  testMode = false,
   ...baseProps
 }: SudobilityAppWithFirebaseAuthProps) {
   // Create a combined providers component that includes auth and api
@@ -220,7 +227,7 @@ export function SudobilityAppWithFirebaseAuth({
       content = <ApiProviderProp>{content}</ApiProviderProp>;
     } else {
       // Default ApiProvider
-      content = <ApiProvider>{content}</ApiProvider>;
+      content = <ApiProvider testMode={testMode}>{content}</ApiProvider>;
     }
 
     // Wrap with AuthProviderWrapper (custom or default)

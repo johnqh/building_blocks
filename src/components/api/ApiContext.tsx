@@ -37,6 +37,8 @@ export interface ApiContextValue {
   isLoading: boolean;
   /** Force refresh the ID token */
   refreshToken: () => Promise<string | null>;
+  /** Whether running in test/sandbox mode */
+  testMode: boolean;
 }
 
 const ApiContext = createContext<ApiContextValue | null>(null);
@@ -67,6 +69,11 @@ interface ApiProviderProps {
    * Defaults to VITE_API_URL env var.
    */
   baseUrl?: string;
+  /**
+   * Whether running in test/sandbox mode (optional).
+   * Defaults to false.
+   */
+  testMode?: boolean;
 }
 
 /**
@@ -78,6 +85,7 @@ interface ApiProviderProps {
 export function ApiProvider({
   children,
   baseUrl: baseUrlProp,
+  testMode = false,
 }: ApiProviderProps) {
   const { user, loading: authLoading } = useAuthStatus();
   const [token, setToken] = useState<string | null>(null);
@@ -170,8 +178,9 @@ export function ApiProvider({
       isReady: !!userId && !!token,
       isLoading: authLoading || tokenLoading,
       refreshToken,
+      testMode,
     }),
-    [baseUrl, userId, token, authLoading, tokenLoading, refreshToken]
+    [baseUrl, userId, token, authLoading, tokenLoading, refreshToken, testMode]
   );
 
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
