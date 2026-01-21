@@ -275,7 +275,7 @@ function DefaultToastContainer() {
     <SharedToastContainer
       toasts={toasts}
       onDismiss={removeToast}
-      position="bottom-right"
+      position='bottom-right'
     />
   );
 }
