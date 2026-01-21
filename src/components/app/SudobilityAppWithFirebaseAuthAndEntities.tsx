@@ -38,11 +38,18 @@ export interface SudobilityAppWithFirebaseAuthAndEntitiesProps extends Omit<
   entityApiUrl?: string;
 
   /**
-   * RevenueCat API key for subscriptions (optional).
+   * RevenueCat API key for production subscriptions (optional).
    * If not provided, reads from VITE_REVENUECAT_API_KEY env var.
    * If neither is available, subscription features are disabled.
    */
   revenueCatApiKey?: string;
+
+  /**
+   * RevenueCat API key for sandbox/test subscriptions (optional).
+   * Used when testMode is true.
+   * If not provided, reads from VITE_REVENUECAT_API_KEY_SANDBOX env var.
+   */
+  revenueCatApiKeySandbox?: string;
 
   /**
    * Custom AuthAwareEntityProvider component (optional).
@@ -192,9 +199,11 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
   apiUrl,
   entityApiUrl, // deprecated, use apiUrl
   revenueCatApiKey,
+  revenueCatApiKeySandbox,
   AuthAwareEntityProvider: AuthAwareEntityProviderProp,
   EntityAwareSubscriptionProvider: EntityAwareSubscriptionProviderProp,
   AppProviders,
+  testMode = false,
   ...baseProps
 }: SudobilityAppWithFirebaseAuthAndEntitiesProps) {
   // Get API URL from prop or env var
@@ -208,8 +217,14 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
     [entityUrl]
   );
 
-  // Get RevenueCat API key from prop or env var
-  const rcApiKey = revenueCatApiKey || import.meta.env.VITE_REVENUECAT_API_KEY;
+  // Get RevenueCat API key from prop or env var, selecting based on testMode
+  const rcApiKeyProd =
+    revenueCatApiKey || import.meta.env.VITE_REVENUECAT_API_KEY || '';
+  const rcApiKeySandbox =
+    revenueCatApiKeySandbox ||
+    import.meta.env.VITE_REVENUECAT_API_KEY_SANDBOX ||
+    '';
+  const rcApiKey = testMode ? rcApiKeySandbox : rcApiKeyProd;
 
   // Create a combined providers component that includes entity support
   const EntityProviders: ComponentType<{ children: ReactNode }> = ({
@@ -269,6 +284,7 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
     <SudobilityAppWithFirebaseAuth
       {...baseProps}
       baseUrl={baseApiUrl}
+      testMode={testMode}
       AppProviders={EntityProviders}
     />
   );
