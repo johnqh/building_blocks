@@ -39,7 +39,11 @@ import {
   Theme,
   FontSize,
 } from '@sudobility/components';
-import { ToastProvider as SharedToastProvider } from '@sudobility/components/ui/toast';
+import {
+  ToastProvider as SharedToastProvider,
+  ToastContainer as SharedToastContainer,
+  useToast,
+} from '@sudobility/components/ui/toast';
 import { getI18n } from '../../i18n';
 
 /**
@@ -92,7 +96,10 @@ export interface SudobilityAppProps {
    */
   ToastProvider?: ComponentType<{ children: ReactNode }>;
 
-  /** Toast container component rendered after routes (optional) */
+  /**
+   * Toast container component rendered after routes (optional).
+   * Defaults to a built-in container that renders toasts from context at bottom-right.
+   */
   ToastContainer?: ComponentType;
 
   /**
@@ -256,6 +263,24 @@ function DefaultToastProvider({ children }: { children: ReactNode }) {
 }
 
 /**
+ * Default toast container that renders toasts from context.
+ * Wraps SharedToastContainer with useToast consumer.
+ */
+function DefaultToastContainer() {
+  const { toasts, removeToast } = useToast();
+
+  if (toasts.length === 0) return null;
+
+  return (
+    <SharedToastContainer
+      toasts={toasts}
+      onDismiss={removeToast}
+      position="bottom-right"
+    />
+  );
+}
+
+/**
  * SudobilityApp - Base app wrapper for all Sudobility apps
  *
  * @example
@@ -322,6 +347,8 @@ export function SudobilityApp({
 
   const ToastProviderComponent = ToastProviderProp ?? DefaultToastProvider;
 
+  const ToastContainerComponent = ToastContainer ?? DefaultToastContainer;
+
   const queryClientInstance = queryClient ?? getDefaultQueryClient();
 
   // Build the router content
@@ -329,7 +356,7 @@ export function SudobilityApp({
     <>
       {PageTrackerComponent && <PageTrackerComponent />}
       <Suspense fallback={<LoadingFallback />}>{children}</Suspense>
-      {ToastContainer && <ToastContainer />}
+      <ToastContainerComponent />
       {showInfoBanner && <InfoBanner />}
     </>
   );
