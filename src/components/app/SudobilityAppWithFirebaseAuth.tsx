@@ -52,6 +52,12 @@ export interface SudobilityAppWithFirebaseAuthProps extends Omit<
    * Passed to ApiProvider. Defaults to false.
    */
   testMode?: boolean;
+
+  /**
+   * Base URL for API requests (optional).
+   * Passed to ApiProvider. Defaults to VITE_API_URL env var.
+   */
+  baseUrl?: string;
 }
 
 /**
@@ -207,6 +213,7 @@ export function SudobilityAppWithFirebaseAuth({
   ApiProvider: ApiProviderProp,
   AppProviders,
   testMode = false,
+  baseUrl,
   ...baseProps
 }: SudobilityAppWithFirebaseAuthProps) {
   // Create a combined providers component that includes auth and api
@@ -227,7 +234,11 @@ export function SudobilityAppWithFirebaseAuth({
       content = <ApiProviderProp>{content}</ApiProviderProp>;
     } else {
       // Default ApiProvider
-      content = <ApiProvider testMode={testMode}>{content}</ApiProvider>;
+      content = (
+        <ApiProvider baseUrl={baseUrl} testMode={testMode}>
+          {content}
+        </ApiProvider>
+      );
     }
 
     // Wrap with AuthProviderWrapper (custom or default)

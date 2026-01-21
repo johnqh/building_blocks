@@ -268,6 +268,7 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
   return (
     <SudobilityAppWithFirebaseAuth
       {...baseProps}
+      baseUrl={baseApiUrl}
       AppProviders={EntityProviders}
     />
   );
