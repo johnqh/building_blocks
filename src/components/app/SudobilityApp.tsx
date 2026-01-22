@@ -140,6 +140,13 @@ export interface SudobilityAppProps {
    * same origin or if you want app-specific debugging visibility.
    */
   storageKeyPrefix?: string;
+
+  /**
+   * Custom router wrapper component (optional).
+   * Defaults to BrowserRouter. Pass a fragment wrapper `({ children }) => <>{children}</>`
+   * to skip the router entirely (useful when nesting inside an existing router).
+   */
+  RouterWrapper?: ComponentType<{ children: ReactNode }>;
 }
 
 /**
@@ -329,6 +336,7 @@ export function SudobilityApp({
   PageTracker: PageTrackerProp,
   AppProviders,
   storageKeyPrefix = 'sudobility',
+  RouterWrapper,
 }: SudobilityAppProps) {
   // Get i18n instance (custom or default)
   const i18nToUse = i18nInstance ?? getI18n();
@@ -351,6 +359,9 @@ export function SudobilityApp({
 
   const queryClientInstance = queryClient ?? getDefaultQueryClient();
 
+  // Use custom RouterWrapper or default BrowserRouter
+  const RouterWrapperComponent = RouterWrapper ?? BrowserRouter;
+
   // Build the router content
   let routerContent: ReactNode = (
     <>
@@ -361,8 +372,8 @@ export function SudobilityApp({
     </>
   );
 
-  // Wrap with BrowserRouter
-  routerContent = <BrowserRouter>{routerContent}</BrowserRouter>;
+  // Wrap with Router
+  routerContent = <RouterWrapperComponent>{routerContent}</RouterWrapperComponent>;
 
   // Wrap with AppProviders if provided
   if (AppProviders) {

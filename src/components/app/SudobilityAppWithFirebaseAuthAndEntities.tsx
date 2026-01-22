@@ -21,7 +21,7 @@ import { LazySubscriptionProvider } from '../subscription';
 
 export interface SudobilityAppWithFirebaseAuthAndEntitiesProps extends Omit<
   SudobilityAppWithFirebaseAuthProps,
-  'AppProviders'
+  'AppProviders' | 'RouterWrapper'
 > {
   /**
    * Base URL for the API (optional).
@@ -72,6 +72,13 @@ export interface SudobilityAppWithFirebaseAuthAndEntitiesProps extends Omit<
    * Use this for app-specific providers like ApiProvider.
    */
   AppProviders?: ComponentType<{ children: ReactNode }>;
+
+  /**
+   * Custom router wrapper component (optional).
+   * Defaults to BrowserRouter. Pass a fragment wrapper `({ children }) => <>{children}</>`
+   * to skip the router entirely (useful when nesting inside an existing router).
+   */
+  RouterWrapper?: ComponentType<{ children: ReactNode }>;
 }
 
 /**
@@ -203,6 +210,7 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
   AuthAwareEntityProvider: AuthAwareEntityProviderProp,
   EntityAwareSubscriptionProvider: EntityAwareSubscriptionProviderProp,
   AppProviders,
+  RouterWrapper,
   testMode = false,
   ...baseProps
 }: SudobilityAppWithFirebaseAuthAndEntitiesProps) {
@@ -286,6 +294,7 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
       baseUrl={baseApiUrl}
       testMode={testMode}
       AppProviders={EntityProviders}
+      RouterWrapper={RouterWrapper}
     />
   );
 }

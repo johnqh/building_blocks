@@ -14,7 +14,7 @@ import { ApiProvider } from '../api';
 
 export interface SudobilityAppWithFirebaseAuthProps extends Omit<
   SudobilityAppProps,
-  'AppProviders'
+  'AppProviders' | 'RouterWrapper'
 > {
   /**
    * Custom Firebase auth provider wrapper component (optional).
@@ -46,6 +46,13 @@ export interface SudobilityAppWithFirebaseAuthProps extends Omit<
    * These are rendered inside ApiProvider but outside BrowserRouter.
    */
   AppProviders?: ComponentType<{ children: ReactNode }>;
+
+  /**
+   * Custom router wrapper component (optional).
+   * Defaults to BrowserRouter. Pass a fragment wrapper `({ children }) => <>{children}</>`
+   * to skip the router entirely (useful when nesting inside an existing router).
+   */
+  RouterWrapper?: ComponentType<{ children: ReactNode }>;
 
   /**
    * Whether running in test/sandbox mode (optional).
@@ -212,6 +219,7 @@ export function SudobilityAppWithFirebaseAuth({
   enableAnonymousAuth = false,
   ApiProvider: ApiProviderProp,
   AppProviders,
+  RouterWrapper,
   testMode = false,
   baseUrl,
   ...baseProps
@@ -256,7 +264,13 @@ export function SudobilityAppWithFirebaseAuth({
     );
   };
 
-  return <SudobilityApp {...baseProps} AppProviders={CombinedProviders} />;
+  return (
+    <SudobilityApp
+      {...baseProps}
+      AppProviders={CombinedProviders}
+      RouterWrapper={RouterWrapper}
+    />
+  );
 }
 
 export default SudobilityAppWithFirebaseAuth;
