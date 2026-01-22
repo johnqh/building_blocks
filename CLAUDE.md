@@ -91,8 +91,14 @@ src/
 │   └── index.ts
 ├── utils/                        # Utility functions
 │   └── index.ts                  # cn() classname utility
+├── i18n/                         # Internationalization utilities
+│   └── index.ts                  # Translation helpers
+├── firebase.ts                   # Firebase auth utilities
 ├── types.ts                      # All TypeScript type definitions
 ├── index.ts                      # Main entry point
+├── vite-env.d.ts                 # Vite environment types
+├── test/                         # Test setup
+│   └── setup.ts                  # Vitest setup file
 └── __tests__/                    # Test files (85 tests)
     ├── app-breadcrumbs.test.tsx
     ├── app-footer.test.tsx
