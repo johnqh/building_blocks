@@ -373,7 +373,9 @@ export function SudobilityApp({
   );
 
   // Wrap with Router
-  routerContent = <RouterWrapperComponent>{routerContent}</RouterWrapperComponent>;
+  routerContent = (
+    <RouterWrapperComponent>{routerContent}</RouterWrapperComponent>
+  );
 
   // Wrap with AppProviders if provided
   if (AppProviders) {
