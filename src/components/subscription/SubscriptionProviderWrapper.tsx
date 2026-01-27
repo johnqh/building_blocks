@@ -10,7 +10,7 @@ import {
   useSubscriptionContext,
 } from '@sudobility/subscription-components';
 import { useAuthStatus } from '@sudobility/auth-components';
-import { getInfoService } from '@sudobility/di';
+import { getInfoService } from '@sudobility/di/info';
 import { InfoType } from '@sudobility/types';
 import {
   setRevenueCatUser,

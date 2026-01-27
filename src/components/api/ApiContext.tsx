@@ -14,7 +14,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
-import { getInfoService } from '@sudobility/di';
+import { getInfoService } from '@sudobility/di/info';
 import { InfoType } from '@sudobility/types';
 import type { NetworkClient } from '@sudobility/types';
 import { useAuthStatus } from '@sudobility/auth-components';

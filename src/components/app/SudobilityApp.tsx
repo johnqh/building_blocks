@@ -32,8 +32,8 @@ import { I18nextProvider } from 'react-i18next';
 import type { i18n } from 'i18next';
 import { useLocation } from 'react-router-dom';
 import { NetworkProvider } from '@sudobility/devops-components';
-import { getNetworkService, getFirebaseService } from '@sudobility/di';
-import { InfoBanner } from '@sudobility/di_web';
+import { getNetworkService } from '@sudobility/di';
+import { getFirebaseService, InfoBanner } from '@sudobility/di_web';
 import {
   ThemeProvider as SharedThemeProvider,
   Theme,
