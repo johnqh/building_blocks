@@ -11,13 +11,17 @@ import {
   useState,
   useMemo,
   useCallback,
+  useRef,
   type ReactNode,
 } from 'react';
-import { networkClient, getInfoService } from '@sudobility/di';
+import { getInfoService } from '@sudobility/di';
 import { InfoType } from '@sudobility/types';
 import type { NetworkClient } from '@sudobility/types';
 import { useAuthStatus } from '@sudobility/auth-components';
-import { getFirebaseAuth } from '@sudobility/auth_lib';
+import {
+  getFirebaseAuth,
+  FirebaseAuthNetworkService,
+} from '@sudobility/auth_lib';
 
 /**
  * API context value provided to consumers
@@ -169,9 +173,38 @@ export function ApiProvider({
     }
   }, [auth]);
 
+  // Create FirebaseAuthNetworkService instance once
+  // This handles automatic token refresh on 401 responses
+  // Note: FirebaseAuthNetworkService doesn't perfectly implement NetworkClient interface
+  // (different request signature), but it's compatible at runtime for our use cases.
+  // Using type assertion as a workaround for the interface mismatch between
+  // @sudobility/auth_lib and @sudobility/types.
+  const networkClientRef = useRef<NetworkClient | null>(null);
+  if (!networkClientRef.current) {
+    const firebaseNetworkService = new FirebaseAuthNetworkService({
+      onTokenRefreshFailed: error => {
+        console.error('[ApiProvider] Token refresh failed:', error);
+        try {
+          getInfoService().show(
+            'Authentication Error',
+            'Session expired. Please sign in again.',
+            InfoType.ERROR,
+            5000
+          );
+        } catch {
+          // InfoService not available
+        }
+      },
+    });
+    // Type assertion needed due to interface mismatch between FirebaseAuthNetworkService
+    // and NetworkClient (auth_lib uses RequestInit/Response while types uses NetworkRequestOptions/NetworkResponse)
+    networkClientRef.current =
+      firebaseNetworkService as unknown as NetworkClient;
+  }
+
   const value = useMemo<ApiContextValue>(
     () => ({
-      networkClient,
+      networkClient: networkClientRef.current!,
       baseUrl,
       userId,
       token,
