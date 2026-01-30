@@ -9,7 +9,11 @@ import { ComponentType, ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SudobilityApp, SudobilityAppProps } from './SudobilityApp';
 import { AuthProvider } from '@sudobility/auth-components';
-import { getFirebaseAuth, getFirebaseErrorMessage } from '@sudobility/auth_lib';
+import {
+  getFirebaseAuth,
+  getFirebaseErrorMessage,
+  initializeFirebaseAuth,
+} from '@sudobility/auth_lib';
 import { ApiProvider } from '../api';
 
 export interface SudobilityAppWithFirebaseAuthProps extends Omit<
@@ -151,6 +155,9 @@ function DefaultAuthProviderWrapper({
 
   const texts = useMemo(() => createDefaultAuthTexts(t), [t]);
   const errorTexts = useMemo(() => createDefaultAuthErrorTexts(), []);
+
+  // Initialize Firebase Auth (idempotent - safe to call multiple times)
+  initializeFirebaseAuth();
 
   const auth = getFirebaseAuth();
 
