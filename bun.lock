@@ -11,8 +11,8 @@
         "@eslint/js": "^9.38.0",
         "@heroicons/react": "^2.2.0",
         "@sudobility/auth-components": "^1.0.7",
-        "@sudobility/auth_lib": "^0.0.34",
-        "@sudobility/components": "^5.0.2",
+        "@sudobility/auth_lib": "^0.0.35",
+        "@sudobility/components": "^5.0.4",
         "@sudobility/design": "^1.1.18",
         "@sudobility/devops-components": "^2.0.16",
         "@sudobility/di": "^1.5.31",
@@ -54,7 +54,7 @@
       },
       "peerDependencies": {
         "@heroicons/react": "^2.0.0",
-        "@sudobility/components": "^5.0.2",
+        "@sudobility/components": "^5.0.4",
         "@sudobility/design": "^1.1.18",
         "@tanstack/react-query": "^5.0.0",
         "class-variance-authority": "^0.7.0",
@@ -484,9 +484,9 @@
 
     "@sudobility/auth-components": ["@sudobility/auth-components@1.0.7", "", { "optionalDependencies": { "@rollup/rollup-linux-x64-gnu": "4.52.5", "@rollup/rollup-linux-x64-musl": "4.52.5" }, "peerDependencies": { "@heroicons/react": "^2.2.0", "@sudobility/components": "^4.0.160", "@sudobility/design": "^1.1.18", "firebase": "^10.0.0 || ^11.0.0 || ^12.0.0", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" } }, "sha512-dI65dUh8Uv5lpJoFXs6g9vXnXlWfWKTE7Fa5DprS9iChp6ytWk481a4J1lTqmNMlb0xP4A4u2KaAMRzcCCmQpQ=="],
 
-    "@sudobility/auth_lib": ["@sudobility/auth_lib@0.0.34", "", { "peerDependencies": { "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/auth": ">=18.0.0", "@sudobility/di": "^1.5.31", "@sudobility/di_rn": "^0.1.17", "@sudobility/di_web": "^0.1.92", "@sudobility/types": "^1.9.49", "@tanstack/react-query": "^5.0.0", "firebase": "^12.7.0", "react": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@react-native-firebase/app", "@react-native-firebase/auth", "@sudobility/di_rn", "@sudobility/di_web", "firebase"] }, "sha512-pPChNaF8B2+eJTQOlehLc0kPgzcb044HOkkBKQ69AkcTbOGNjNd8oduHNJqG2L1rFvxZL9h2Zj2f/V9SEOF8hw=="],
+    "@sudobility/auth_lib": ["@sudobility/auth_lib@0.0.35", "", { "peerDependencies": { "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/auth": ">=18.0.0", "@sudobility/di": "^1.5.31", "@sudobility/di_rn": "^0.1.18", "@sudobility/di_web": "^0.1.92", "@sudobility/types": "^1.9.49", "@tanstack/react-query": "^5.0.0", "firebase": "^12.7.0", "react": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@react-native-firebase/app", "@react-native-firebase/auth", "@sudobility/di_rn", "@sudobility/di_web", "firebase"] }, "sha512-e5Ford8ab41oNwI9XO+ciUYDeZouA49/HNeVgQ+TEb8EO1yMyd1omOkJPc34VjvCQ9rSH/mgWMUsLkINU2R3uA=="],
 
-    "@sudobility/components": ["@sudobility/components@5.0.2", "", { "optionalDependencies": { "@rollup/rollup-linux-x64-gnu": "4.52.5", "@rollup/rollup-linux-x64-musl": "4.52.5" }, "peerDependencies": { "@heroicons/react": ">=2.0.0", "@radix-ui/react-alert-dialog": ">=1.0.0", "@radix-ui/react-dialog": ">=1.0.0", "@radix-ui/react-label": ">=2.0.0", "@radix-ui/react-select": ">=2.0.0", "@radix-ui/react-slot": ">=1.0.0", "@radix-ui/react-switch": ">=1.0.0", "@radix-ui/react-tabs": ">=1.0.0", "@sudobility/design": "^1.1.18", "@sudobility/types": "^1.9.49", "class-variance-authority": ">=0.7.0", "clsx": ">=2.0.0", "i18next": ">=23.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0", "react-i18next": ">=14.0.0", "react-router-dom": ">=6.0.0", "tailwind-merge": ">=2.0.0", "web-vitals": ">=3.0.0" } }, "sha512-G7IWaJZMb6oVILTsYj8Mms+/6cOWqcBvlAcyNQF2HthAc385XBGurc9A9uL5kOLjAY/9tjKUAP9TIJyjie31vQ=="],
+    "@sudobility/components": ["@sudobility/components@5.0.4", "", { "optionalDependencies": { "@rollup/rollup-linux-x64-gnu": "4.52.5", "@rollup/rollup-linux-x64-musl": "4.52.5" }, "peerDependencies": { "@heroicons/react": ">=2.0.0", "@radix-ui/react-alert-dialog": ">=1.0.0", "@radix-ui/react-dialog": ">=1.0.0", "@radix-ui/react-label": ">=2.0.0", "@radix-ui/react-select": ">=2.0.0", "@radix-ui/react-slot": ">=1.0.0", "@radix-ui/react-switch": ">=1.0.0", "@radix-ui/react-tabs": ">=1.0.0", "@sudobility/design": "^1.1.18", "@sudobility/types": "^1.9.49", "class-variance-authority": ">=0.7.0", "clsx": ">=2.0.0", "i18next": ">=23.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0", "react-i18next": ">=14.0.0", "react-router-dom": ">=6.0.0", "tailwind-merge": ">=2.0.0", "web-vitals": ">=3.0.0" } }, "sha512-Vn/EM7QFkXhVKZBRF3tT23J3BmWhJxDvagAJrxYe7gDoypnRskRRXt6PY605bvFni0SK7vxnpLUCal4bSACotA=="],
 
     "@sudobility/design": ["@sudobility/design@1.1.18", "", { "peerDependencies": { "clsx": ">=2.0.0", "tailwind-merge": ">=2.0.0" } }, "sha512-LAgViMJvlBJIykYAPqXohsTWZFHZPmWuU0tprhSoT5tVRWisQrqzjTEGMJ2nzYK23E+bb1F+F0W4ZV8jUB6cKA=="],
 
