@@ -14,6 +14,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
+import { onIdTokenChanged } from 'firebase/auth';
 import { getInfoService } from '@sudobility/di/info';
 import { InfoType } from '@sudobility/types';
 import type { NetworkClient } from '@sudobility/types';
@@ -99,28 +100,27 @@ export function ApiProvider({
   const baseUrl = baseUrlProp || import.meta.env.VITE_API_URL || '';
   const userId = user?.uid ?? null;
 
-  // Fetch token when user changes
+  // Listen for token changes - Firebase automatically refreshes tokens
+  // onIdTokenChanged fires on: sign-in, sign-out, and token refresh
   useEffect(() => {
-    let mounted = true;
+    if (!auth) {
+      setToken(null);
+      setTokenLoading(false);
+      return;
+    }
 
-    const fetchToken = async () => {
-      if (!userId) {
+    setTokenLoading(true);
+
+    const unsubscribe = onIdTokenChanged(auth, async firebaseUser => {
+      if (!firebaseUser) {
         setToken(null);
         setTokenLoading(false);
         return;
       }
 
-      setTokenLoading(true);
       try {
-        const currentUser = auth?.currentUser;
-        if (!currentUser) {
-          setToken(null);
-          return;
-        }
-        const idToken = await currentUser.getIdToken();
-        if (mounted) {
-          setToken(idToken);
-        }
+        const idToken = await firebaseUser.getIdToken();
+        setToken(idToken);
       } catch {
         try {
           getInfoService().show(
@@ -132,22 +132,16 @@ export function ApiProvider({
         } catch {
           console.error('[ApiProvider] Failed to get ID token');
         }
-        if (mounted) {
-          setToken(null);
-        }
+        setToken(null);
       } finally {
-        if (mounted) {
-          setTokenLoading(false);
-        }
+        setTokenLoading(false);
       }
-    };
-
-    fetchToken();
+    });
 
     return () => {
-      mounted = false;
+      unsubscribe();
     };
-  }, [userId, auth]);
+  }, [auth]);
 
   // Refresh token function for when token expires
   const refreshToken = useCallback(async (): Promise<string | null> => {
