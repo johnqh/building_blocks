@@ -20,6 +20,7 @@ import {
   useSubscriptionPeriods,
   useSubscriptionForPeriod,
   useUserSubscription,
+  refreshSubscription,
 } from '@sudobility/subscription_lib';
 import type { SubscriptionPeriod } from '@sudobility/subscription_lib';
 import type { RateLimitsConfigData } from '@sudobility/types';
@@ -348,6 +349,8 @@ export function AppSubscriptionsPage({
     try {
       const result = await onPurchase(selectedPlan);
       if (result) {
+        // Refresh subscription data to sync state
+        await refreshSubscription();
         track('purchase_completed', { plan_identifier: selectedPlan });
         onPurchaseSuccess?.();
         setSelectedPlan(null);
@@ -385,6 +388,8 @@ export function AppSubscriptionsPage({
     try {
       const result = await onRestore();
       if (result) {
+        // Refresh subscription data to sync state
+        await refreshSubscription();
         track('restore_completed');
         onRestoreSuccess?.();
       } else {

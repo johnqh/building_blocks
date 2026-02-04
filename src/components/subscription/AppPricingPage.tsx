@@ -21,6 +21,7 @@ import {
   useSubscriptionPeriods,
   useSubscriptionForPeriod,
   useUserSubscription,
+  refreshSubscription,
 } from '@sudobility/subscription_lib';
 import type { SubscriptionPeriod } from '@sudobility/subscription_lib';
 import { Section } from '@sudobility/components';
@@ -80,10 +81,16 @@ export interface AppPricingPageProps {
   labels: PricingPageLabels;
   /** Formatter functions */
   formatters: PricingPageFormatters;
-  /** Called when user clicks on a plan */
+  /** Called when non-authenticated user clicks on a plan (e.g., redirect to login) */
   onPlanClick: (planIdentifier: string) => void;
   /** Called when user clicks on free plan */
   onFreePlanClick: () => void;
+  /** Purchase handler for authenticated users - called with packageId */
+  onPurchase?: (packageId: string) => Promise<boolean>;
+  /** Called when purchase succeeds */
+  onPurchaseSuccess?: () => void;
+  /** Called on purchase error */
+  onPurchaseError?: (error: Error) => void;
   /** Optional FAQ items */
   faqItems?: FAQItem[];
   /** Optional className for the container */
@@ -108,11 +115,15 @@ export function AppPricingPage({
   formatters,
   onPlanClick,
   onFreePlanClick,
+  onPurchase,
+  onPurchaseSuccess,
+  onPurchaseError,
   faqItems,
   className,
   onTrack,
   offerId,
 }: AppPricingPageProps) {
+  const [isPurchasing, setIsPurchasing] = useState(false);
   // Get current user subscription from subscription_lib (single source of truth)
   const {
     subscription: currentSubscription,
@@ -166,7 +177,8 @@ export function AppPricingPage({
     periodsLoading ||
     packagesLoading ||
     subscribableLoading ||
-    subscriptionLoading;
+    subscriptionLoading ||
+    isPurchasing;
   const error =
     periodsError || packagesError || subscribableError || subscriptionError;
 
@@ -201,14 +213,46 @@ export function AppPricingPage({
 
   // Handle paid plan click with tracking
   const handlePlanClick = useCallback(
-    (planIdentifier: string, actionType: 'login' | 'upgrade') => {
+    async (planIdentifier: string, actionType: 'login' | 'upgrade') => {
       track('plan_clicked', {
         plan_identifier: planIdentifier,
         action_type: actionType,
       });
-      onPlanClick(planIdentifier);
+
+      // For non-authenticated users, just call onPlanClick (e.g., redirect to login)
+      if (actionType === 'login') {
+        onPlanClick(planIdentifier);
+        return;
+      }
+
+      // For authenticated users with onPurchase, handle purchase flow
+      if (onPurchase) {
+        setIsPurchasing(true);
+        try {
+          const result = await onPurchase(planIdentifier);
+          if (result) {
+            // Refresh subscription data to sync state
+            await refreshSubscription();
+            track('purchase_completed', { plan_identifier: planIdentifier });
+            onPurchaseSuccess?.();
+          }
+        } catch (err) {
+          track('purchase_failed', {
+            plan_identifier: planIdentifier,
+            reason: err instanceof Error ? err.message : 'Unknown error',
+          });
+          onPurchaseError?.(
+            err instanceof Error ? err : new Error('Purchase failed')
+          );
+        } finally {
+          setIsPurchasing(false);
+        }
+      } else {
+        // Fallback to onPlanClick if onPurchase not provided
+        onPlanClick(planIdentifier);
+      }
     },
-    [track, onPlanClick]
+    [track, onPlanClick, onPurchase, onPurchaseSuccess, onPurchaseError]
   );
 
   const getPeriodLabel = useCallback(
