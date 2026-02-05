@@ -101,6 +101,8 @@ export interface AppSitemapPageProps {
   LinkComponent: ComponentType<LinkComponentProps & { language?: string }>;
   /** Optional wrapper component for the page layout */
   PageWrapper?: ComponentType<{ children: ReactNode }>;
+  /** Path to use for language switcher links (defaults to current page path via window.location) */
+  languageLinkPath?: string;
   /** Optional className for the container */
   className?: string;
 }
@@ -160,6 +162,7 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
   quickLinks = [],
   LinkComponent,
   PageWrapper,
+  languageLinkPath,
   className,
 }) => {
   const content = (
@@ -188,7 +191,7 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
             {languages.map(lang => (
               <LinkComponent
                 key={lang.code}
-                href='/'
+                href={languageLinkPath ?? '/'}
                 language={lang.code}
                 className='flex items-center space-x-2 p-3 bg-white dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow'
               >
