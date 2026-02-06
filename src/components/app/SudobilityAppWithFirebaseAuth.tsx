@@ -5,8 +5,7 @@
  * - Firebase AuthProviderWrapper for authentication (built-in default)
  * - ApiProvider for network/token management (built-in default)
  */
-import { ComponentType, ReactNode, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { ComponentType, ReactNode } from 'react';
 import { SudobilityApp, SudobilityAppProps } from './SudobilityApp';
 import { AuthProvider } from '@sudobility/auth-components';
 import {
@@ -16,15 +15,77 @@ import {
 } from '@sudobility/auth_lib';
 import { ApiProvider } from '../api';
 
+/** Auth text labels for UI - all fields required for localization */
+export interface AuthTexts {
+  signInTitle: string;
+  signInWithEmail: string;
+  createAccount: string;
+  resetPassword: string;
+  signIn: string;
+  signUp: string;
+  logout: string;
+  login: string;
+  continueWithGoogle: string;
+  continueWithApple: string;
+  continueWithEmail: string;
+  sendResetLink: string;
+  backToSignIn: string;
+  close: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  displayName: string;
+  emailPlaceholder: string;
+  passwordPlaceholder: string;
+  confirmPasswordPlaceholder: string;
+  displayNamePlaceholder: string;
+  forgotPassword: string;
+  noAccount: string;
+  haveAccount: string;
+  or: string;
+  resetEmailSent: string;
+  resetEmailSentDesc: string;
+  passwordMismatch: string;
+  passwordTooShort: string;
+  loading: string;
+}
+
+/** Auth error messages for Firebase error codes */
+export interface AuthErrorTexts {
+  'auth/user-not-found': string;
+  'auth/wrong-password': string;
+  'auth/invalid-email': string;
+  'auth/invalid-credential': string;
+  'auth/email-already-in-use': string;
+  'auth/weak-password': string;
+  'auth/too-many-requests': string;
+  'auth/network-request-failed': string;
+  'auth/popup-closed-by-user': string;
+  'auth/popup-blocked': string;
+  'auth/account-exists-with-different-credential': string;
+  'auth/operation-not-allowed': string;
+  default: string;
+}
+
 export interface SudobilityAppWithFirebaseAuthProps extends Omit<
   SudobilityAppProps,
   'AppProviders' | 'RouterWrapper'
 > {
   /**
    * Custom Firebase auth provider wrapper component (optional).
-   * Defaults to built-in AuthProviderWrapper that uses getFirebaseAuth().
+   * If provided, authTexts and authErrorTexts are ignored.
    */
   AuthProviderWrapper?: ComponentType<{ children: ReactNode }>;
+
+  /**
+   * Localized auth UI texts (required if not using custom AuthProviderWrapper).
+   */
+  authTexts?: AuthTexts;
+
+  /**
+   * Localized auth error messages (required if not using custom AuthProviderWrapper).
+   */
+  authErrorTexts?: AuthErrorTexts;
 
   /**
    * Auth providers to enable (optional).
@@ -72,90 +133,21 @@ export interface SudobilityAppWithFirebaseAuthProps extends Omit<
 }
 
 /**
- * Default auth texts - minimal fallback when translations aren't available
- */
-function createDefaultAuthTexts(t: (key: string) => string) {
-  return {
-    signInTitle: t('auth.signInTitle') || 'Sign In',
-    signInWithEmail: t('auth.signInWithEmail') || 'Sign in with email',
-    createAccount: t('auth.createAccount') || 'Create Account',
-    resetPassword: t('auth.resetPassword') || 'Reset Password',
-    signIn: t('auth.signIn') || 'Sign In',
-    signUp: t('auth.signUp') || 'Sign Up',
-    logout: t('auth.logout') || 'Log Out',
-    login: t('auth.login') || 'Log In',
-    continueWithGoogle: t('auth.continueWithGoogle') || 'Continue with Google',
-    continueWithApple: t('auth.continueWithApple') || 'Continue with Apple',
-    continueWithEmail: t('auth.continueWithEmail') || 'Continue with Email',
-    sendResetLink: t('auth.sendResetLink') || 'Send Reset Link',
-    backToSignIn: t('auth.backToSignIn') || 'Back to Sign In',
-    close: t('auth.close') || 'Close',
-    email: t('auth.email') || 'Email',
-    password: t('auth.password') || 'Password',
-    confirmPassword: t('auth.confirmPassword') || 'Confirm Password',
-    displayName: t('auth.displayName') || 'Display Name',
-    emailPlaceholder: t('auth.emailPlaceholder') || 'Enter your email',
-    passwordPlaceholder: t('auth.passwordPlaceholder') || 'Enter your password',
-    confirmPasswordPlaceholder:
-      t('auth.confirmPasswordPlaceholder') || 'Confirm your password',
-    displayNamePlaceholder:
-      t('auth.displayNamePlaceholder') || 'Enter your name',
-    forgotPassword: t('auth.forgotPassword') || 'Forgot Password?',
-    noAccount: t('auth.noAccount') || "Don't have an account?",
-    haveAccount: t('auth.haveAccount') || 'Already have an account?',
-    or: t('auth.or') || 'or',
-    resetEmailSent: t('auth.resetEmailSent') || 'Email Sent',
-    resetEmailSentDesc:
-      t('auth.resetEmailSentDesc') ||
-      'Check your inbox for the password reset link.',
-    passwordMismatch: t('auth.passwordMismatch') || "Passwords don't match",
-    passwordTooShort:
-      t('auth.passwordTooShort') || 'Password must be at least 6 characters',
-    loading: t('auth.loading') || 'Loading...',
-  };
-}
-
-/**
- * Default auth error texts
- */
-function createDefaultAuthErrorTexts() {
-  return {
-    'auth/user-not-found': 'No account found with this email',
-    'auth/wrong-password': 'Incorrect password',
-    'auth/invalid-email': 'Please enter a valid email address',
-    'auth/invalid-credential': 'Invalid credentials',
-    'auth/email-already-in-use': 'An account already exists with this email',
-    'auth/weak-password': 'Password should be at least 6 characters',
-    'auth/too-many-requests': 'Too many attempts. Please try again later.',
-    'auth/network-request-failed':
-      'Network error. Please check your connection.',
-    'auth/popup-closed-by-user': 'Sign in was cancelled',
-    'auth/popup-blocked':
-      'Pop-up was blocked. Please allow pop-ups and try again.',
-    'auth/account-exists-with-different-credential':
-      'An account already exists with this email using a different sign-in method',
-    'auth/operation-not-allowed': 'This sign-in method is not enabled',
-    default: 'An error occurred. Please try again.',
-  };
-}
-
-/**
  * Default AuthProviderWrapper using Firebase
  */
 function DefaultAuthProviderWrapper({
   children,
   providers,
   enableAnonymous,
+  texts,
+  errorTexts,
 }: {
   children: ReactNode;
   providers: ('google' | 'email' | 'apple')[];
   enableAnonymous: boolean;
+  texts: AuthTexts;
+  errorTexts: AuthErrorTexts;
 }) {
-  const { t } = useTranslation();
-
-  const texts = useMemo(() => createDefaultAuthTexts(t), [t]);
-  const errorTexts = useMemo(() => createDefaultAuthErrorTexts(), []);
-
   // Initialize Firebase Auth (idempotent - safe to call multiple times)
   initializeFirebaseAuth();
 
@@ -190,13 +182,14 @@ function DefaultAuthProviderWrapper({
  *
  * @example
  * ```tsx
- * // Minimal usage - uses default auth with Google and Email
+ * // With custom AuthProviderWrapper (recommended for i18n)
  * import { SudobilityAppWithFirebaseAuth } from '@sudobility/building_blocks';
- * import i18n from './i18n';
  *
  * function App() {
  *   return (
- *     <SudobilityAppWithFirebaseAuth i18n={i18n}>
+ *     <SudobilityAppWithFirebaseAuth
+ *       AuthProviderWrapper={MyAuthProviderWrapper}
+ *     >
  *       <Routes>
  *         <Route path="/" element={<HomePage />} />
  *       </Routes>
@@ -204,13 +197,12 @@ function DefaultAuthProviderWrapper({
  *   );
  * }
  *
- * // With custom auth providers
+ * // With localized texts
  * function App() {
  *   return (
  *     <SudobilityAppWithFirebaseAuth
- *       i18n={i18n}
- *       authProviders={["google", "apple", "email"]}
- *       AppProviders={ApiProvider}
+ *       authTexts={localizedAuthTexts}
+ *       authErrorTexts={localizedAuthErrorTexts}
  *     >
  *       <Routes>
  *         <Route path="/" element={<HomePage />} />
@@ -222,6 +214,8 @@ function DefaultAuthProviderWrapper({
  */
 export function SudobilityAppWithFirebaseAuth({
   AuthProviderWrapper: AuthProviderWrapperProp,
+  authTexts,
+  authErrorTexts,
   authProviders = ['google', 'email'],
   enableAnonymousAuth = false,
   ApiProvider: ApiProviderProp,
@@ -261,10 +255,19 @@ export function SudobilityAppWithFirebaseAuth({
       return <AuthProviderWrapperProp>{content}</AuthProviderWrapperProp>;
     }
 
+    // Require texts when using default AuthProviderWrapper
+    if (!authTexts || !authErrorTexts) {
+      throw new Error(
+        '[SudobilityAppWithFirebaseAuth] authTexts and authErrorTexts are required when not using a custom AuthProviderWrapper'
+      );
+    }
+
     return (
       <DefaultAuthProviderWrapper
         providers={authProviders}
         enableAnonymous={enableAnonymousAuth}
+        texts={authTexts}
+        errorTexts={authErrorTexts}
       >
         {content}
       </DefaultAuthProviderWrapper>
