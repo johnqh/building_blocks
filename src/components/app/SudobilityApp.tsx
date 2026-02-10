@@ -44,7 +44,6 @@ import {
   ToastContainer as SharedToastContainer,
   useToast,
 } from '@sudobility/components/ui/toast';
-import { getI18n } from '../../i18n';
 
 /**
  * QueryClient type that's compatible across different package versions.
@@ -338,8 +337,9 @@ export function SudobilityApp({
   storageKeyPrefix = 'sudobility',
   RouterWrapper,
 }: SudobilityAppProps) {
-  // Get i18n instance (custom or default)
-  const i18nToUse = i18nInstance ?? getI18n();
+  // Use explicit i18n instance if provided (no default fallback to avoid
+  // duplicate instances when this package is bun-linked with its own node_modules)
+  const i18nToUse = i18nInstance;
 
   // Determine which providers to use (custom or default)
   const NetworkProviderComponent =
@@ -406,10 +406,13 @@ export function SudobilityApp({
     <ThemeProviderComponent>{routerContent}</ThemeProviderComponent>
   );
 
-  // Wrap with I18nextProvider
-  routerContent = (
-    <I18nextProvider i18n={i18nToUse as i18n}>{routerContent}</I18nextProvider>
-  );
+  // Wrap with I18nextProvider only if an explicit i18n instance is provided.
+  // Otherwise, rely on the app's initReactI18next plugin for context.
+  if (i18nToUse) {
+    routerContent = (
+      <I18nextProvider i18n={i18nToUse as i18n}>{routerContent}</I18nextProvider>
+    );
+  }
 
   // Wrap with HelmetProvider
   return <HelmetProvider>{routerContent}</HelmetProvider>;
