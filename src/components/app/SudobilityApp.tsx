@@ -71,11 +71,10 @@ export interface SudobilityAppProps {
   children: ReactNode;
 
   /**
-   * i18next instance for localization (optional).
-   * Defaults to built-in i18n that loads translations from /locales/.
-   * Pass your own if you need custom configuration.
+   * i18next instance for localization.
+   * Each app must pass its own configured i18n instance.
    */
-  i18n?: I18nLike;
+  i18n: I18nLike;
 
   /**
    * TanStack Query client instance (optional).
@@ -337,10 +336,6 @@ export function SudobilityApp({
   storageKeyPrefix = 'sudobility',
   RouterWrapper,
 }: SudobilityAppProps) {
-  // Use explicit i18n instance if provided (no default fallback to avoid
-  // duplicate instances when this package is bun-linked with its own node_modules)
-  const i18nToUse = i18nInstance;
-
   // Determine which providers to use (custom or default)
   const NetworkProviderComponent =
     NetworkProviderProp === false
@@ -406,13 +401,10 @@ export function SudobilityApp({
     <ThemeProviderComponent>{routerContent}</ThemeProviderComponent>
   );
 
-  // Wrap with I18nextProvider only if an explicit i18n instance is provided.
-  // Otherwise, rely on the app's initReactI18next plugin for context.
-  if (i18nToUse) {
-    routerContent = (
-      <I18nextProvider i18n={i18nToUse as i18n}>{routerContent}</I18nextProvider>
-    );
-  }
+  // Wrap with I18nextProvider
+  routerContent = (
+    <I18nextProvider i18n={i18nInstance as i18n}>{routerContent}</I18nextProvider>
+  );
 
   // Wrap with HelmetProvider
   return <HelmetProvider>{routerContent}</HelmetProvider>;
