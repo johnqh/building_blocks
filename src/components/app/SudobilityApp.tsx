@@ -403,7 +403,9 @@ export function SudobilityApp({
 
   // Wrap with I18nextProvider
   routerContent = (
-    <I18nextProvider i18n={i18nInstance as i18n}>{routerContent}</I18nextProvider>
+    <I18nextProvider i18n={i18nInstance as i18n}>
+      {routerContent}
+    </I18nextProvider>
   );
 
   // Wrap with HelmetProvider
