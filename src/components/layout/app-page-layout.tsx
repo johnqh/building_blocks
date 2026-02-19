@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { LayoutProvider } from '@sudobility/components';
+import { LayoutProvider, AspectFitView } from '@sudobility/components';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils';
 import {
@@ -135,12 +135,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   aspectRatio,
 }) => {
   const content = aspectRatio ? (
-    <div
-      className='mx-auto max-h-full max-w-full overflow-auto'
-      style={{ aspectRatio }}
-    >
-      {children}
-    </div>
+    <AspectFitView aspectRatio={aspectRatio}>{children}</AspectFitView>
   ) : (
     children
   );
