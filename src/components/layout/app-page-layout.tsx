@@ -75,6 +75,9 @@ export interface AppPageLayoutProps extends VariantProps<
 
   /** Custom className for the main element */
   mainClassName?: string;
+
+  /** Optional aspect ratio (width / height) for content area. When set, children are placed inside a container with fixed aspect ratio using AspectFit behavior. */
+  aspectRatio?: number;
 }
 
 /**
@@ -129,7 +132,19 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   className,
   contentClassName,
   mainClassName,
+  aspectRatio,
 }) => {
+  const content = aspectRatio ? (
+    <div
+      className='mx-auto max-h-full max-w-full overflow-auto'
+      style={{ aspectRatio }}
+    >
+      {children}
+    </div>
+  ) : (
+    children
+  );
+
   return (
     <LayoutProvider mode={layoutMode}>
       <div className={cn(layoutVariants({ background }), className)}>
@@ -151,7 +166,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
               contentClassName
             )}
           >
-            {children}
+            {content}
           </div>
         </main>
 
