@@ -177,12 +177,24 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
         className={cn(className)}
       >
         <TopbarLeft>
-          <TopbarNavigation
-            items={navItems}
-            collapseBelow={collapseBelow}
-            LinkComponent={LinkWrapper}
-            mobileMenuLabel={mobileMenuLabel}
-          >
+          {navItems.length > 0 ? (
+            <TopbarNavigation
+              items={navItems}
+              collapseBelow={collapseBelow}
+              LinkComponent={LinkWrapper}
+              mobileMenuLabel={mobileMenuLabel}
+            >
+              <TopbarLogo onClick={handleLogoClick} size='md'>
+                <Logo
+                  size='md'
+                  logoSrc={logo.src}
+                  logoText={logo.appName}
+                  logoAlt={logo.alt || logo.appName}
+                  showText={true}
+                />
+              </TopbarLogo>
+            </TopbarNavigation>
+          ) : (
             <TopbarLogo onClick={handleLogoClick} size='md'>
               <Logo
                 size='md'
@@ -192,7 +204,7 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
                 showText={true}
               />
             </TopbarLogo>
-          </TopbarNavigation>
+          )}
         </TopbarLeft>
 
         {renderCenterSection && (
