@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.123",
+  "version": "0.0.124",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "main": "./dist/index.js",
@@ -37,7 +37,7 @@
   },
   "peerDependencies": {
     "@heroicons/react": "^2.0.0",
-    "@sudobility/components": "^5.0.8",
+    "@sudobility/components": "^5.0.10",
     "@sudobility/design": "^1.1.18",
     "@tanstack/react-query": "^5.0.0",
     "class-variance-authority": "^0.7.0",
@@ -96,7 +96,7 @@
     "@heroicons/react": "^2.2.0",
     "@sudobility/auth-components": "^1.0.8",
     "@sudobility/auth_lib": "^0.0.46",
-    "@sudobility/components": "^5.0.8",
+    "@sudobility/components": "^5.0.10",
     "@sudobility/design": "^1.1.18",
     "@sudobility/devops-components": "^2.0.17",
     "@sudobility/di": "^1.5.35",
