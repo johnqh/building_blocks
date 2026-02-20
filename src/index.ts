@@ -43,12 +43,3 @@ export { cn } from './utils';
 
 // i18n
 export { initializeI18n, getI18n, i18n, type I18nConfig } from './i18n';
-
-// Toast - re-export from @sudobility/components so apps use the same context
-export {
-  ToastProvider,
-  useToast,
-  ToastContainer,
-  type Toast,
-  type ToastType,
-} from '@sudobility/components/ui/toast';
