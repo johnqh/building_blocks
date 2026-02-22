@@ -1,105 +1,77 @@
-# CLAUDE.md - AI Assistant Guide
+# building_blocks - AI Development Guide
 
-This file provides comprehensive guidance for AI assistants (Claude Code, GitHub Copilot, Cursor, etc.) when working with this repository. It contains essential context, patterns, and instructions to enable effective AI-assisted development.
+## Overview
 
-## Project Overview
+`@sudobility/building_blocks` is a React component library providing higher-level, reusable UI building blocks for Sudobility applications. It builds on top of `@sudobility/components` and `@sudobility/design` to deliver production-ready app shells, navigation bars, footers, settings pages, subscription/pricing screens, and full app wrappers with Firebase auth, entity management, and i18n support.
 
-`@sudobility/building_blocks` is a React component library providing higher-level, reusable UI building blocks for Sudobility applications. It builds on top of `@sudobility/components` and `@sudobility/design` to provide complete, production-ready UI sections.
-
-**Package**: `@sudobility/building_blocks`
-**Version**: 0.0.21+
-**Type**: React component library (ESM only)
-**Framework**: React 18/19, TypeScript 5.9+, Vite 6.x
-**Testing**: Vitest with React Testing Library
-
-## Package Manager
-
-**This project uses Bun as the package manager.** Always use `bun` commands instead of `npm`:
-
-```bash
-# Install dependencies
-bun install
-
-# Run scripts
-bun run build
-bun run test
-bun run lint
-```
-
-## Development Commands
-
-```bash
-# Build the library
-bun run build          # Builds to dist/ with TypeScript declarations
-
-# Development mode with watch
-bun run dev            # Watches for changes and rebuilds
-
-# Type checking
-bun run typecheck      # Run tsc --noEmit
-
-# Linting
-bun run lint           # ESLint with max-warnings 0
-bun run lint:fix       # Auto-fix ESLint issues
-
-# Formatting
-bun run format         # Format with Prettier
-bun run format:check   # Check formatting
-
-# Testing
-bun run test           # Run tests once (85 tests across 6 files)
-bun run test:watch     # Watch mode
-bun run test:ui        # Vitest UI
-```
+- **Package**: `@sudobility/building_blocks`
+- **Version**: 0.0.127
+- **License**: BUSL-1.1
+- **Package Manager**: Bun (always use `bun` instead of `npm`)
+- **Framework**: React 18/19, TypeScript 5.9+, Vite 6.x
+- **Build**: ESM-only library via Vite lib mode + tsc declarations
+- **Testing**: Vitest with React Testing Library
 
 ## Project Structure
 
 ```
 src/
-├── components/                    # UI building block components
-│   ├── breadcrumbs/              # Breadcrumb navigation
-│   │   ├── app-breadcrumbs.tsx   # Main breadcrumbs component
+├── index.ts                        # Main entry point (core exports, no auth dependency)
+├── firebase.ts                     # Secondary entry: Firebase-auth-dependent exports
+├── types.ts                        # All shared TypeScript type definitions
+├── vite-env.d.ts                   # Vite env type declarations (VITE_API_URL, etc.)
+├── components/
+│   ├── index.ts                    # Re-exports all component subdirectories
+│   ├── app/                        # App wrapper components (provider stacks)
+│   │   ├── SudobilityApp.tsx                              # Base app shell (i18n, theme, query, routing, toast)
+│   │   ├── SudobilityAppWithFirebaseAuth.tsx               # + Firebase auth + ApiProvider
+│   │   ├── SudobilityAppWithFirebaseAuthAndEntities.tsx    # + entity client + subscription
 │   │   └── index.ts
-│   ├── footer/                   # Footer components
-│   │   ├── app-footer.tsx        # Compact footer (for app pages)
-│   │   ├── app-footer-for-home-page.tsx  # Full footer (for landing pages)
+│   ├── api/                        # API context (Firebase token management)
+│   │   ├── ApiContext.tsx           # ApiProvider, useApi, useApiSafe hooks
 │   │   └── index.ts
-│   ├── layout/                   # Page layout wrapper
-│   │   ├── app-page-layout.tsx   # Combines topbar, breadcrumbs, content, footer
+│   ├── topbar/                     # Top navigation bar variants
+│   │   ├── app-topbar.tsx                       # Base topbar with logo, nav, language selector
+│   │   ├── app-topbar-with-firebase-auth.tsx    # + Firebase auth action button
+│   │   ├── app-topbar-with-wallet.tsx           # + Web3 wallet connection
+│   │   ├── language-selector.tsx                # i18n language picker (compact/full variants)
 │   │   └── index.ts
-│   ├── pages/                    # Full page components
-│   │   ├── app-text-page.tsx     # Markdown/text content page
-│   │   ├── app-sitemap-page.tsx  # Sitemap page
+│   ├── breadcrumbs/                # Breadcrumb navigation
+│   │   ├── app-breadcrumbs.tsx     # Breadcrumbs + social share + "Talk to Founder" button
 │   │   └── index.ts
-│   ├── settings/                 # Settings components
-│   │   ├── appearance-settings.tsx   # Theme/font size settings
-│   │   ├── global-settings-page.tsx  # Full settings page with navigation
+│   ├── footer/                     # Footer components
+│   │   ├── app-footer.tsx                    # Compact footer (version, copyright, status, links)
+│   │   ├── app-footer-for-home-page.tsx      # Full footer (link grid, brand, social, status)
 │   │   └── index.ts
-│   ├── subscription/             # Subscription/pricing components
-│   │   ├── AppPricingPage.tsx    # Public pricing page
-│   │   ├── AppSubscriptionsPage.tsx  # User subscriptions management
+│   ├── layout/                     # Page layout wrapper
+│   │   ├── app-page-layout.tsx     # Combines topbar + breadcrumbs + content + footer
 │   │   └── index.ts
-│   ├── topbar/                   # Top navigation bar variants
-│   │   ├── app-topbar.tsx        # Base topbar
-│   │   ├── app-topbar-with-firebase-auth.tsx  # With Firebase auth
-│   │   ├── app-topbar-with-wallet.tsx  # With wallet connection
-│   │   ├── language-selector.tsx # i18n language picker
+│   ├── settings/                   # Settings components
+│   │   ├── appearance-settings.tsx     # Theme (light/dark/system) + font size selector
+│   │   ├── global-settings-page.tsx    # Master-detail settings page (extensible sections)
 │   │   └── index.ts
-│   └── index.ts                  # All component exports
-├── constants/                    # Shared constants
-│   ├── languages.ts              # 16 supported languages with flags
+│   ├── subscription/               # Subscription/pricing components
+│   │   ├── AppPricingPage.tsx                 # Public pricing page (uses subscription_lib hooks)
+│   │   ├── AppSubscriptionsPage.tsx           # Authenticated subscription management page
+│   │   ├── SafeSubscriptionContext.tsx        # Safe context with stub values for unauthenticated
+│   │   ├── LazySubscriptionProvider.tsx       # Lazy-loads RevenueCat SDK (~600KB) on auth
+│   │   ├── SubscriptionProviderWrapper.tsx    # Bridges subscription-components with auth/entity
+│   │   └── index.ts
+│   └── pages/                      # Full page components
+│       ├── app-text-page.tsx       # Markdown/text content page (privacy, terms, etc.)
+│       ├── app-sitemap-page.tsx    # Sitemap page with language selector + link grid
+│       ├── login-page.tsx          # Email/password + Google sign-in page
+│       └── index.ts
+├── constants/
+│   ├── languages.ts                # 16 default languages with flags, RTL detection
 │   └── index.ts
-├── utils/                        # Utility functions
-│   └── index.ts                  # cn() classname utility
-├── i18n/                         # Internationalization utilities
-│   └── index.ts                  # Translation helpers
-├── firebase.ts                   # Firebase auth utilities
-├── types.ts                      # All TypeScript type definitions
-├── index.ts                      # Main entry point
-├── vite-env.d.ts                 # Vite environment types
-├── test/                         # Test setup
-│   └── setup.ts                  # Vitest setup file
-└── __tests__/                    # Test files (85 tests)
+├── utils/
+│   └── index.ts                    # cn() utility (clsx + tailwind-merge)
+├── i18n/
+│   └── index.ts                    # initializeI18n(), getI18n(), i18n instance
+├── test/
+│   └── setup.ts                    # Vitest setup (@testing-library/jest-dom)
+└── __tests__/                      # Test files
     ├── app-breadcrumbs.test.tsx
     ├── app-footer.test.tsx
     ├── app-page-layout.test.tsx
@@ -110,56 +82,151 @@ src/
 
 ## Key Components
 
+### App Wrappers (Provider Stacks)
+
+| Component | Description | Provides |
+|-----------|-------------|----------|
+| `SudobilityApp` | Base app shell | HelmetProvider, I18nextProvider, ThemeProvider, NetworkProvider, QueryClientProvider, ToastProvider, BrowserRouter, InfoBanner, PageTracker |
+| `SudobilityAppWithFirebaseAuth` | + Firebase auth | All of above + AuthProvider, ApiProvider (Firebase ID token management) |
+| `SudobilityAppWithFirebaseAuthAndEntities` | + entities + subscriptions | All of above + CurrentEntityProvider, LazySubscriptionProvider |
+
+Import the Firebase-dependent wrappers from `@sudobility/building_blocks/firebase`.
+
 ### TopBar Components
 
 | Component | Description | Use Case |
 |-----------|-------------|----------|
-| `AppTopBar` | Base navigation bar | When you need custom auth rendering |
-| `AppTopBarWithFirebaseAuth` | TopBar + Firebase auth | Apps using Firebase authentication |
-| `AppTopBarWithWallet` | TopBar + wallet connection | Web3 apps with wallet auth |
-| `LanguageSelector` | i18n language picker | Standalone language switching |
+| `AppTopBar` | Base navigation bar with logo, nav items, language selector | Custom auth rendering via `renderAccountSection` |
+| `AppTopBarWithFirebaseAuth` | TopBar + Firebase AuthAction component | Apps using Firebase authentication |
+| `AppTopBarWithWallet` | TopBar + wallet connect/dropdown | Web3 apps with wallet auth (EVM/Solana) |
+| `LanguageSelector` | i18n language picker dropdown | Two variants: `compact` (topbar) and `full` (settings) |
 
 ### Footer Components
 
 | Component | Description | Use Case |
 |-----------|-------------|----------|
-| `AppFooter` | Compact footer with sticky positioning | App pages, dashboards |
-| `AppFooterForHomePage` | Full footer with link sections | Landing pages, marketing pages |
+| `AppFooter` | Compact sticky footer | App pages - version, copyright, status indicator, links |
+| `AppFooterForHomePage` | Full footer with grid | Landing pages - link sections, brand, social links, status |
 
 ### Layout Components
 
 | Component | Description | Use Case |
 |-----------|-------------|----------|
-| `AppPageLayout` | Full page wrapper | Combines topbar, breadcrumbs, content, footer |
-| `AppBreadcrumbs` | Breadcrumb navigation | Page hierarchy with share buttons |
+| `AppPageLayout` | Full page wrapper | Combines topbar + breadcrumbs + content + footer with configurable maxWidth, padding, background |
+| `AppBreadcrumbs` | Breadcrumb navigation | Page hierarchy with social share dropdown and "Talk to Founder" button |
 
 ### Settings Components
 
 | Component | Description | Use Case |
 |-----------|-------------|----------|
-| `GlobalSettingsPage` | Master-detail settings layout | App settings with multiple sections |
-| `AppearanceSettings` | Theme & font size controls | Embedded in settings pages |
+| `GlobalSettingsPage` | Master-detail settings layout | Appearance built-in as first section, extensible via `additionalSections` |
+| `AppearanceSettings` | Theme and font size selects | Standalone or embedded in GlobalSettingsPage |
 
 ### Subscription Components
 
 | Component | Description | Use Case |
 |-----------|-------------|----------|
-| `AppPricingPage` | Public pricing display | Marketing pricing page |
-| `AppSubscriptionsPage` | User subscription management | Authenticated subscription management |
+| `AppPricingPage` | Public pricing display | Marketing pricing page (authenticated and unauthenticated states) |
+| `AppSubscriptionsPage` | User subscription management | Authenticated users - current plan, upgrade, restore purchases |
+| `LazySubscriptionProvider` | Lazy-loads RevenueCat SDK | Defers ~600KB SDK load until user authenticates |
+| `SafeSubscriptionContext` | Stub subscription context | Provides safe defaults for unauthenticated users |
 
 ### Page Components
 
 | Component | Description | Use Case |
 |-----------|-------------|----------|
-| `AppTextPage` | Markdown/HTML content page | Privacy policy, terms, docs |
-| `AppSitemapPage` | Sitemap display | SEO sitemap page |
+| `AppTextPage` | Structured text content page | Privacy policy, terms of service, docs (content/list/subsection types) |
+| `AppSitemapPage` | Sitemap display with categories | SEO sitemap with language selector and quick links |
+| `LoginPage` | Email/password + Google sign-in | Firebase auth login page with error handling |
 
-## Analytics Tracking Integration
+### API Context
 
-All major components support optional analytics tracking via the `onTrack` callback prop:
+| Export | Description | Use Case |
+|--------|-------------|----------|
+| `ApiProvider` | Manages Firebase ID token and network client | Provides `useApi()` hook with token, userId, networkClient |
+| `useApi()` | Access API context (throws if outside provider) | Authenticated API requests |
+| `useApiSafe()` | Access API context (returns null if outside provider) | Optional API access |
+
+## Development Commands
+
+```bash
+# Install dependencies
+bun install
+
+# Build the library (Vite + tsc declarations)
+bun run build
+
+# Development mode with watch
+bun run dev
+
+# Type checking
+bun run typecheck        # or: bun run type-check
+
+# Linting
+bun run lint             # ESLint with max-warnings 0
+bun run lint:fix         # Auto-fix ESLint issues
+
+# Formatting
+bun run format           # Format with Prettier
+bun run format:check     # Check formatting
+
+# Testing
+bun run test             # Run tests once
+bun run test:watch       # Watch mode
+bun run test:ui          # Vitest UI
+
+# Clean build artifacts
+bun run clean
+
+# Full verification
+bun run typecheck && bun run lint && bun run test
+```
+
+## Architecture / Patterns
+
+### Dual Entry Points
+
+The library has two entry points to manage dependency trees:
+
+- **`@sudobility/building_blocks`** (main): Core components with no hard dependency on auth-components, auth_lib, di, or entity_client. Safe to import in any context.
+- **`@sudobility/building_blocks/firebase`**: Firebase-auth-dependent exports (SudobilityAppWithFirebaseAuth, SudobilityAppWithFirebaseAuthAndEntities, ApiProvider, LazySubscriptionProvider, SubscriptionProviderWrapper). These require `@sudobility/auth-components` and related packages.
+
+### Component Injection Pattern
+
+Components avoid hard dependencies on optional packages by accepting components as props:
 
 ```typescript
-import type { AnalyticsTrackingParams } from '@sudobility/building_blocks';
+// TopBar accepts AuthAction or WalletDropdownMenu as a prop
+<AppTopBarWithFirebaseAuth AuthActionComponent={AuthAction} ... />
+<AppTopBarWithWallet WalletDropdownMenuComponent={WalletDropdownMenu} ... />
+
+// Footer accepts SystemStatusIndicator as a prop
+<AppFooter StatusIndicatorComponent={SystemStatusIndicator} ... />
+```
+
+### Styling
+
+- **Tailwind CSS** via `@sudobility/design` system tokens
+- **`cn()` utility** (clsx + tailwind-merge) for conditional class merging
+- **Dark mode** via `dark:` Tailwind variants throughout all components
+- **Theme tokens**: `text-theme-*`, `bg-theme-*` classes for theming
+- **class-variance-authority** (`cva`) for variant-driven styling (layout backgrounds, breadcrumb variants)
+- **`@sudobility/design`** provides `GRADIENT_CLASSES` and `textVariants`
+
+### Internationalization (i18n)
+
+- Uses **i18next** + **react-i18next** + **i18next-http-backend** + **i18next-browser-languagedetector**
+- 16 default languages (with RTL support for Arabic)
+- Language detection order: URL path, localStorage, navigator
+- Translation namespaces: common, home, pricing, docs, dashboard, auth, privacy, terms, settings
+- Components accept `t` function props for translatable labels (e.g., `AppearanceSettings`, `GlobalSettingsPage`)
+
+### Analytics Tracking
+
+All major interactive components support optional analytics via an `onTrack` callback:
+
+```typescript
+onTrack?: (params: AnalyticsTrackingParams) => void;
 
 interface AnalyticsTrackingParams {
   eventType: 'button_click' | 'link_click' | 'navigation' | 'settings_change' | 'subscription_action' | 'page_view';
@@ -167,304 +234,164 @@ interface AnalyticsTrackingParams {
   label: string;
   params?: Record<string, unknown>;
 }
-
-// Usage
-<AppPricingPage
-  {...props}
-  onTrack={(params) => {
-    // params.eventType: 'subscription_action'
-    // params.label: 'plan_clicked' | 'billing_period_changed' | 'free_plan_clicked'
-    // params.params: { plan_identifier, action_type, ... }
-    myAnalytics.track(params);
-  }}
-/>
-
-<GlobalSettingsPage
-  {...props}
-  onTrack={(params) => {
-    // params.eventType: 'settings_change'
-    // params.label: 'theme_changed' | 'font_size_changed' | 'section_selected'
-    myAnalytics.track(params);
-  }}
-/>
-
-<AppFooter
-  {...props}
-  onTrack={(params) => {
-    // params.eventType: 'link_click'
-    // params.label: 'footer_link_clicked'
-    // params.params: { link_label, link_href, section_title }
-    myAnalytics.track(params);
-  }}
-/>
 ```
 
-**Components with analytics support:**
-- `AppPricingPage` - tracks plan clicks, billing period changes
-- `GlobalSettingsPage` - tracks theme/font changes, section navigation
-- `AppFooter` - tracks footer link clicks
-- `AppFooterForHomePage` - tracks footer link clicks with section info
+Components with analytics: `AppPricingPage`, `AppSubscriptionsPage`, `GlobalSettingsPage`, `AppFooter`, `AppFooterForHomePage`.
 
-## Type Definitions (src/types.ts)
+### Provider Composition (App Wrappers)
 
-Key types exported from the package:
-
-```typescript
-// Navigation & Menu
-interface MenuItemConfig { id, label, icon, href, show? }
-interface LogoConfig { src?, alt?, appName, onClick? }
-interface BreadcrumbItem { label, href?, current? }
-
-// Footer
-interface FooterLinkItem { label, href, onClick? }
-interface FooterLinkSection { title, links: FooterLinkItem[] }
-interface SocialLinksConfig { twitterUrl?, discordUrl?, linkedinUrl?, githubUrl?, redditUrl?, farcasterUrl?, telegramUrl? }
-interface StatusIndicatorConfig { statusPageUrl, apiEndpoint?, refreshInterval? }
-
-// Sharing
-interface ShareConfig { title, description, hashtags, onBeforeShare? }
-interface TalkToFounderConfig { meetingUrl, buttonText?, icon? }
-
-// Layout
-type MaxWidth = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '7xl' | 'full'
-type ContentPadding = 'none' | 'sm' | 'md' | 'lg'
-type BackgroundVariant = 'default' | 'white' | 'gradient'
-
-// Analytics
-type AnalyticsEventType = 'button_click' | 'link_click' | 'navigation' | 'settings_change' | 'subscription_action' | 'page_view'
-interface AnalyticsTrackingParams { eventType, componentName, label, params? }
-interface AnalyticsTracker { onTrack: (params: AnalyticsTrackingParams) => void }
-
-// Component Integration
-interface LinkComponentProps { href, className?, children, onClick? }
-```
-
-## Dependencies Architecture
-
-### Peer Dependencies (Required by consuming apps)
+The `SudobilityApp*` wrappers compose providers in this order (outermost to innermost):
 
 ```
-@sudobility/components  - Base UI components (Button, Card, etc.)
-@sudobility/design      - Design tokens and Tailwind utilities
-@heroicons/react        - Icon library
-react, react-dom        - React 18 or 19
-class-variance-authority - Variant styling
-clsx, tailwind-merge    - Classname utilities
+HelmetProvider > I18nextProvider > ThemeProvider > NetworkProvider > QueryClientProvider > ToastProvider > [AppProviders] > BrowserRouter > [PageTracker + Suspense + ToastContainer + InfoBanner]
 ```
 
-### Optional Peer Dependencies (For specific features)
-
-```
-@sudobility/auth-components        - For AppTopBarWithFirebaseAuth
-@sudobility/web3-components        - For AppTopBarWithWallet
-@sudobility/devops-components      - For SystemStatusIndicator in footers
-@sudobility/subscription-components - For AppPricingPage, AppSubscriptionsPage
-@sudobility/types                  - For Theme, FontSize enums
-```
-
-## Code Style & Conventions
+`SudobilityAppWithFirebaseAuth` adds: `AuthProvider > ApiProvider` inside AppProviders.
+`SudobilityAppWithFirebaseAuthAndEntities` adds: `AuthAwareEntityProvider > EntityAwareSubscriptionProvider` inside AppProviders.
 
 ### TypeScript
-- Strict mode enabled
-- All components have explicit prop interfaces
-- Use `type` for object shapes, `interface` for extendable contracts
-- Export types alongside components
 
-### React Components
-- Functional components only (no class components)
-- Props interface named `{ComponentName}Props`
-- Default exports with named export for the interface
-- Use React.FC sparingly (prefer explicit return types)
+- **Strict mode** enabled with `noUnusedLocals`, `noUnusedParameters`
+- **Path alias**: `@/*` maps to `./src/*`
+- **Props naming**: `{ComponentName}Props` (e.g., `AppTopBarProps`)
+- **Structural typing**: `QueryClientLike` and `I18nLike` used in app wrappers to avoid cross-package type conflicts with bun link
+- All types centralized in `src/types.ts` and re-exported from main entry
 
-### Styling
-- Tailwind CSS via design system tokens
-- Use `cn()` utility for conditional classes
-- Dark mode via `dark:` Tailwind variants
-- Theme colors via `text-theme-*`, `bg-theme-*` classes
+### File Naming Conventions
 
-### File Naming
-- Components: `kebab-case.tsx` (e.g., `app-footer.tsx`)
-- Tests: `{component-name}.test.tsx`
-- Index files re-export all public APIs
+- Components: `kebab-case.tsx` (e.g., `app-footer.tsx`) or `PascalCase.tsx` for subscription components
+- Tests: `{component-name}.test.tsx` in `src/__tests__/`
+- Index files: barrel re-exports for all public APIs
+- Each component directory has its own `index.ts`
 
-## Testing Guidelines
+## Common Tasks
 
-Tests are in `src/__tests__/`. Current coverage: 85 tests across 6 test files.
+### Add a new component
 
-### Test Patterns
+1. Create directory: `src/components/{component-name}/`
+2. Create component file with Props interface (JSDoc + `@ai-context` tags)
+3. Create `index.ts` that re-exports component and types
+4. Update `src/components/index.ts` to include new directory
+5. If it should be in the main entry, update `src/index.ts`
+6. Add tests in `src/__tests__/{component-name}.test.tsx`
+7. Verify: `bun run typecheck && bun run lint && bun run test`
 
-```typescript
-// Component rendering test
-it('renders with required props', () => {
-  render(<AppFooter companyName="Test" />);
-  expect(screen.getByText('Test')).toBeInTheDocument();
-});
+### Add analytics tracking to a component
 
-// Prop variation test
-it('shows version when provided', () => {
-  render(<AppFooter companyName="Test" version="1.0.0" />);
-  expect(screen.getByText('v1.0.0')).toBeInTheDocument();
-});
-
-// User interaction test
-it('calls onClick when link clicked', async () => {
-  const onClick = vi.fn();
-  render(<AppFooter companyName="Test" links={[{ label: 'Link', href: '#', onClick }]} />);
-  await userEvent.click(screen.getByText('Link'));
-  expect(onClick).toHaveBeenCalled();
-});
-```
-
-### Running Tests
-
-```bash
-bun run test                              # All tests
-bun run test src/__tests__/app-footer     # Specific file
-bun run test -- --coverage                # With coverage
-```
-
-## Adding New Components
-
-1. **Create component directory**: `src/components/{component-name}/`
-2. **Create component file**: `{component-name}.tsx` with:
-   - Props interface with JSDoc comments
-   - Functional component with explicit types
-   - Default export
-3. **Create index.ts**: Re-export component and types
-4. **Update parent index.ts**: Add `export * from './{component-name}'`
-5. **Add tests**: `src/__tests__/{component-name}.test.tsx`
-6. **Verify**: `bun run typecheck && bun run lint && bun run test`
-
-### Component Template
-
-```tsx
-import React from 'react';
-import { cn } from '../../utils';
-import type { AnalyticsTrackingParams } from '../../types';
-
-/**
- * Props for MyComponent.
- *
- * @ai-context Reusable UI component for [purpose]
- * @ai-pattern Accepts onTrack for analytics integration
- */
-export interface MyComponentProps {
-  /** Primary content or label */
-  children: React.ReactNode;
-  /** Optional CSS class name */
-  className?: string;
-  /** Optional analytics tracking callback */
-  onTrack?: (params: AnalyticsTrackingParams) => void;
-}
-
-/**
- * MyComponent - Brief description of what it does.
- *
- * @example
- * ```tsx
- * <MyComponent onTrack={handleTrack}>
- *   Content here
- * </MyComponent>
- * ```
- */
-export const MyComponent: React.FC<MyComponentProps> = ({
-  children,
-  className,
-  onTrack,
-}) => {
-  return (
-    <div className={cn('base-classes', className)}>
-      {children}
-    </div>
-  );
-};
-
-export default MyComponent;
-```
-
-## AI-Assisted Development Patterns
-
-### When Adding Features
-
-1. **Check existing patterns**: Look at similar components first
-2. **Follow analytics pattern**: Add `onTrack` prop if component has user interactions
-3. **Add comprehensive JSDoc**: Include `@ai-context`, `@example`, parameter descriptions
-4. **Test all variations**: Cover required props, optional props, interactions
-
-### When Fixing Bugs
-
-1. **Read the component**: Understand current implementation
-2. **Check tests**: Existing tests may reveal expected behavior
-3. **Run type check first**: `bun run typecheck` catches many issues
-4. **Verify fix**: `bun run test` should pass
-
-### When Refactoring
-
-1. **Run all checks before**: `bun run typecheck && bun run lint && bun run test`
-2. **Make incremental changes**: Small commits are easier to verify
-3. **Run all checks after**: Same command to verify nothing broke
-
-## Common Tasks for AI Assistants
-
-### Task: Add analytics tracking to a component
-
-1. Import the type: `import type { AnalyticsTrackingParams } from '../../types';`
+1. Import: `import type { AnalyticsTrackingParams } from '../../types';`
 2. Add prop: `onTrack?: (params: AnalyticsTrackingParams) => void;`
-3. Add prop to destructuring
-4. Create track helper:
+3. Create track helper with `useCallback`:
    ```typescript
    const track = useCallback((label: string, params?: Record<string, unknown>) => {
      onTrack?.({ eventType: 'button_click', componentName: 'MyComponent', label, params });
    }, [onTrack]);
    ```
-5. Call `track()` on user interactions
+4. Call `track()` on user interactions
 
-### Task: Add a new prop to existing component
+### Add a new settings section to GlobalSettingsPage
 
-1. Add to Props interface with JSDoc comment
-2. Add to component destructuring with default if optional
-3. Use in component JSX
-4. Add test case for the new prop
-5. Update README.md examples if significant
+Pass `additionalSections` prop with `SettingsSectionConfig` objects:
+```typescript
+<GlobalSettingsPage
+  additionalSections={[{
+    id: 'notifications',
+    icon: BellIcon,
+    label: 'Notifications',
+    description: 'Manage notification preferences',
+    content: <NotificationSettings />,
+  }]}
+  ...
+/>
+```
 
-### Task: Create a test for a component
+### Add a new language
 
-1. Create file: `src/__tests__/{component-name}.test.tsx`
-2. Import component, render, screen, userEvent
-3. Write describe block with component name
-4. Add tests for: rendering, prop variations, user interactions
-5. Run: `bun run test src/__tests__/{component-name}`
+Edit `src/constants/languages.ts` and add to `DEFAULT_LANGUAGES` array. If the language is RTL, add its code to `RTL_LANGUAGES`.
+
+### Add a new app wrapper variant
+
+Extend `SudobilityAppWithFirebaseAuth` or `SudobilityAppWithFirebaseAuthAndEntities` and compose additional providers via the `AppProviders` prop pattern.
 
 ## Build Output
 
 ```
 dist/
-├── index.js      # ES module bundle (~160KB, ~30KB gzipped)
-├── index.js.map  # Source map
-└── index.d.ts    # TypeScript declarations
+├── index.js        # Main ESM bundle (core components)
+├── index.js.map    # Source map
+├── index.d.ts      # TypeScript declarations
+├── firebase.js     # Firebase entry bundle (auth-dependent components)
+├── firebase.js.map # Source map
+└── firebase.d.ts   # TypeScript declarations
 ```
 
-The library is:
-- Tree-shakeable (ESM only)
-- Optimized for modern bundlers (Vite, esbuild, webpack 5+)
-- Compatible with React 18 and 19
+The library is tree-shakeable (ESM only), not minified, with source maps enabled. All `@sudobility/*`, `react`, `firebase`, and other peer dependencies are externalized.
+
+## Peer / Key Dependencies
+
+### Required Peer Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `react` / `react-dom` | ^18.0.0 or ^19.0.0 | UI framework |
+| `@sudobility/components` | ^5.0.11 | Base UI components (Topbar, Footer, Section, Select, MasterDetailLayout, etc.) |
+| `@sudobility/design` | ^1.1.18 | Design tokens, GRADIENT_CLASSES, textVariants |
+| `@heroicons/react` | ^2.0.0 | Icon library |
+| `@tanstack/react-query` | ^5.0.0 | Data fetching / caching |
+| `class-variance-authority` | ^0.7.0 | Variant-driven styling |
+| `clsx` | ^2.0.0 | Conditional classnames |
+| `tailwind-merge` | ^2.0.0 or ^3.0.0 | Tailwind class deduplication |
+| `i18next` | ^23.0.0 - ^25.0.0 | Internationalization core |
+| `react-i18next` | ^14.0.0 - ^16.0.0 | React i18n bindings |
+| `react-helmet-async` | ^2.0.0 | Head/SEO management |
+| `react-router-dom` | ^6.0.0 or ^7.0.0 | Client-side routing |
+
+### Optional Peer Dependencies (Feature-Specific)
+
+| Package | Required For |
+|---------|-------------|
+| `firebase` (^11 or ^12) | `LoginPage`, Firebase auth features |
+| `@sudobility/auth-components` | `AppTopBarWithFirebaseAuth`, Firebase app wrappers, `LazySubscriptionProvider` |
+| `@sudobility/auth_lib` | Firebase app wrappers, `ApiProvider` |
+| `@sudobility/web3-components` | `AppTopBarWithWallet` |
+| `@sudobility/devops-components` | `SystemStatusIndicator` in footers, `NetworkProvider` in app wrappers |
+| `@sudobility/subscription-components` | `AppPricingPage`, `AppSubscriptionsPage`, subscription providers |
+| `@sudobility/subscription_lib` | Subscription hooks (useSubscriptionPeriods, useUserSubscription, etc.) |
+| `@sudobility/entity_client` | `SudobilityAppWithFirebaseAuthAndEntities` |
+| `@sudobility/di` / `@sudobility/di_web` | Service locator for InfoBanner, Firebase services |
+| `@sudobility/types` | Shared TypeScript enums (Theme, FontSize, InfoType, RateLimitsConfigData) |
+| `i18next-browser-languagedetector` | Auto language detection in `initializeI18n` |
+| `i18next-http-backend` | Loading translation files via HTTP in `initializeI18n` |
+
+## Testing Guidelines
+
+Tests live in `src/__tests__/`. Run with `bun run test`.
+
+```bash
+bun run test                                  # All tests
+bun run test src/__tests__/app-footer         # Specific file
+bun run test -- --coverage                    # With coverage
+```
+
+Test patterns:
+- Render with required props, assert visible text
+- Test prop variations (optional props, conditional rendering)
+- Test user interactions via `@testing-library/user-event`
+- Mock external components passed as props (e.g., `AuthActionComponent`)
+
+## Environment Variables
+
+| Variable | Used By | Purpose |
+|----------|---------|---------|
+| `VITE_API_URL` | `ApiProvider`, `SudobilityAppWithFirebaseAuthAndEntities` | Base API URL |
+| `VITE_REVENUECAT_API_KEY` | `SudobilityAppWithFirebaseAuthAndEntities` | RevenueCat production API key |
+| `VITE_REVENUECAT_API_KEY_SANDBOX` | `SudobilityAppWithFirebaseAuthAndEntities` | RevenueCat sandbox API key |
 
 ## Troubleshooting
 
-### Common Issues
+**"Cannot find module '@sudobility/components'"** -- Ensure peer dependencies are installed in the consuming app. Check that versions match peer dependency requirements.
 
-**"Cannot find module '@sudobility/components'"**
-- Ensure peer dependencies are installed in consuming app
-- Check that versions match peer dependency requirements
+**"useApi must be used within an ApiProvider"** -- Wrap your component tree with `ApiProvider` or use one of the Firebase app wrappers that include it. Use `useApiSafe()` for optional access.
 
-**"Type error: Property 'onTrack' does not exist"**
-- Update to latest version of @sudobility/building_blocks
-- The `onTrack` prop was added in version 0.0.21
+**Tests failing after changes** -- Run `bun run typecheck` first to catch type errors. Check if test mocks need updating for new props.
 
-**Tests failing after changes**
-- Run `bun run typecheck` first to catch type errors
-- Check if test mocks need updating for new props
-
-**Lint errors about unused parameters**
-- Use `_param` prefix for intentionally unused parameters
-- Or add `// eslint-disable-next-line @typescript-eslint/no-unused-vars`
+**Import errors from `@sudobility/building_blocks/firebase`** -- Ensure `@sudobility/auth-components`, `@sudobility/auth_lib`, and `@sudobility/di` are installed. These are optional peer dependencies required only for the `/firebase` entry point.
