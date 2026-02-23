@@ -1,6 +1,22 @@
+/**
+ * @fileoverview Language configuration constants for i18n support.
+ *
+ * Provides a default set of 16 supported languages, RTL language detection,
+ * and the LanguageConfig interface used throughout the building_blocks package.
+ */
+
+/**
+ * Configuration for a supported language.
+ *
+ * Used by LanguageSelector, initializeI18n, and consuming apps
+ * to display available languages with their native names and emoji flags.
+ */
 export interface LanguageConfig {
+  /** ISO 639-1 language code (e.g., 'en', 'zh-hant') */
   code: string;
+  /** Native name of the language (e.g., 'English', '日本語') */
   name: string;
+  /** Emoji flag representing the language's primary region (e.g., '🇺🇸') */
   flag: string;
 }
 
@@ -34,6 +50,9 @@ export const RTL_LANGUAGES = ['ar'];
 
 /**
  * Check if a language code is RTL.
+ *
+ * @param languageCode - ISO 639-1 language code to check
+ * @returns true if the language uses right-to-left text direction
  */
 export function isRTL(languageCode: string): boolean {
   return RTL_LANGUAGES.includes(languageCode);

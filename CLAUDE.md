@@ -5,10 +5,10 @@
 `@sudobility/building_blocks` is a React component library providing higher-level, reusable UI building blocks for Sudobility applications. It builds on top of `@sudobility/components` and `@sudobility/design` to deliver production-ready app shells, navigation bars, footers, settings pages, subscription/pricing screens, and full app wrappers with Firebase auth, entity management, and i18n support.
 
 - **Package**: `@sudobility/building_blocks`
-- **Version**: 0.0.127
+- **Version**: 0.0.133
 - **License**: BUSL-1.1
 - **Package Manager**: Bun (always use `bun` instead of `npm`)
-- **Framework**: React 18/19, TypeScript 5.9+, Vite 6.x
+- **Framework**: React 18/19, TypeScript ~5.9.3, Vite 6.x
 - **Build**: ESM-only library via Vite lib mode + tsc declarations
 - **Testing**: Vitest with React Testing Library
 
@@ -333,8 +333,8 @@ The library is tree-shakeable (ESM only), not minified, with source maps enabled
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `react` / `react-dom` | ^18.0.0 or ^19.0.0 | UI framework |
-| `@sudobility/components` | ^5.0.11 | Base UI components (Topbar, Footer, Section, Select, MasterDetailLayout, etc.) |
-| `@sudobility/design` | ^1.1.18 | Design tokens, GRADIENT_CLASSES, textVariants |
+| `@sudobility/components` | ^5.0.13 | Base UI components (Topbar, Footer, Section, Select, MasterDetailLayout, etc.) |
+| `@sudobility/design` | ^1.1.19 | Design tokens, GRADIENT_CLASSES, textVariants |
 | `@heroicons/react` | ^2.0.0 | Icon library |
 | `@tanstack/react-query` | ^5.0.0 | Data fetching / caching |
 | `class-variance-authority` | ^0.7.0 | Variant-driven styling |
