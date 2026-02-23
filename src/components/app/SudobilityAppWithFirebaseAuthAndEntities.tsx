@@ -16,8 +16,8 @@ import {
   EntityClient,
   useCurrentEntity,
 } from '@sudobility/entity_client';
-import { getFirebaseAuth } from '@sudobility/auth_lib';
 import { LazySubscriptionProvider } from '../subscription';
+import { useApiSafe } from '../api';
 
 export interface SudobilityAppWithFirebaseAuthAndEntitiesProps extends Omit<
   SudobilityAppWithFirebaseAuthProps,
@@ -81,43 +81,6 @@ export interface SudobilityAppWithFirebaseAuthAndEntitiesProps extends Omit<
   RouterWrapper?: ComponentType<{ children: ReactNode }>;
 }
 
-/**
- * Get Firebase auth token for API requests
- */
-async function getAuthToken(): Promise<string | null> {
-  const auth = getFirebaseAuth();
-  const currentUser = auth?.currentUser;
-  if (!currentUser) {
-    return null;
-  }
-  try {
-    return await currentUser.getIdToken();
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Create a default entity client for the given API URL
- */
-function createEntityClient(baseUrl: string): EntityClient {
-  return new EntityClient({
-    baseUrl,
-    getAuthToken,
-  });
-}
-
-// Cache for entity clients by URL
-const entityClientCache = new Map<string, EntityClient>();
-
-function getOrCreateEntityClient(baseUrl: string): EntityClient {
-  let client = entityClientCache.get(baseUrl);
-  if (!client) {
-    client = createEntityClient(baseUrl);
-    entityClientCache.set(baseUrl, client);
-  }
-  return client;
-}
 
 /**
  * Default AuthAwareEntityProvider using CurrentEntityProvider
@@ -219,12 +182,6 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
   const baseApiUrl = apiUrl || import.meta.env.VITE_API_URL || '';
   const entityUrl = entityApiUrl || (baseApiUrl ? `${baseApiUrl}/api/v1` : '');
 
-  // Get or create entity client if URL is provided
-  const entityClient = useMemo(
-    () => (entityUrl ? getOrCreateEntityClient(entityUrl) : null),
-    [entityUrl]
-  );
-
   // Get RevenueCat API key from prop or env var, selecting based on testMode
   const rcApiKeyProd =
     revenueCatApiKey || import.meta.env.VITE_REVENUECAT_API_KEY || '';
@@ -235,9 +192,19 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
   const rcApiKey = testMode ? rcApiKeySandbox : rcApiKeyProd;
 
   // Create a combined providers component that includes entity support
+  // This renders inside ApiProvider, so useApiSafe() is available
   const EntityProviders: ComponentType<{ children: ReactNode }> = ({
     children,
   }) => {
+    const api = useApiSafe();
+    const entityClient = useMemo(
+      () =>
+        entityUrl && api?.networkClient
+          ? new EntityClient({ baseUrl: entityUrl, networkClient: api.networkClient })
+          : null,
+      [api?.networkClient]
+    );
+
     let content = children;
 
     // Wrap with AppProviders if provided

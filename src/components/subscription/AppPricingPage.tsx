@@ -23,7 +23,7 @@ import {
   useUserSubscription,
   refreshSubscription,
 } from '@sudobility/subscription_lib';
-import type { SubscriptionPeriod } from '@sudobility/subscription_lib';
+import type { SubscriptionPeriod } from '@sudobility/types';
 import { Section } from '@sudobility/components';
 import type { AnalyticsTrackingParams } from '../../types';
 

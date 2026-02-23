@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# push_all.sh - Project-specific configuration for push_projects.sh
+#
+# This script defines the list of projects to process and sources the
+# reusable push_projects.sh script from the workflows repo.
+#
+# Usage:
+#   ./push_all.sh                              # Update deps and process only projects with changes
+#   ./push_all.sh --force                      # Force version bump on all projects
+#   ./push_all.sh --subpackages                # Also process sub-packages in /packages directories
+#   ./push_all.sh --starting-project <name>    # Skip projects until reaching <name>
+#   ./push_all.sh --help                       # Show help message
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Define projects in dependency order with wait times
+# Format: "relative_path:wait_after_in_seconds"
+#
+# Wait times are used for packages that need CI/CD to complete publishing
+# before dependent packages can fetch the new version from npm.
+PROJECTS=(
+    # Non-package / infrastructure
+    "../workflows:0"
+    "../sudobility_dockerized:0"
+    # Level 0: No internal @sudobility dependencies
+    "../types:0"
+    "../seo_lib:0"
+    "../design_system:0"
+    "../guard_worker:60"
+    # Level 1: Depends only on level 0 packages
+    "../di:0"
+    "../auth_service:0"
+    "../mail_box_components:0"
+    "../mail_box_components_rn:0"
+    "../subscription_lib:0"
+    "../subscription_service:60"
+    # Level 2: Depends on level 0 + level 1
+    "../entity_client:0"
+    "../entity_service:0"
+    "../ratelimit_client:60"
+    "../ratelimit_service:0"
+    "../auth_lib:60"
+    "../di_web:60"
+    # Level 3: Depends on levels 0-2
+    "../di_rn:0"
+    "../entity_pages:0"
+    "../ratelimit_pages:0"
+    # Level 4: Depends on levels 0-3
+    "../building_blocks:0"
+    "../building_blocks_rn:0"
+)
+
+# Download reusable script from GitHub (with cache-busting timestamp)
+GITHUB_RAW_URL="https://raw.githubusercontent.com/johnqh/workflows/main/scripts/push_projects.sh?t=$(date +%s)"
+PUSH_SCRIPT=$(mktemp)
+trap "rm -f $PUSH_SCRIPT" EXIT
+
+if ! curl -fsSL "$GITHUB_RAW_URL" -o "$PUSH_SCRIPT"; then
+    echo "Error: Failed to download push_projects.sh from GitHub"
+    exit 1
+fi
+
+# Source the reusable script (this imports all functions)
+source "$PUSH_SCRIPT"
+
+# Parse command-line arguments
+parse_args "$@"
+
+# Run the push process
+run_push_projects "$BASE_DIR" "${PROJECTS[@]}"
