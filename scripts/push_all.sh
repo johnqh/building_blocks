@@ -56,18 +56,19 @@ PROJECTS=(
     "../building_blocks_rn:60"
 )
 
-# Download reusable script from GitHub (with cache-busting timestamp)
-GITHUB_RAW_URL="https://raw.githubusercontent.com/johnqh/workflows/main/scripts/push_projects.sh?t=$(date +%s)"
-PUSH_SCRIPT=$(mktemp)
-trap "rm -f $PUSH_SCRIPT" EXIT
-
-if ! curl -fsSL "$GITHUB_RAW_URL" -o "$PUSH_SCRIPT"; then
-    echo "Error: Failed to download push_projects.sh from GitHub"
-    exit 1
+# Source reusable script: prefer local workflows repo, fall back to GitHub
+LOCAL_SCRIPT="$(cd "$BASE_DIR" && pwd)/../workflows/scripts/push_projects.sh"
+if [ -f "$LOCAL_SCRIPT" ]; then
+    source "$LOCAL_SCRIPT"
+else
+    PUSH_SCRIPT=$(mktemp)
+    trap "rm -f $PUSH_SCRIPT" EXIT
+    if ! curl -fsSL "https://raw.githubusercontent.com/johnqh/workflows/main/scripts/push_projects.sh" -o "$PUSH_SCRIPT"; then
+        echo "Error: Failed to download push_projects.sh from GitHub"
+        exit 1
+    fi
+    source "$PUSH_SCRIPT"
 fi
-
-# Source the reusable script (this imports all functions)
-source "$PUSH_SCRIPT"
 
 # Parse command-line arguments
 parse_args "$@"
