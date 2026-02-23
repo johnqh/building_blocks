@@ -147,6 +147,23 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   showAppearanceInfoBox = true,
   onTrack,
 }) => {
+  // Development-only warnings for common misconfigurations
+  if (process.env.NODE_ENV !== 'production') {
+    const ids = additionalSections.map(s => s.id);
+    const duplicateIds = ids.filter((id, i) => ids.indexOf(id) !== i);
+    if (duplicateIds.length > 0) {
+      console.warn(
+        `[GlobalSettingsPage] Duplicate section IDs found: ${duplicateIds.join(', ')}. ` +
+          'Each section must have a unique id.'
+      );
+    }
+    if (ids.includes('appearance')) {
+      console.warn(
+        '[GlobalSettingsPage] additionalSections contains a section with id "appearance" which conflicts with the built-in Appearance section. ' +
+          'Use a different id to avoid unexpected behavior.'
+      );
+    }
+  }
   const [selectedSection, setSelectedSection] = useState('appearance');
   const [mobileView, setMobileView] = useState<'navigation' | 'content'>(
     'navigation'

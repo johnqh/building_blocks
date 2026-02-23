@@ -25,5 +25,6 @@ export { LoginPage } from './login-page';
 export type {
   LoginPageProps,
   LoginPageText,
+  LoginPageColorVariant,
   AuthErrorInfo,
 } from './login-page';

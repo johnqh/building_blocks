@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useRef, type ReactNode } from 'react';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  type Auth,
-} from 'firebase/auth';
+import { cn } from '../../utils';
 
 /**
  * Google logo SVG component
@@ -46,15 +40,47 @@ export interface AuthErrorInfo {
 }
 
 /**
+ * Color variant for the LoginPage.
+ * Each variant maps to a set of static, JIT-safe Tailwind classes.
+ */
+export type LoginPageColorVariant =
+  | 'primary'
+  | 'blue'
+  | 'indigo'
+  | 'violet'
+  | 'orange'
+  | 'emerald'
+  | 'rose';
+
+/**
  * Props for the LoginPage component
+ *
+ * LoginPage is a presentational component that accepts auth handler callbacks.
+ * The consumer must provide the actual auth logic (e.g., Firebase signIn).
  */
 export interface LoginPageProps {
   /** Application name displayed as the main title */
   appName: string;
   /** Optional logo element to display above the title */
   logo?: ReactNode;
-  /** Firebase Auth instance */
-  auth: Auth;
+  /**
+   * Handler for email/password sign-in.
+   * Called with email and password; should throw on error.
+   * The error object should have `code` and `message` properties for proper error display.
+   */
+  onEmailSignIn: (email: string, password: string) => Promise<void>;
+  /**
+   * Handler for email/password sign-up (account creation).
+   * Called with email and password; should throw on error.
+   * Only used when `showSignUp` is true.
+   */
+  onEmailSignUp?: (email: string, password: string) => Promise<void>;
+  /**
+   * Handler for Google sign-in.
+   * Should perform the Google OAuth flow; should throw on error.
+   * Only used when `showGoogleSignIn` is true.
+   */
+  onGoogleSignIn?: () => Promise<void>;
   /** Callback fired on successful authentication */
   onSuccess: () => void;
   /** Callback fired on auth errors - if provided, errors won't be shown inline */
@@ -65,8 +91,11 @@ export interface LoginPageProps {
   showSignUp?: boolean;
   /** Custom className for the container */
   className?: string;
-  /** Custom primary color class (default: 'primary') */
-  primaryColorClass?: string;
+  /**
+   * Color variant for themed elements (default: 'primary').
+   * Uses static Tailwind classes to ensure JIT compatibility.
+   */
+  colorVariant?: LoginPageColorVariant;
 }
 
 /**
@@ -102,12 +131,95 @@ const defaultText: LoginPageText = {
   dontHaveAccount: "Don't have an account?",
 };
 
+// Error codes that represent user actions rather than actual errors
+const USER_ACTION_ERROR_CODES = [
+  'auth/popup-closed-by-user',
+  'auth/cancelled-popup-request',
+  'auth/user-cancelled',
+];
+
+/**
+ * Static Tailwind class mappings for each color variant.
+ * Using complete class strings ensures Tailwind JIT can detect them at build time.
+ */
+const colorVariantClasses: Record<
+  LoginPageColorVariant,
+  {
+    title: string;
+    inputFocus: string;
+    submitButton: string;
+    googleButtonFocusRing: string;
+    toggleLink: string;
+  }
+> = {
+  primary: {
+    title: 'text-primary-600',
+    inputFocus: 'focus:ring-primary-500 focus:border-primary-500',
+    submitButton:
+      'bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 disabled:bg-primary-300',
+    googleButtonFocusRing: 'focus:ring-primary-500',
+    toggleLink: 'text-primary-600 hover:text-primary-500',
+  },
+  blue: {
+    title: 'text-blue-600',
+    inputFocus: 'focus:ring-blue-500 focus:border-blue-500',
+    submitButton:
+      'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 disabled:bg-blue-300',
+    googleButtonFocusRing: 'focus:ring-blue-500',
+    toggleLink: 'text-blue-600 hover:text-blue-500',
+  },
+  indigo: {
+    title: 'text-indigo-600',
+    inputFocus: 'focus:ring-indigo-500 focus:border-indigo-500',
+    submitButton:
+      'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 disabled:bg-indigo-300',
+    googleButtonFocusRing: 'focus:ring-indigo-500',
+    toggleLink: 'text-indigo-600 hover:text-indigo-500',
+  },
+  violet: {
+    title: 'text-violet-600',
+    inputFocus: 'focus:ring-violet-500 focus:border-violet-500',
+    submitButton:
+      'bg-violet-600 hover:bg-violet-700 focus:ring-violet-500 disabled:bg-violet-300',
+    googleButtonFocusRing: 'focus:ring-violet-500',
+    toggleLink: 'text-violet-600 hover:text-violet-500',
+  },
+  orange: {
+    title: 'text-orange-600',
+    inputFocus: 'focus:ring-orange-500 focus:border-orange-500',
+    submitButton:
+      'bg-orange-600 hover:bg-orange-700 focus:ring-orange-500 disabled:bg-orange-300',
+    googleButtonFocusRing: 'focus:ring-orange-500',
+    toggleLink: 'text-orange-600 hover:text-orange-500',
+  },
+  emerald: {
+    title: 'text-emerald-600',
+    inputFocus: 'focus:ring-emerald-500 focus:border-emerald-500',
+    submitButton:
+      'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500 disabled:bg-emerald-300',
+    googleButtonFocusRing: 'focus:ring-emerald-500',
+    toggleLink: 'text-emerald-600 hover:text-emerald-500',
+  },
+  rose: {
+    title: 'text-rose-600',
+    inputFocus: 'focus:ring-rose-500 focus:border-rose-500',
+    submitButton:
+      'bg-rose-600 hover:bg-rose-700 focus:ring-rose-500 disabled:bg-rose-300',
+    googleButtonFocusRing: 'focus:ring-rose-500',
+    toggleLink: 'text-rose-600 hover:text-rose-500',
+  },
+};
+
 /**
  * A reusable login page component with email/password and Google sign-in support.
+ *
+ * This component is fully decoupled from any auth provider. The consumer provides
+ * auth handler callbacks (`onEmailSignIn`, `onEmailSignUp`, `onGoogleSignIn`).
  *
  * @example
  * ```tsx
  * import { LoginPage } from '@sudobility/building_blocks';
+ * import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
  * import { getFirebaseAuth } from '@sudobility/auth_lib';
  *
  * function MyLoginPage() {
@@ -117,31 +229,49 @@ const defaultText: LoginPageText = {
  *   return (
  *     <LoginPage
  *       appName="My App"
- *       auth={auth}
+ *       onEmailSignIn={async (email, password) => {
+ *         await signInWithEmailAndPassword(auth, email, password);
+ *       }}
+ *       onEmailSignUp={async (email, password) => {
+ *         await createUserWithEmailAndPassword(auth, email, password);
+ *       }}
+ *       onGoogleSignIn={async () => {
+ *         await signInWithPopup(auth, new GoogleAuthProvider());
+ *       }}
  *       onSuccess={() => navigate('/')}
  *     />
  *   );
  * }
  * ```
  */
-// Error codes that represent user actions rather than actual errors
-const USER_ACTION_ERROR_CODES = [
-  'auth/popup-closed-by-user',
-  'auth/cancelled-popup-request',
-  'auth/user-cancelled',
-];
-
 export function LoginPage({
   appName,
   logo,
-  auth,
+  onEmailSignIn,
+  onEmailSignUp,
+  onGoogleSignIn,
   onSuccess,
   onAuthError,
   showGoogleSignIn = true,
   showSignUp = true,
   className = '',
-  primaryColorClass = 'primary',
+  colorVariant = 'primary',
 }: LoginPageProps) {
+  // Development-only warnings for common misconfigurations
+  if (process.env.NODE_ENV !== 'production') {
+    if (showSignUp && !onEmailSignUp) {
+      console.warn(
+        '[LoginPage] showSignUp is true but onEmailSignUp handler is not provided. ' +
+          'Sign-up will fall back to onEmailSignIn. Provide onEmailSignUp for proper account creation.'
+      );
+    }
+    if (showGoogleSignIn && !onGoogleSignIn) {
+      console.warn(
+        '[LoginPage] showGoogleSignIn is true but onGoogleSignIn handler is not provided. ' +
+          'Google sign-in button will not be rendered. Provide onGoogleSignIn or set showGoogleSignIn to false.'
+      );
+    }
+  }
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -149,6 +279,8 @@ export function LoginPage({
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleSignInPending, setIsGoogleSignInPending] = useState(false);
   const googleSignInStartTime = useRef<number | null>(null);
+
+  const colors = colorVariantClasses[colorVariant];
 
   // Reset Google sign-in state when window regains focus
   // This handles the case where browser opens a new tab instead of popup
@@ -190,11 +322,10 @@ export function LoginPage({
     setIsLoading(true);
 
     try {
-      if (!auth) throw new Error('Firebase not configured');
-      if (isSignUp && showSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
+      if (isSignUp && showSignUp && onEmailSignUp) {
+        await onEmailSignUp(email, password);
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await onEmailSignIn(email, password);
       }
       onSuccess();
     } catch (err) {
@@ -205,15 +336,15 @@ export function LoginPage({
   };
 
   const handleGoogleSignIn = async () => {
+    if (!onGoogleSignIn) return;
+
     setError(null);
     setIsLoading(true);
     setIsGoogleSignInPending(true);
     googleSignInStartTime.current = Date.now();
 
     try {
-      if (!auth) throw new Error('Firebase not configured');
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await onGoogleSignIn();
       onSuccess();
     } catch (err) {
       handleAuthError(err);
@@ -228,14 +359,15 @@ export function LoginPage({
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 ${className}`}
+      className={cn(
+        'min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8',
+        className
+      )}
     >
       <div className='max-w-md w-full space-y-8'>
         <div>
           {logo && <div className='flex justify-center mb-4'>{logo}</div>}
-          <h1
-            className={`text-center text-3xl font-bold text-${primaryColorClass}-600`}
-          >
+          <h1 className={cn('text-center text-3xl font-bold', colors.title)}>
             {appName}
           </h1>
           <h2 className='mt-6 text-center text-2xl font-semibold text-gray-900'>
@@ -245,7 +377,10 @@ export function LoginPage({
 
         <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
           {error && (
-            <div className='bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm'>
+            <div
+              className='bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm'
+              role='alert'
+            >
               {error}
             </div>
           )}
@@ -253,13 +388,13 @@ export function LoginPage({
           <div className='space-y-4'>
             <div>
               <label
-                htmlFor='email'
+                htmlFor='login-email'
                 className='block text-sm font-medium text-gray-700'
               >
                 {text.emailLabel}
               </label>
               <input
-                id='email'
+                id='login-email'
                 name='email'
                 type='email'
                 autoComplete='email'
@@ -267,19 +402,22 @@ export function LoginPage({
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder={text.emailPlaceholder}
-                className={`mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-${primaryColorClass}-500 focus:border-${primaryColorClass}-500 sm:text-sm`}
+                className={cn(
+                  'mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                  colors.inputFocus
+                )}
               />
             </div>
 
             <div>
               <label
-                htmlFor='password'
+                htmlFor='login-password'
                 className='block text-sm font-medium text-gray-700'
               >
                 {text.passwordLabel}
               </label>
               <input
-                id='password'
+                id='login-password'
                 name='password'
                 type='password'
                 autoComplete={isSignUp ? 'new-password' : 'current-password'}
@@ -287,7 +425,10 @@ export function LoginPage({
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder={text.passwordPlaceholder}
-                className={`mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-${primaryColorClass}-500 focus:border-${primaryColorClass}-500 sm:text-sm`}
+                className={cn(
+                  'mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                  colors.inputFocus
+                )}
               />
             </div>
           </div>
@@ -296,7 +437,10 @@ export function LoginPage({
             <button
               type='submit'
               disabled={isLoading}
-              className={`w-full inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-${primaryColorClass}-600 text-white hover:bg-${primaryColorClass}-700 focus:ring-${primaryColorClass}-500 disabled:bg-${primaryColorClass}-300 px-4 py-2 text-sm`}
+              className={cn(
+                'w-full inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 text-white px-4 py-2 text-sm',
+                colors.submitButton
+              )}
             >
               {isLoading && (
                 <svg
@@ -304,6 +448,7 @@ export function LoginPage({
                   xmlns='http://www.w3.org/2000/svg'
                   fill='none'
                   viewBox='0 0 24 24'
+                  aria-hidden='true'
                 >
                   <circle
                     className='opacity-25'
@@ -324,7 +469,7 @@ export function LoginPage({
             </button>
           </div>
 
-          {showGoogleSignIn && (
+          {showGoogleSignIn && onGoogleSignIn && (
             <>
               <div className='relative'>
                 <div className='absolute inset-0 flex items-center'>
@@ -342,7 +487,10 @@ export function LoginPage({
                   type='button'
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
-                  className={`w-full inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-${primaryColorClass}-500 disabled:bg-gray-100 px-4 py-2 text-sm`}
+                  className={cn(
+                    'w-full inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 disabled:bg-gray-100 px-4 py-2 text-sm',
+                    colors.googleButtonFocusRing
+                  )}
                 >
                   {isLoading ? (
                     <svg
@@ -350,6 +498,7 @@ export function LoginPage({
                       xmlns='http://www.w3.org/2000/svg'
                       fill='none'
                       viewBox='0 0 24 24'
+                      aria-hidden='true'
                     >
                       <circle
                         className='opacity-25'
@@ -381,7 +530,7 @@ export function LoginPage({
             <button
               type='button'
               onClick={() => setIsSignUp(!isSignUp)}
-              className={`font-medium text-${primaryColorClass}-600 hover:text-${primaryColorClass}-500`}
+              className={cn('font-medium', colors.toggleLink)}
             >
               {isSignUp ? text.signIn : text.signUp}
             </button>

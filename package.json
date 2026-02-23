@@ -1,8 +1,9 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.137",
+  "version": "0.0.138",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -109,6 +110,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.0.0 || ^19.0.0",
     "@types/react-dom": "^18.0.0 || ^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.44.1",

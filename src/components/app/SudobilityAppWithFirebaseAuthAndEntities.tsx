@@ -251,9 +251,12 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
     }
 
     // No entity support if no entityApiUrl or custom provider
-    console.warn(
-      '[SudobilityAppWithFirebaseAuthAndEntities] No entityApiUrl or AuthAwareEntityProvider provided - entity features disabled'
-    );
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        '[SudobilityAppWithFirebaseAuthAndEntities] No entityApiUrl or AuthAwareEntityProvider provided. ' +
+          'Entity features are disabled. Provide apiUrl or AuthAwareEntityProvider to enable them.'
+      );
+    }
     return <>{content}</>;
   };
 

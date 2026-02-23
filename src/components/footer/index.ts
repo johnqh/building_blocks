@@ -7,3 +7,4 @@ export {
   AppFooterForHomePage,
   type AppFooterForHomePageProps,
 } from './app-footer-for-home-page';
+export { DefaultLinkComponent, getCopyrightYear } from './shared';

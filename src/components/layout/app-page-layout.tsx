@@ -134,6 +134,15 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   mainClassName,
   aspectRatio,
 }) => {
+  // Development-only warnings for common misconfigurations
+  if (process.env.NODE_ENV !== 'production') {
+    if (!topBar) {
+      console.warn(
+        '[AppPageLayout] No topBar provided. The layout will render without a navigation bar. ' +
+          'Pass an AppTopBar variant or custom component via the topBar prop.'
+      );
+    }
+  }
   const content = aspectRatio ? (
     <AspectFitView aspectRatio={aspectRatio}>{children}</AspectFitView>
   ) : (

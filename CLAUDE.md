@@ -259,10 +259,13 @@ HelmetProvider > I18nextProvider > ThemeProvider > NetworkProvider > QueryClient
 
 ### File Naming Conventions
 
-- Components: `kebab-case.tsx` (e.g., `app-footer.tsx`) or `PascalCase.tsx` for subscription components
+- **kebab-case** (`app-footer.tsx`, `app-topbar.tsx`, `login-page.tsx`) is the standard for most component files
+- **PascalCase** (`AppPricingPage.tsx`, `AppSubscriptionsPage.tsx`, `LazySubscriptionProvider.tsx`, `SudobilityApp.tsx`) is reserved for subscription components and top-level app wrapper components
 - Tests: `{component-name}.test.tsx` in `src/__tests__/`
 - Index files: barrel re-exports for all public APIs
 - Each component directory has its own `index.ts`
+- Shared utilities within a directory: `shared.tsx` (e.g., `footer/shared.tsx`)
+- **Note**: Do not rename existing files. This convention documents the current state. New components should use kebab-case unless they are subscription or app wrapper components.
 
 ## Common Tasks
 

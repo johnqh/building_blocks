@@ -32,6 +32,25 @@ export interface LanguageSelectorProps {
 /**
  * LanguageSelector component with dropdown for switching languages.
  * Uses default 16 languages if none provided.
+ *
+ * @example
+ * ```tsx
+ * // Compact variant for topbar
+ * <LanguageSelector
+ *   currentLanguage="en"
+ *   onLanguageChange={(code) => i18n.changeLanguage(code)}
+ *   variant="compact"
+ * />
+ *
+ * // Full variant for settings pages
+ * <LanguageSelector
+ *   currentLanguage="en"
+ *   onLanguageChange={(code) => i18n.changeLanguage(code)}
+ *   variant="full"
+ *   label="Language"
+ *   helperText="Select your preferred language"
+ * />
+ * ```
  */
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   languages = DEFAULT_LANGUAGES,

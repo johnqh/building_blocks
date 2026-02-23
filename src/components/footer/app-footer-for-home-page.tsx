@@ -20,6 +20,7 @@ import type {
   AnalyticsTrackingParams,
 } from '../../types';
 import type { SystemStatusIndicatorProps } from './app-footer';
+import { DefaultLinkComponent, getCopyrightYear } from './shared';
 
 export interface AppFooterForHomePageProps {
   /** App logo configuration */
@@ -77,33 +78,6 @@ export interface AppFooterForHomePageProps {
 
   /** Optional analytics tracking callback */
   onTrack?: (params: AnalyticsTrackingParams) => void;
-}
-
-/**
- * Default link component that renders a plain anchor.
- */
-const DefaultLinkComponent: ComponentType<LinkComponentProps> = ({
-  href,
-  className,
-  children,
-  onClick,
-}) => (
-  <a href={href} className={className} onClick={onClick}>
-    {children}
-  </a>
-);
-
-/**
- * Helper to get copyright year or range.
- */
-function getCopyrightYear(startYear = 2025): string {
-  const currentYear = new Date().getFullYear();
-  if (currentYear === startYear) {
-    return String(startYear);
-  } else if (currentYear > startYear) {
-    return `${startYear}-${currentYear}`;
-  }
-  return String(startYear);
 }
 
 /**
