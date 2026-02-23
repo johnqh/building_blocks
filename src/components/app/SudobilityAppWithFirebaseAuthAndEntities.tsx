@@ -81,7 +81,6 @@ export interface SudobilityAppWithFirebaseAuthAndEntitiesProps extends Omit<
   RouterWrapper?: ComponentType<{ children: ReactNode }>;
 }
 
-
 /**
  * Default AuthAwareEntityProvider using CurrentEntityProvider
  */
@@ -200,7 +199,10 @@ export function SudobilityAppWithFirebaseAuthAndEntities({
     const entityClient = useMemo(
       () =>
         entityUrl && api?.networkClient
-          ? new EntityClient({ baseUrl: entityUrl, networkClient: api.networkClient })
+          ? new EntityClient({
+              baseUrl: entityUrl,
+              networkClient: api.networkClient,
+            })
           : null,
       [api?.networkClient]
     );
