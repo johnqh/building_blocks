@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { LayoutProvider, AspectFitView } from '@sudobility/components';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import { cn } from '../../utils';
 import {
   AppBreadcrumbs,
@@ -111,21 +111,8 @@ function renderFooter(config: FooterConfig): ReactNode {
   }
 }
 
-export interface AppPageLayoutProps extends VariantProps<
-  typeof layoutVariants
-> {
-  /** Page content */
-  children: ReactNode;
-
-  /** TopBar configuration - selects which TopBar component to render */
-  topBar: TopBarConfig;
-
-  /** Breadcrumbs configuration (optional) */
-  breadcrumbs?: AppBreadcrumbsProps;
-
-  /** Footer configuration - selects which Footer component to render */
-  footer?: FooterConfig;
-
+/** Page-level layout and styling options. */
+export interface AppPageProps {
   /** Max width for content area (default: '7xl') */
   maxWidth?: MaxWidth;
 
@@ -149,6 +136,23 @@ export interface AppPageLayoutProps extends VariantProps<
 
   /** Optional aspect ratio (width / height) for content area. When set, children are placed inside a container with fixed aspect ratio using AspectFit behavior. */
   aspectRatio?: number;
+}
+
+export interface AppPageLayoutProps {
+  /** Page content */
+  children: ReactNode;
+
+  /** TopBar configuration - selects which TopBar component to render */
+  topBar: TopBarConfig;
+
+  /** Breadcrumbs configuration (optional) */
+  breadcrumbs?: AppBreadcrumbsProps;
+
+  /** Footer configuration - selects which Footer component to render */
+  footer?: FooterConfig;
+
+  /** Page-level layout and styling options */
+  page?: AppPageProps;
 }
 
 /**
@@ -182,8 +186,7 @@ export interface AppPageLayoutProps extends VariantProps<
  *     companyName: 'My Company',
  *     links: [{ label: 'Privacy', href: '/privacy' }],
  *   }}
- *   maxWidth="7xl"
- *   background="default"
+ *   page={{ maxWidth: '7xl', background: 'default' }}
  * >
  *   <h1>Page Content</h1>
  * </AppPageLayout>
@@ -194,15 +197,18 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   topBar,
   breadcrumbs,
   footer,
-  maxWidth = '7xl',
-  contentPadding = 'md',
-  background = 'default',
-  layoutMode = 'standard',
-  className,
-  contentClassName,
-  mainClassName,
-  aspectRatio,
+  page,
 }) => {
+  const {
+    maxWidth = '7xl',
+    contentPadding = 'md',
+    background = 'default',
+    layoutMode = 'standard',
+    className,
+    contentClassName,
+    mainClassName,
+    aspectRatio,
+  } = page ?? {};
   const isCompactFooter = footer?.variant === 'compact';
   const content = aspectRatio ? (
     <AspectFitView aspectRatio={aspectRatio}>{children}</AspectFitView>

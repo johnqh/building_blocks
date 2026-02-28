@@ -190,7 +190,7 @@ describe('AppPageLayout', () => {
 
     it('applies custom max width', () => {
       render(
-        <AppPageLayout topBar={baseTopBar} maxWidth='4xl'>
+        <AppPageLayout topBar={baseTopBar} page={{ maxWidth: '4xl' }}>
           <div>Content</div>
         </AppPageLayout>
       );
@@ -201,7 +201,7 @@ describe('AppPageLayout', () => {
 
     it('applies full width', () => {
       render(
-        <AppPageLayout topBar={baseTopBar} maxWidth='full'>
+        <AppPageLayout topBar={baseTopBar} page={{ maxWidth: 'full' }}>
           <div>Content</div>
         </AppPageLayout>
       );
@@ -225,7 +225,7 @@ describe('AppPageLayout', () => {
 
     it('applies white background', () => {
       const { container } = render(
-        <AppPageLayout topBar={baseTopBar} background='white'>
+        <AppPageLayout topBar={baseTopBar} page={{ background: 'white' }}>
           <div>Content</div>
         </AppPageLayout>
       );
@@ -236,7 +236,7 @@ describe('AppPageLayout', () => {
 
     it('applies gradient background', () => {
       const { container } = render(
-        <AppPageLayout topBar={baseTopBar} background='gradient'>
+        <AppPageLayout topBar={baseTopBar} page={{ background: 'gradient' }}>
           <div>Content</div>
         </AppPageLayout>
       );
@@ -249,7 +249,10 @@ describe('AppPageLayout', () => {
   describe('custom classNames', () => {
     it('applies custom className to container', () => {
       const { container } = render(
-        <AppPageLayout topBar={baseTopBar} className='custom-container'>
+        <AppPageLayout
+          topBar={baseTopBar}
+          page={{ className: 'custom-container' }}
+        >
           <div>Content</div>
         </AppPageLayout>
       );
@@ -259,7 +262,10 @@ describe('AppPageLayout', () => {
 
     it('applies custom contentClassName', () => {
       render(
-        <AppPageLayout topBar={baseTopBar} contentClassName='custom-content'>
+        <AppPageLayout
+          topBar={baseTopBar}
+          page={{ contentClassName: 'custom-content' }}
+        >
           <div>Content</div>
         </AppPageLayout>
       );
@@ -270,7 +276,10 @@ describe('AppPageLayout', () => {
 
     it('applies custom mainClassName', () => {
       render(
-        <AppPageLayout topBar={baseTopBar} mainClassName='custom-main'>
+        <AppPageLayout
+          topBar={baseTopBar}
+          page={{ mainClassName: 'custom-main' }}
+        >
           <div>Content</div>
         </AppPageLayout>
       );
@@ -293,7 +302,7 @@ describe('AppPageLayout', () => {
 
     it('applies sm padding', () => {
       render(
-        <AppPageLayout topBar={baseTopBar} contentPadding='sm'>
+        <AppPageLayout topBar={baseTopBar} page={{ contentPadding: 'sm' }}>
           <div>Content</div>
         </AppPageLayout>
       );
@@ -304,7 +313,7 @@ describe('AppPageLayout', () => {
 
     it('applies lg padding', () => {
       render(
-        <AppPageLayout topBar={baseTopBar} contentPadding='lg'>
+        <AppPageLayout topBar={baseTopBar} page={{ contentPadding: 'lg' }}>
           <div>Content</div>
         </AppPageLayout>
       );
