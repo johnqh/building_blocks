@@ -6,6 +6,20 @@ import {
   AppBreadcrumbs,
   type AppBreadcrumbsProps,
 } from '../breadcrumbs/app-breadcrumbs';
+import { AppTopBar, type AppTopBarProps } from '../topbar/app-topbar';
+import {
+  AppTopBarWithFirebaseAuth,
+  type AppTopBarWithFirebaseAuthProps,
+} from '../topbar/app-topbar-with-firebase-auth';
+import {
+  AppTopBarWithWallet,
+  type AppTopBarWithWalletProps,
+} from '../topbar/app-topbar-with-wallet';
+import { AppFooter, type AppFooterProps } from '../footer/app-footer';
+import {
+  AppFooterForHomePage,
+  type AppFooterForHomePageProps,
+} from '../footer/app-footer-for-home-page';
 import type { MaxWidth, ContentPadding, BackgroundVariant } from '../../types';
 
 const layoutVariants = cva('min-h-screen flex flex-col', {
@@ -40,20 +54,77 @@ const paddingClasses: Record<ContentPadding, string> = {
   lg: 'px-4 py-12',
 };
 
+/** Discriminated union for selecting which TopBar component to render. */
+export type TopBarConfig =
+  | ({ variant: 'base'; topBarVariant?: 'default' | 'app' } & Omit<
+      AppTopBarProps,
+      'variant'
+    >)
+  | ({ variant: 'firebase'; topBarVariant?: 'default' | 'app' } & Omit<
+      AppTopBarWithFirebaseAuthProps,
+      'variant'
+    >)
+  | ({ variant: 'wallet'; topBarVariant?: 'default' | 'app' } & Omit<
+      AppTopBarWithWalletProps,
+      'variant'
+    >);
+
+/** Discriminated union for selecting which Footer component to render. */
+export type FooterConfig =
+  | ({ variant: 'compact' } & AppFooterProps)
+  | ({ variant: 'full' } & AppFooterForHomePageProps);
+
+function renderTopBar(config: TopBarConfig): ReactNode {
+  const { variant, topBarVariant, ...rest } = config;
+  switch (variant) {
+    case 'base':
+      return (
+        <AppTopBar
+          variant={topBarVariant}
+          {...(rest as Omit<AppTopBarProps, 'variant'>)}
+        />
+      );
+    case 'firebase':
+      return (
+        <AppTopBarWithFirebaseAuth
+          variant={topBarVariant}
+          {...(rest as Omit<AppTopBarWithFirebaseAuthProps, 'variant'>)}
+        />
+      );
+    case 'wallet':
+      return (
+        <AppTopBarWithWallet
+          variant={topBarVariant}
+          {...(rest as Omit<AppTopBarWithWalletProps, 'variant'>)}
+        />
+      );
+  }
+}
+
+function renderFooter(config: FooterConfig): ReactNode {
+  const { variant, ...rest } = config;
+  switch (variant) {
+    case 'compact':
+      return <AppFooter {...(rest as AppFooterProps)} />;
+    case 'full':
+      return <AppFooterForHomePage {...(rest as AppFooterForHomePageProps)} />;
+  }
+}
+
 export interface AppPageLayoutProps extends VariantProps<
   typeof layoutVariants
 > {
   /** Page content */
   children: ReactNode;
 
-  /** TopBar slot - pass an AppTopBar variant or custom component */
-  topBar: ReactNode;
+  /** TopBar configuration - selects which TopBar component to render */
+  topBar: TopBarConfig;
 
   /** Breadcrumbs configuration (optional) */
   breadcrumbs?: AppBreadcrumbsProps;
 
-  /** Footer slot - pass an AppFooter variant or custom component */
-  footer?: ReactNode;
+  /** Footer configuration - selects which Footer component to render */
+  footer?: FooterConfig;
 
   /** Max width for content area (default: '7xl') */
   maxWidth?: MaxWidth;
@@ -78,44 +149,39 @@ export interface AppPageLayoutProps extends VariantProps<
 
   /** Optional aspect ratio (width / height) for content area. When set, children are placed inside a container with fixed aspect ratio using AspectFit behavior. */
   aspectRatio?: number;
-
-  /** When true, the footer sticks to the bottom of the viewport */
-  stickyFooter?: boolean;
 }
 
 /**
  * AppPageLayout - Layout wrapper combining TopBar, Breadcrumbs, Content, and Footer.
  *
  * Features:
- * - Flexible slots for TopBar and Footer
+ * - Props-based TopBar and Footer via discriminated unions
  * - Optional breadcrumbs with share and "Talk to Founder"
  * - Configurable content max-width and padding
  * - Background variants
  * - Dark mode support
- * - Sticky footer behavior
+ * - Sticky footer behavior (automatic for compact footer)
  *
  * @example
  * ```tsx
  * <AppPageLayout
- *   topBar={
- *     <AppTopBarWithFirebaseAuth
- *       logo={{ src: '/logo.png', appName: 'My App' }}
- *       menuItems={menuItems}
- *       AuthActionComponent={AuthAction}
- *       onLoginClick={() => navigate('/login')}
- *     />
- *   }
+ *   topBar={{
+ *     variant: 'firebase',
+ *     logo: { src: '/logo.png', appName: 'My App' },
+ *     menuItems: menuItems,
+ *     AuthActionComponent: AuthAction,
+ *     onLoginClick: () => navigate('/login'),
+ *   }}
  *   breadcrumbs={{
  *     items: breadcrumbItems,
  *     shareConfig: { title: 'Page', description: 'Description', hashtags: [] },
  *   }}
- *   footer={
- *     <AppFooter
- *       version="1.0.0"
- *       companyName="My Company"
- *       links={[{ label: 'Privacy', href: '/privacy' }]}
- *     />
- *   }
+ *   footer={{
+ *     variant: 'compact',
+ *     version: '1.0.0',
+ *     companyName: 'My Company',
+ *     links: [{ label: 'Privacy', href: '/privacy' }],
+ *   }}
  *   maxWidth="7xl"
  *   background="default"
  * >
@@ -136,17 +202,8 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   contentClassName,
   mainClassName,
   aspectRatio,
-  stickyFooter = false,
 }) => {
-  // Development-only warnings for common misconfigurations
-  if (process.env.NODE_ENV !== 'production') {
-    if (!topBar) {
-      console.warn(
-        '[AppPageLayout] No topBar provided. The layout will render without a navigation bar. ' +
-          'Pass an AppTopBar variant or custom component via the topBar prop.'
-      );
-    }
-  }
+  const isCompactFooter = footer?.variant === 'compact';
   const content = aspectRatio ? (
     <AspectFitView aspectRatio={aspectRatio}>{children}</AspectFitView>
   ) : (
@@ -157,7 +214,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
     <LayoutProvider mode={layoutMode}>
       <div className={cn(layoutVariants({ background }), className)}>
         {/* Header Section */}
-        <header>{topBar}</header>
+        <header>{renderTopBar(topBar)}</header>
 
         {/* Breadcrumb Section */}
         {breadcrumbs && breadcrumbs.items && breadcrumbs.items.length > 0 && (
@@ -180,8 +237,10 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
 
         {/* Footer */}
         {footer && (
-          <footer className={stickyFooter ? 'sticky bottom-0 z-10' : undefined}>
-            {footer}
+          <footer
+            className={isCompactFooter ? 'sticky bottom-0 z-10' : undefined}
+          >
+            {renderFooter(footer)}
           </footer>
         )}
       </div>
