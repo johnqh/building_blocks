@@ -78,6 +78,9 @@ export interface AppPageLayoutProps extends VariantProps<
 
   /** Optional aspect ratio (width / height) for content area. When set, children are placed inside a container with fixed aspect ratio using AspectFit behavior. */
   aspectRatio?: number;
+
+  /** When true, the footer sticks to the bottom of the viewport */
+  stickyFooter?: boolean;
 }
 
 /**
@@ -133,6 +136,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   contentClassName,
   mainClassName,
   aspectRatio,
+  stickyFooter = false,
 }) => {
   // Development-only warnings for common misconfigurations
   if (process.env.NODE_ENV !== 'production') {
@@ -175,7 +179,11 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
         </main>
 
         {/* Footer */}
-        {footer && <footer>{footer}</footer>}
+        {footer && (
+          <footer className={stickyFooter ? 'sticky bottom-0 z-10' : undefined}>
+            {footer}
+          </footer>
+        )}
       </div>
     </LayoutProvider>
   );
