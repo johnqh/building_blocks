@@ -135,18 +135,20 @@ export const AppTopBar: React.FC<AppTopBarProps> = ({
     [menuItems]
   );
 
-  // Convert MenuItemConfig to TopbarNavItem
-  const navItems: TopbarNavItem[] = useMemo(
-    () =>
-      visibleMenuItems.map(item => ({
-        id: item.id,
-        label: item.label,
-        icon: item.icon,
-        href: item.href,
-        className: item.className,
-      })),
-    [visibleMenuItems]
-  );
+  // Convert MenuItemConfig to TopbarNavItem (recursively for children)
+  const navItems: TopbarNavItem[] = useMemo(() => {
+    const mapItem = (item: MenuItemConfig): TopbarNavItem => ({
+      id: item.id,
+      label: item.label,
+      icon: item.icon,
+      href: item.href,
+      className: item.className,
+      children: item.children
+        ?.filter(child => child.show !== false)
+        .map(mapItem),
+    });
+    return visibleMenuItems.map(mapItem);
+  }, [visibleMenuItems]);
 
   // Wrapper to adapt LinkComponent to TopbarNavigation expected interface
   const LinkWrapper: ComponentType<{

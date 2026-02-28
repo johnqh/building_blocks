@@ -28,6 +28,13 @@ export type { LanguageConfig } from './constants/languages';
  * const menuItems: MenuItemConfig[] = [
  *   { id: 'docs', label: 'Docs', icon: DocumentTextIcon, href: '/docs' },
  *   { id: 'settings', label: 'Settings', icon: Cog6ToothIcon, href: '/settings', show: isLoggedIn },
+ *   {
+ *     id: 'sports', label: 'Sports', icon: TrophyIcon,
+ *     children: [
+ *       { id: 'soccer', label: 'Soccer', icon: SoccerIcon, href: '/sports/soccer' },
+ *       { id: 'basketball', label: 'Basketball', icon: BasketballIcon, href: '/sports/basketball' },
+ *     ],
+ *   },
  * ];
  * ```
  */
@@ -37,13 +44,15 @@ export interface MenuItemConfig {
   /** Display label */
   label: string;
   /** HeroIcon component or any icon component */
-  icon: ComponentType<{ className?: string }>;
-  /** Navigation href */
-  href: string;
+  icon?: ComponentType<{ className?: string }>;
+  /** Navigation href (optional for items with children) */
+  href?: string;
   /** Optional: show only when condition is true */
   show?: boolean;
   /** Optional: custom CSS classes for this menu item */
   className?: string;
+  /** Sub-navigation items for dropdown menus */
+  children?: MenuItemConfig[];
 }
 
 /**
