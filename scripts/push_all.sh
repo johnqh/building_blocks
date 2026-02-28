@@ -45,6 +45,7 @@ PROJECTS=(
     "../subscription_service:0"
     "../auth_lib:0"
     "../auth_service:60"
+    "../seo_lib:0"
     # Level 3: Depends on levels 0-2
     "../di_web:0"
     "../di_rn:0"
