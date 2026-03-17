@@ -13,10 +13,10 @@
         "@sudobility/design": "^1.1.22",
         "@sudobility/devops-components": "^2.0.17",
         "@sudobility/di": "^1.5.45",
-        "@sudobility/di_web": "^0.1.120",
+        "@sudobility/di_web": "^0.1.121",
         "@sudobility/entity_client": "^0.0.27",
         "@sudobility/subscription-components": "^1.0.27",
-        "@sudobility/subscription_lib": "^0.0.21",
+        "@sudobility/subscription_lib": "^0.0.23",
         "@sudobility/types": "^1.9.57",
         "@tanstack/react-query": "^5.80.0",
         "@testing-library/dom": "^10.4.1",
@@ -498,13 +498,13 @@
 
     "@sudobility/di": ["@sudobility/di@1.5.45", "", { "peerDependencies": { "@notifee/react-native": ">=7.0.0", "@react-native-async-storage/async-storage": ">=1.19.0", "@react-native-community/netinfo": ">=9.0.0", "@react-native-firebase/analytics": ">=18.0.0", "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/messaging": ">=18.0.0", "@react-native-firebase/remote-config": ">=18.0.0", "@sudobility/types": "^1.9.57", "firebase": ">=11.0.0", "react": ">=18.0.0", "react-native": ">=0.70.0" }, "optionalPeers": ["@notifee/react-native", "@react-native-async-storage/async-storage", "@react-native-community/netinfo", "@react-native-firebase/analytics", "@react-native-firebase/app", "@react-native-firebase/messaging", "@react-native-firebase/remote-config", "firebase", "react-native"] }, "sha512-rawsl2NhKiZh525XL5iz4lLAii3N3QtwDQYWaxJZbvaIS6/W+sP6E4emeKtPpNE/WLLAZejzb6OoRhoXUzt0gw=="],
 
-    "@sudobility/di_web": ["@sudobility/di_web@0.1.120", "", { "peerDependencies": { "@sudobility/components": "^5.0.20", "@sudobility/di": "^1.5.45", "@sudobility/types": "^1.9.57", "react": "^18.0.0 || ^19.0.0", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0" }, "optionalPeers": ["vite"] }, "sha512-ZXCja2lk1yRFMMH363tUX4dTyN0BhH5VT+rbcCB32WxlCJiymGajp5UiqVhAZVn5omYTjhNE+Aew9gaJGwft1A=="],
+    "@sudobility/di_web": ["@sudobility/di_web@0.1.121", "", { "peerDependencies": { "@sudobility/components": "^5.0.20", "@sudobility/di": "^1.5.45", "@sudobility/types": "^1.9.57", "react": "^18.0.0 || ^19.0.0", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0" }, "optionalPeers": ["vite"] }, "sha512-8BMkoEZZhYri42ruha5wIC/2KXPfIOyTpggKSpjjtDVp+c5yEKlSwK7djjsakR046pZH+HPRkn9or4OEEvgmpQ=="],
 
     "@sudobility/entity_client": ["@sudobility/entity_client@0.0.27", "", { "peerDependencies": { "@sudobility/types": "^1.9.57", "@tanstack/react-query": "^5.0.0", "react": "^18.0.0 || ^19.0.0" } }, "sha512-8/x38kSfDXv10MZE2HPLCtjhv+h+uh/6y8H2FRaWNdrytyrLWXrTzxQDB02sdn43zihKR1YGK/vICPQVSc2Vrw=="],
 
     "@sudobility/subscription-components": ["@sudobility/subscription-components@1.0.27", "", { "optionalDependencies": { "@rollup/rollup-linux-x64-gnu": "4.52.5", "@rollup/rollup-linux-x64-musl": "4.52.5" }, "peerDependencies": { "@heroicons/react": "^2.2.0", "@revenuecat/purchases-js": "^1.0.0", "@sudobility/components": "^5.0.7", "@sudobility/design": "^1.1.18", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@revenuecat/purchases-js"] }, "sha512-LpbB0JI8VVi3Ye1HDxaL/voMqKs0Pu3a+4BTO/mILcYFedQCfF7mD+36vUEVX2so2NpHPoITtGnYue7pFyGomw=="],
 
-    "@sudobility/subscription_lib": ["@sudobility/subscription_lib@0.0.21", "", { "peerDependencies": { "@revenuecat/purchases-js": "^1.0.0", "@sudobility/types": "^1.9.57", "react": "^18.0.0 || ^19.0.0", "react-native-purchases": ">=7.0.0" }, "optionalPeers": ["@revenuecat/purchases-js", "react-native-purchases"] }, "sha512-U99jip/SOe3DXwz09tGv8b1N22Rg4uYIPg+Snx6suILXSHq3Z1YE4VtToHSVvdpfG3vDqoFLdKBiQMG5SMXnqw=="],
+    "@sudobility/subscription_lib": ["@sudobility/subscription_lib@0.0.23", "", { "peerDependencies": { "@revenuecat/purchases-js": "^1.0.0", "@sudobility/types": "^1.9.57", "react": "^18.0.0 || ^19.0.0", "react-native-purchases": ">=7.0.0" }, "optionalPeers": ["@revenuecat/purchases-js", "react-native-purchases"] }, "sha512-tA8bO/52SpGrw5XH71wwkAasSTvo46TZc85qtehm5Z50WzePiuF8xPrZYRjbuD+ynQqsGGEpq5M2EURaD1WxEg=="],
 
     "@sudobility/types": ["@sudobility/types@1.9.57", "", {}, "sha512-POtx/cRagDEdnEwrXfuoyzhNKyGahD7TYJRZT7WYW6+9ID1ZHwWDGkI88KmenKtwsljiJPQZ9+QM7jy13hdv3g=="],
 
