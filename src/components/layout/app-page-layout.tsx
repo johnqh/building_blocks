@@ -22,7 +22,7 @@ import {
 } from '../footer/app-footer-for-home-page';
 import type { MaxWidth, ContentPadding, BackgroundVariant } from '../../types';
 
-const layoutVariants = cva('min-h-screen flex flex-col', {
+const layoutVariants = cva('h-screen flex flex-col overflow-hidden', {
   variants: {
     background: {
       default: 'bg-gray-50 dark:bg-gray-900',
