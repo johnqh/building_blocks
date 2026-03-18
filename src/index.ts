@@ -11,21 +11,6 @@ export { SudobilityApp } from './components/app/SudobilityApp';
 export type { SudobilityAppProps } from './components/app/SudobilityApp';
 
 // Subscription components without auth dependency
-export { AppSubscriptionsPage } from './components/subscription/AppSubscriptionsPage';
-export type {
-  AppSubscriptionsPageProps,
-  SubscriptionPageLabels,
-  SubscriptionPageFormatters,
-} from './components/subscription/AppSubscriptionsPage';
-
-export { AppPricingPage } from './components/subscription/AppPricingPage';
-export type {
-  AppPricingPageProps,
-  FAQItem,
-  PricingPageLabels,
-  PricingPageFormatters,
-} from './components/subscription/AppPricingPage';
-
 export {
   SafeSubscriptionContext,
   STUB_SUBSCRIPTION_VALUE,
