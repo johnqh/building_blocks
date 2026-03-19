@@ -22,7 +22,7 @@ import {
 } from '../footer/app-footer-for-home-page';
 import type { MaxWidth, ContentPadding, BackgroundVariant } from '../../types';
 
-const layoutVariants = cva('h-screen flex flex-col overflow-hidden', {
+const layoutVariants = cva('flex flex-col', {
   variants: {
     background: {
       default: 'bg-gray-50 dark:bg-gray-900',
@@ -164,7 +164,8 @@ export interface AppPageLayoutProps {
  * - Configurable content max-width and padding
  * - Background variants
  * - Dark mode support
- * - Sticky footer behavior (automatic for compact footer)
+ * - Compact footer sticks to the bottom while content scrolls independently
+ * - Full footer scrolls with content (no sticky behavior)
  *
  * @example
  * ```tsx
@@ -210,6 +211,9 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
     aspectRatio,
   } = page ?? {};
   const isCompactFooter = footer?.variant === 'compact';
+  // Compact footer: viewport-locked layout with internal scrolling
+  // Full footer: natural page scrolling so footer scrolls with content
+  const stickyLayout = !footer || isCompactFooter;
   const content = aspectRatio ? (
     <AspectFitView aspectRatio={aspectRatio}>{children}</AspectFitView>
   ) : (
@@ -218,7 +222,13 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
 
   return (
     <LayoutProvider mode={layoutMode}>
-      <div className={cn(layoutVariants({ background }), className)}>
+      <div
+        className={cn(
+          layoutVariants({ background }),
+          stickyLayout ? 'h-screen overflow-hidden' : 'min-h-screen',
+          className
+        )}
+      >
         {/* Header Section */}
         <header>{renderTopBar(topBar)}</header>
 
@@ -228,7 +238,13 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
         )}
 
         {/* Main Content */}
-        <main className={cn('flex-1 overflow-auto', mainClassName)}>
+        <main
+          className={cn(
+            'flex-1',
+            stickyLayout && 'overflow-auto',
+            mainClassName
+          )}
+        >
           <div
             className={cn(
               'mx-auto',
