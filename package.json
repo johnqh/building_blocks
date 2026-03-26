@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.173",
+  "version": "0.0.174",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "sideEffects": false,
@@ -101,7 +101,7 @@
     "@sudobility/design": "^1.1.24",
     "@sudobility/devops-components": "^2.0.17",
     "@sudobility/di": "^1.5.50",
-    "@sudobility/di_web": "^0.1.137",
+    "@sudobility/di_web": "^0.1.138",
     "@sudobility/entity_client": "^0.0.33",
     "@sudobility/subscription-components": "^1.0.28",
     "@sudobility/subscription_lib": "^0.0.37",
