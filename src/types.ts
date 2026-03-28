@@ -103,6 +103,8 @@ export interface ShareConfig {
   hashtags: string[];
   /** Optional callback to modify share URL before sharing */
   onBeforeShare?: (baseUrl: string) => Promise<string>;
+  /** Optional callback that returns a base64 PNG data URL for image sharing */
+  getImageDataUrl?: () => Promise<string | null>;
 }
 
 /**

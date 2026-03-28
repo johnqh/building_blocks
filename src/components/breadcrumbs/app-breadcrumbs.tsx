@@ -190,8 +190,27 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
     },
   ];
 
-  // Total items = platforms + copy link
-  const totalItems = sharePlatforms.length + 1;
+  // Check if Web Share API with files is supported
+  const hasImageShare = !!shareConfig.getImageDataUrl;
+  const [supportsWebShare, setSupportsWebShare] = useState(false);
+
+  useEffect(() => {
+    if (!hasImageShare) return;
+    // Check if browser supports sharing files
+    if (typeof navigator !== 'undefined' && navigator.canShare) {
+      const testFile = new File([''], 'test.png', { type: 'image/png' });
+      try {
+        setSupportsWebShare(navigator.canShare({ files: [testFile] }));
+      } catch {
+        setSupportsWebShare(false);
+      }
+    }
+  }, [hasImageShare]);
+
+  // Extra items: Web Share (if supported) + Download Image (if getImageDataUrl provided)
+  const extraItemCount = hasImageShare ? (supportsWebShare ? 2 : 1) : 0;
+  // Total items = platforms + extra image items + copy link
+  const totalItems = sharePlatforms.length + extraItemCount + 1;
 
   const copyToClipboard = async () => {
     try {
@@ -212,6 +231,57 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
       '_blank',
       'noopener,noreferrer,width=600,height=400'
     );
+    setIsOpen(false);
+  };
+
+  /** Convert a base64 data URL to a Blob */
+  const dataUrlToBlob = (dataUrl: string): Blob => {
+    const [header, base64] = dataUrl.split(',');
+    const mime = header.match(/:(.*?);/)?.[1] ?? 'image/png';
+    const bytes = atob(base64);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  };
+
+  const handleWebShare = async () => {
+    if (!shareConfig.getImageDataUrl) return;
+    try {
+      const dataUrl = await shareConfig.getImageDataUrl();
+      if (!dataUrl) return;
+      const blob = dataUrlToBlob(dataUrl);
+      const file = new File([blob], 'puzzle.png', { type: 'image/png' });
+      await navigator.share({
+        title: shareConfig.title,
+        text: shareConfig.description,
+        url,
+        files: [file],
+      });
+    } catch (err) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        console.error('Web Share failed:', err);
+      }
+    }
+    setIsOpen(false);
+  };
+
+  const handleDownloadImage = async () => {
+    if (!shareConfig.getImageDataUrl) return;
+    try {
+      const dataUrl = await shareConfig.getImageDataUrl();
+      if (!dataUrl) return;
+      const blob = dataUrlToBlob(dataUrl);
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'puzzle.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
     setIsOpen(false);
   };
 
@@ -311,14 +381,59 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
             className='border-t border-gray-200 dark:border-gray-700 my-1'
             role='separator'
           />
+          {/* Image sharing options (conditional) */}
+          {hasImageShare && supportsWebShare && (
+            <button
+              ref={el => {
+                itemRefs.current[sharePlatforms.length] = el;
+              }}
+              onClick={handleWebShare}
+              className='w-full flex items-center px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors focus:bg-gray-50 dark:focus:bg-gray-700 focus:outline-none'
+              role='menuitem'
+              tabIndex={focusedIndex === sharePlatforms.length ? 0 : -1}
+            >
+              <span className='text-sm text-purple-600 dark:text-purple-400'>
+                Share with Image
+              </span>
+            </button>
+          )}
+          {hasImageShare && (
+            <button
+              ref={el => {
+                const idx = sharePlatforms.length + (supportsWebShare ? 1 : 0);
+                itemRefs.current[idx] = el;
+              }}
+              onClick={handleDownloadImage}
+              className='w-full flex items-center px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors focus:bg-gray-50 dark:focus:bg-gray-700 focus:outline-none'
+              role='menuitem'
+              tabIndex={
+                focusedIndex ===
+                sharePlatforms.length + (supportsWebShare ? 1 : 0)
+                  ? 0
+                  : -1
+              }
+            >
+              <span className='text-sm text-green-600 dark:text-green-400'>
+                Download Image
+              </span>
+            </button>
+          )}
+          {hasImageShare && (
+            <div
+              className='border-t border-gray-200 dark:border-gray-700 my-1'
+              role='separator'
+            />
+          )}
           <button
             ref={el => {
-              itemRefs.current[sharePlatforms.length] = el;
+              itemRefs.current[sharePlatforms.length + extraItemCount] = el;
             }}
             onClick={copyToClipboard}
             className='w-full flex items-center px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors focus:bg-gray-50 dark:focus:bg-gray-700 focus:outline-none'
             role='menuitem'
-            tabIndex={focusedIndex === sharePlatforms.length ? 0 : -1}
+            tabIndex={
+              focusedIndex === sharePlatforms.length + extraItemCount ? 0 : -1
+            }
           >
             <span className='text-sm text-gray-700 dark:text-gray-300'>
               {showCopiedFeedback ? 'Copied!' : 'Copy Link'}
