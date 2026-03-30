@@ -93,7 +93,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
 
   useEffect(() => {
     const onBeforeShare = shareConfig.onBeforeShare;
-    if (onBeforeShare && !shareUrl) {
+    if (onBeforeShare) {
       const prepareUrl = async () => {
         setIsPreparingShare(true);
         try {
@@ -110,8 +110,10 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
         }
       };
       prepareUrl();
+    } else {
+      setShareUrl('');
     }
-  }, [shareConfig, shareUrl]);
+  }, [shareConfig]);
 
   // Close dropdown on outside click
   useEffect(() => {
