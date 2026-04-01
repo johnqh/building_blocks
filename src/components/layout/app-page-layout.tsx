@@ -241,7 +241,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
         <main
           className={cn(
             'flex-1',
-            stickyLayout && 'overflow-auto',
+            stickyLayout && 'flex flex-col overflow-hidden',
             mainClassName
           )}
         >
@@ -250,6 +250,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
               'mx-auto',
               maxWidthClasses[maxWidth],
               paddingClasses[contentPadding],
+              stickyLayout && 'flex-1 min-h-0 overflow-auto',
               contentClassName
             )}
           >
