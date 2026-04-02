@@ -134,6 +134,10 @@ export interface AppPageProps {
   /** Custom className for the main element */
   mainClassName?: string;
 
+  /** Whether the content area should be scrollable in sticky layout mode (default: true).
+   *  Set to false for pages with MasterDetailLayout where panels handle their own scrolling. */
+  scrollable?: boolean;
+
   /** Optional aspect ratio (width / height) for content area. When set, children are placed inside a container with fixed aspect ratio using AspectFit behavior. */
   aspectRatio?: number;
 }
@@ -208,6 +212,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
     className,
     contentClassName,
     mainClassName,
+    scrollable = true,
     aspectRatio,
   } = page ?? {};
   const isCompactFooter = footer?.variant === 'compact';
@@ -250,7 +255,10 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
               'mx-auto',
               maxWidthClasses[maxWidth],
               paddingClasses[contentPadding],
-              stickyLayout && 'flex-1 min-h-0 overflow-auto',
+              stickyLayout &&
+                (scrollable
+                  ? 'flex-1 min-h-0 overflow-auto'
+                  : 'flex-1 min-h-0 overflow-hidden flex flex-col'),
               contentClassName
             )}
           >

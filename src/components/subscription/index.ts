@@ -6,5 +6,3 @@ export {
 } from './SafeSubscriptionContext';
 
 export { LazySubscriptionProvider } from './LazySubscriptionProvider';
-
-export { SubscriptionProviderWrapper } from './SubscriptionProviderWrapper';

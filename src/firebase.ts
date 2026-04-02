@@ -23,4 +23,3 @@ export {
 
 // Subscription providers (require auth status)
 export { LazySubscriptionProvider } from './components/subscription/LazySubscriptionProvider';
-export { SubscriptionProviderWrapper } from './components/subscription/SubscriptionProviderWrapper';
