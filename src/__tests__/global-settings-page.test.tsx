@@ -244,14 +244,6 @@ describe('GlobalSettingsPage', () => {
     );
   });
 
-  it('applies custom className', () => {
-    render(
-      <GlobalSettingsPage {...defaultProps} className='custom-settings' />
-    );
-
-    expect(screen.getByTestId('section')).toHaveClass('custom-settings');
-  });
-
   it('uses custom translations when t is provided', () => {
     const customT = (key: string) => {
       const translations: Record<string, string> = {

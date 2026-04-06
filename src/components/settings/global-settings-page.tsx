@@ -2,8 +2,8 @@
  * @fileoverview Global Settings Page
  * @description Reusable settings page with sidebar navigation.
  *
- * This component uses Section internally for proper page layout.
- * Do NOT wrap this component in a Section when consuming it.
+ * The consuming page is responsible for page-level layout (width constraints,
+ * padding, scrollable behavior) — e.g. via useSetPageConfig or a Section wrapper.
  */
 
 import React, {
@@ -14,12 +14,7 @@ import React, {
   type ComponentType,
 } from 'react';
 import { PaintBrushIcon } from '@heroicons/react/24/outline';
-import {
-  Section,
-  MasterDetailLayout,
-  MasterListItem,
-} from '@sudobility/components';
-import { cn } from '../../utils';
+import { MasterDetailLayout, MasterListItem } from '@sudobility/components';
 import { AppearanceSettings } from './appearance-settings';
 import { Theme, FontSize } from './appearance-settings';
 import type { AnalyticsTrackingParams } from '../../types';
@@ -143,7 +138,6 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   additionalSections = [],
   t,
   appearanceT,
-  className,
   showAppearanceInfoBox = true,
   onTrack,
 }) => {
@@ -272,20 +266,18 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   );
 
   return (
-    <Section spacing='lg' maxWidth='6xl' className={cn(className)}>
-      <MasterDetailLayout
-        masterTitle={getText('title')}
-        backButtonText={getText('backButton')}
-        masterContent={navigationList}
-        detailContent={currentSection.content}
-        detailTitle={currentSection.label}
-        mobileView={mobileView}
-        onBackToNavigation={handleBackToNavigation}
-        masterWidth={280}
-        stickyMaster={true}
-        enableAnimations={true}
-      />
-    </Section>
+    <MasterDetailLayout
+      masterTitle={getText('title')}
+      backButtonText={getText('backButton')}
+      masterContent={navigationList}
+      detailContent={currentSection.content}
+      detailTitle={currentSection.label}
+      mobileView={mobileView}
+      onBackToNavigation={handleBackToNavigation}
+      masterWidth={280}
+      stickyMaster={true}
+      enableAnimations={true}
+    />
   );
 };
 
