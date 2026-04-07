@@ -58,6 +58,8 @@ PROJECTS=(
     "../ratelimit_pages:0"
     "../consumables_pages:60"
     # Level 4: Depends on levels 0-3
+    "../genui:0"
+    "../genui_rn:0"
     "../building_blocks:0"
     "../building_blocks_rn:60"
 )
