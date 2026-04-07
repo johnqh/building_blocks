@@ -8,7 +8,7 @@
         "@eslint/js": "^9.38.0",
         "@heroicons/react": "^2.2.0",
         "@sudobility/auth-components": "^1.0.10",
-        "@sudobility/auth_lib": "^0.0.66",
+        "@sudobility/auth_lib": "^0.0.68",
         "@sudobility/components": "^5.0.48",
         "@sudobility/design": "^1.1.25",
         "@sudobility/devops-components": "^2.0.19",
@@ -488,7 +488,7 @@
 
     "@sudobility/auth-components": ["@sudobility/auth-components@1.0.10", "", { "optionalDependencies": { "@rollup/rollup-linux-x64-gnu": "4.52.5", "@rollup/rollup-linux-x64-musl": "4.52.5" }, "peerDependencies": { "@heroicons/react": "^2.2.0", "@sudobility/components": "^5.0.7", "@sudobility/design": "^1.1.18", "firebase": "^10.0.0 || ^11.0.0 || ^12.0.0", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" } }, "sha512-7GBHWW60Kpvi2Ho+jU+M4vy/ex778x/euDalxxLsflkxSIBwyrY1i8iOgJhqFl8hpYJsGejhxC4K4LBDJFbiDQ=="],
 
-    "@sudobility/auth_lib": ["@sudobility/auth_lib@0.0.66", "", { "peerDependencies": { "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/auth": ">=18.0.0", "@sudobility/di": "^1.5.52", "@sudobility/types": "^1.9.61", "@tanstack/react-query": "^5.0.0", "firebase": "^12.7.0", "react": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@react-native-firebase/app", "@react-native-firebase/auth", "firebase"] }, "sha512-yWaBapcNhJvmiM5MGVSPxMw+rRzsVqQT/uKsiwWIA/yRNh9LX+QIl1QFXwMffew97s0+E7L169Ay55+iznzJ9A=="],
+    "@sudobility/auth_lib": ["@sudobility/auth_lib@0.0.68", "", { "peerDependencies": { "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/auth": ">=18.0.0", "@sudobility/di": "^1.5.52", "@sudobility/types": "^1.9.61", "@tanstack/react-query": "^5.0.0", "firebase": "^12.7.0", "react": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@react-native-firebase/app", "@react-native-firebase/auth", "firebase"] }, "sha512-EYBh/ifLRPcYfIvHf+v1LgC5ntOGsAs0YsONdzMqZW360xbwbdw8CaFfkxZDr7SuERRfMLqok0lMItfdr6meeg=="],
 
     "@sudobility/components": ["@sudobility/components@5.0.48", "", { "optionalDependencies": { "@rollup/rollup-linux-x64-gnu": "4.52.5", "@rollup/rollup-linux-x64-musl": "4.52.5" }, "peerDependencies": { "@heroicons/react": ">=2.0.0", "@radix-ui/react-alert-dialog": ">=1.0.0", "@radix-ui/react-dialog": ">=1.0.0", "@radix-ui/react-label": ">=2.0.0", "@radix-ui/react-select": ">=2.0.0", "@radix-ui/react-slot": ">=1.0.0", "@radix-ui/react-switch": ">=1.0.0", "@radix-ui/react-tabs": ">=1.0.0", "@sudobility/design": "^1.1.25", "@sudobility/types": "^1.9.61", "class-variance-authority": ">=0.7.0", "clsx": ">=2.0.0", "i18next": ">=23.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0", "react-i18next": ">=14.0.0", "react-router-dom": ">=6.0.0", "tailwind-merge": ">=2.0.0", "web-vitals": ">=3.0.0" } }, "sha512-11fnm3ph28/Y7llEvK2GJrzEgNFRh5J/2bZcya0YRRapelv45GLHcIGXode3s6+7EVuLCjiEbPcqeGe8myD/Tg=="],
 
