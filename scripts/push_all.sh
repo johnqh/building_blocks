@@ -48,6 +48,7 @@ PROJECTS=(
     "../seo_lib:0"
     # Level 3: Depends on levels 0-2
     "../genui:0"
+    "../genui_rn:0"
     "../di_web:0"
     "../di_rn:0"
     "../entity_pages:0"
