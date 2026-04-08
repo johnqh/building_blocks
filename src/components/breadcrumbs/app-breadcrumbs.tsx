@@ -8,6 +8,7 @@ import React, {
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils';
+import { ui } from '@sudobility/design';
 import type {
   BreadcrumbItem,
   ShareConfig,
@@ -18,10 +19,9 @@ import type {
 const breadcrumbContainerVariants = cva('border-b', {
   variants: {
     variant: {
-      default: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+      default: `${ui.background.surface} ${ui.border.default}`,
       transparent: 'bg-transparent border-transparent',
-      subtle:
-        'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700',
+      subtle: `${ui.background.subtle} ${ui.border.default}`,
     },
   },
   defaultVariants: {
@@ -358,7 +358,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
 
       {isOpen && (
         <div
-          className='absolute right-0 top-10 z-[999999] w-40 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-1'
+          className={`absolute right-0 top-10 z-[999999] w-40 ${ui.background.surface} rounded-lg shadow-xl border ${ui.border.default} py-1`}
           role='menu'
           aria-label='Share options'
           onKeyDown={handleMenuKeyDown}
@@ -525,13 +525,11 @@ export const AppBreadcrumbs: React.FC<AppBreadcrumbsProps> = ({
                 <React.Fragment key={index}>
                   <li>
                     {item.current || !item.href ? (
-                      <span className='text-gray-700 dark:text-gray-300'>
-                        {item.label}
-                      </span>
+                      <span className={ui.text.body}>{item.label}</span>
                     ) : (
                       <a
                         href={item.href}
-                        className='text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors'
+                        className={`${ui.text.linkSubtle} transition-colors`}
                       >
                         {item.label}
                       </a>
@@ -539,9 +537,7 @@ export const AppBreadcrumbs: React.FC<AppBreadcrumbsProps> = ({
                   </li>
                   {index < items.length - 1 && (
                     <li>
-                      <span className='text-gray-400 dark:text-gray-500'>
-                        /
-                      </span>
+                      <span className={ui.text.muted}>/</span>
                     </li>
                   )}
                 </React.Fragment>

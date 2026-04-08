@@ -11,6 +11,7 @@ import {
   FooterCopyright,
   FooterSocialLinks,
 } from '@sudobility/components';
+import { ui } from '@sudobility/design';
 import { cn } from '../../utils';
 import type {
   StatusIndicatorConfig,
@@ -202,7 +203,7 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
   const companyLink = companyUrl ? (
     <LinkComponent
       href={companyUrl}
-      className='text-blue-400 hover:text-blue-300 transition-colors'
+      className={cn(ui.text.linkSubtle, ui.transition.default)}
     >
       {companyName}
     </LinkComponent>

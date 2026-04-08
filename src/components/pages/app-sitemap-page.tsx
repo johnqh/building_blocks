@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Section } from '@sudobility/components';
 import { cn } from '../../utils';
+import { ui, colors, buttonVariant } from '@sudobility/design';
 import type { LinkComponentProps } from '../../types';
 
 /**
@@ -169,34 +170,34 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
     <Section spacing='3xl' maxWidth='6xl' className={cn(className)}>
       {/* Header */}
       <div className='text-center mb-12'>
-        <h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-4'>
+        <h1 className={`text-4xl font-bold ${ui.text.strong} mb-4`}>
           {text.title}
         </h1>
-        <p className='text-xl text-gray-600 dark:text-gray-300'>
-          {text.subtitle}
-        </p>
+        <p className={`text-xl ${ui.text.muted}`}>{text.subtitle}</p>
       </div>
 
       {/* Language Section */}
       {languages.length > 0 && (
-        <div className='mb-12 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
-          <h2 className='text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center'>
+        <div
+          className={`mb-12 p-6 ${colors.component.alert.info.base} ${colors.component.alert.info.dark} rounded-lg`}
+        >
+          <h2
+            className={`text-xl font-semibold ${ui.text.strong} mb-4 flex items-center`}
+          >
             <LanguageIcon className='w-6 h-6 mr-2' />
             {text.languagesSectionTitle}
           </h2>
-          <p className='text-gray-600 dark:text-gray-300 mb-6'>
-            {text.languagesDescription}
-          </p>
+          <p className={`${ui.text.body} mb-6`}>{text.languagesDescription}</p>
           <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4'>
             {languages.map(lang => (
               <LinkComponent
                 key={lang.code}
                 href={languageLinkPath ?? '/'}
                 language={lang.code}
-                className='flex items-center space-x-2 p-3 bg-white dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow'
+                className={`flex items-center space-x-2 p-3 ${ui.background.surface} rounded-lg hover:shadow-md transition-shadow`}
               >
                 <span className='text-2xl'>{lang.flag}</span>
-                <div className='font-medium text-gray-900 dark:text-white'>
+                <div className={`font-medium ${ui.text.strong}`}>
                   {lang.name}
                 </div>
               </LinkComponent>
@@ -210,9 +211,11 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
         {sections.map((section, index) => (
           <div
             key={index}
-            className='bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6'
+            className={`${ui.background.surface} rounded-lg shadow-sm p-6`}
           >
-            <h2 className='text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center'>
+            <h2
+              className={`text-lg font-semibold ${ui.text.strong} mb-4 flex items-center`}
+            >
               {getIcon(section.icon)}
               {section.title}
             </h2>
@@ -244,26 +247,27 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
 
       {/* Quick Links Section */}
       {quickLinks.length > 0 && (
-        <div className='mt-12 p-6 bg-gray-50 dark:bg-gray-900 rounded-lg'>
-          <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
+        <div className={`mt-12 p-6 ${ui.background.subtle} rounded-lg`}>
+          <h3 className={`text-lg font-semibold ${ui.text.strong} mb-4`}>
             {text.quickLinksTitle}
           </h3>
           <div className='flex flex-wrap gap-3'>
             {quickLinks.map((link, index) => {
               const baseClasses =
-                'inline-flex items-center px-4 py-2 rounded-lg transition-colors';
-              const variantClasses =
+                'inline-flex items-center px-4 py-2 rounded-lg';
+              const variantClasses = buttonVariant(
                 link.variant === 'primary'
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'primary'
                   : link.variant === 'secondary'
-                    ? 'bg-gray-600 text-white hover:bg-gray-700'
-                    : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800';
+                    ? 'secondary'
+                    : 'outline'
+              );
 
               return (
                 <LinkComponent
                   key={index}
                   href={link.path}
-                  className={`${baseClasses} ${variantClasses}`}
+                  className={cn(baseClasses, variantClasses)}
                 >
                   {link.icon === 'envelope' && (
                     <EnvelopeIcon className='w-5 h-5 mr-2' />

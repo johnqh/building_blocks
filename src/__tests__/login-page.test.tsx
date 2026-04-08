@@ -230,6 +230,6 @@ describe('LoginPage', () => {
     render(<LoginPage {...defaultProps} />);
 
     const title = screen.getByText('Test App');
-    expect(title).toHaveClass('text-primary-600');
+    expect(title).toHaveClass('text-blue-600');
   });
 });

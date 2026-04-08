@@ -1,4 +1,6 @@
 import React from 'react';
+import { buttonVariant, ui } from '@sudobility/design';
+import { cn } from '../../utils';
 
 export interface EmptyStateProps {
   /** Message text displayed in the empty state */
@@ -30,13 +32,21 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div className='flex-1 flex flex-col items-center justify-center px-8'>
-      <p className='text-gray-500 dark:text-gray-400 text-center text-[15px] leading-relaxed mb-5'>
+      <p
+        className={cn(
+          ui.text.muted,
+          'text-center text-[15px] leading-relaxed mb-5'
+        )}
+      >
         {message}
       </p>
       <button
         type='button'
         onClick={onPress}
-        className='bg-blue-600 hover:bg-blue-700 text-white rounded-md px-6 py-2 text-sm font-medium min-h-[44px]'
+        className={cn(
+          buttonVariant('primary'),
+          'rounded-md px-6 py-2 text-sm font-medium min-h-[44px]'
+        )}
       >
         {buttonLabel}
       </button>

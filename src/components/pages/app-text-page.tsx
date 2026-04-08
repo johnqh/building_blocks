@@ -9,6 +9,7 @@
 import React, { type ReactNode, type ComponentType } from 'react';
 import { Section } from '@sudobility/components';
 import { cn } from '../../utils';
+import { ui, colors } from '@sudobility/design';
 
 /**
  * Configuration for a text section with paragraph content
@@ -151,7 +152,7 @@ function isSectionWithSubsections(
  * Heading component for h2 sections
  */
 const SectionHeading: React.FC<{ children: ReactNode }> = ({ children }) => (
-  <h2 className='text-2xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4'>
+  <h2 className={`text-2xl font-bold ${ui.text.strong} mt-8 mb-4`}>
     {children}
   </h2>
 );
@@ -160,7 +161,7 @@ const SectionHeading: React.FC<{ children: ReactNode }> = ({ children }) => (
  * Heading component for h3 subsections
  */
 const SubsectionHeading: React.FC<{ children: ReactNode }> = ({ children }) => (
-  <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3'>
+  <h3 className={`text-xl font-semibold ${ui.text.strong} mt-6 mb-3`}>
     {children}
   </h3>
 );
@@ -171,17 +172,13 @@ const SubsectionHeading: React.FC<{ children: ReactNode }> = ({ children }) => (
 const Paragraph: React.FC<{ children: ReactNode; className?: string }> = ({
   children,
   className = '',
-}) => (
-  <p className={`text-gray-600 dark:text-gray-300 mb-6 ${className}`}>
-    {children}
-  </p>
-);
+}) => <p className={cn(ui.text.body, 'mb-6', className)}>{children}</p>;
 
 /**
  * List component - renders items with HTML support
  */
 const List: React.FC<{ items: string[] }> = ({ items }) => (
-  <ul className='list-disc list-inside text-gray-600 dark:text-gray-300 mb-6 space-y-1'>
+  <ul className={`list-disc list-inside ${ui.text.body} mb-6 space-y-1`}>
     {items.map((item, index) => (
       <li key={index} dangerouslySetInnerHTML={{ __html: item }} />
     ))}
@@ -233,7 +230,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
 }) => {
   const content = (
     <Section spacing='3xl' maxWidth='4xl' className={cn(className)}>
-      <h1 className='text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8'>
+      <h1 className={`text-4xl font-bold ${ui.text.strong} mb-8`}>
         {text.title}
       </h1>
 
@@ -295,21 +292,18 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
             ) : (
               <Paragraph>{text.contact.description}</Paragraph>
             )}
-            <div className='bg-gray-50 dark:bg-gray-800 p-4 rounded-lg'>
-              <p className='text-gray-700 dark:text-gray-300'>
+            <div className={`${ui.background.subtle} p-4 rounded-lg`}>
+              <p className={ui.text.body}>
                 {text.contact.info.emailLabel}{' '}
                 <a
                   href={`mailto:${text.contact.info.email}`}
-                  className='text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'
+                  className={ui.text.link}
                 >
                   {text.contact.info.email}
                 </a>
                 <br />
                 {text.contact.info.websiteLabel}{' '}
-                <a
-                  href={text.contact.info.websiteUrl}
-                  className='text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'
-                >
+                <a href={text.contact.info.websiteUrl} className={ui.text.link}>
                   {text.contact.info.websiteUrl}
                 </a>
                 {text.contact.info.dpoLabel && text.contact.info.dpoEmail && (
@@ -318,7 +312,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
                     {text.contact.info.dpoLabel}{' '}
                     <a
                       href={`mailto:${text.contact.info.dpoEmail}`}
-                      className='text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'
+                      className={ui.text.link}
                     >
                       {text.contact.info.dpoEmail}
                     </a>
@@ -329,7 +323,9 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
 
             {/* GDPR Notice */}
             {text.contact.gdprNotice && (
-              <div className='mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
+              <div
+                className={`mt-8 p-4 ${colors.component.alert.info.base} ${colors.component.alert.info.dark} rounded-lg`}
+              >
                 <h3 className='text-lg font-semibold text-blue-900 dark:text-blue-200 mb-2'>
                   {text.contact.gdprNotice.title}
                 </h3>
@@ -338,7 +334,7 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
                   {text.contact.info.dpoEmail && (
                     <a
                       href={`mailto:${text.contact.info.dpoEmail}`}
-                      className='text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'
+                      className={ui.text.link}
                     >
                       {text.contact.info.dpoEmail}
                     </a>

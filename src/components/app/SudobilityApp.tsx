@@ -44,6 +44,7 @@ import {
   ToastContainer as SharedToastContainer,
   useToast,
 } from '@sudobility/components/ui/toast';
+import { colors } from '@sudobility/design';
 
 /**
  * QueryClient type that's compatible across different package versions.
@@ -153,7 +154,9 @@ export interface SudobilityAppProps {
 function DefaultLoadingFallback() {
   return (
     <div className='min-h-screen flex items-center justify-center bg-theme-bg-primary'>
-      <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600' />
+      <div
+        className={`animate-spin rounded-full h-8 w-8 border-b-2 border-current ${colors.component.alert.info.icon}`}
+      />
     </div>
   );
 }

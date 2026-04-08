@@ -7,6 +7,7 @@ import {
   FooterVersion,
   FooterCopyright,
 } from '@sudobility/components';
+import { ui } from '@sudobility/design';
 import { cn } from '../../utils';
 import type {
   StatusIndicatorConfig,
@@ -155,7 +156,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   const companyLink = companyUrl ? (
     <LinkComponent
       href={companyUrl}
-      className='text-blue-400 hover:text-blue-300 transition-colors'
+      className={cn(ui.text.linkSubtle, ui.transition.default)}
     >
       {companyName}
     </LinkComponent>
@@ -197,7 +198,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                     link.href,
                     link.onClick
                   )}
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className={cn(ui.text.linkMuted, ui.transition.default)}
                 >
                   {link.label}
                 </button>
@@ -205,7 +206,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 <LinkComponent
                   href={link.href}
                   onClick={createTrackedLinkHandler(link.label, link.href)}
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className={cn(ui.text.linkMuted, ui.transition.default)}
                 >
                   {link.label}
                 </LinkComponent>
