@@ -1,17 +1,8 @@
 import React, { useCallback, type ComponentType } from 'react';
 import {
-  Logo,
   Footer as FooterContainer,
-  FooterGrid,
-  FooterBrand,
-  FooterLinkSection,
-  FooterLink,
-  FooterBottom,
-  FooterVersion,
-  FooterCopyright,
   FooterSocialLinks,
 } from '@sudobility/components';
-import { ui } from '@sudobility/design';
 import { cn } from '../../utils';
 import type {
   StatusIndicatorConfig,
@@ -32,7 +23,7 @@ export interface AppFooterForHomePageProps {
     appName: string;
   };
 
-  /** Footer link sections (columns of links) */
+  /** Footer link sections displayed as horizontal rows */
   linkSections: FooterLinkSectionConfig[];
 
   /** Social media links */
@@ -59,7 +50,7 @@ export interface AppFooterForHomePageProps {
   /** Company link URL (optional) */
   companyUrl?: string;
 
-  /** Footer description text (below logo) */
+  /** Footer description text (tagline below logo) */
   description?: string;
 
   /** Rights text (e.g., "All rights reserved") */
@@ -74,47 +65,20 @@ export interface AppFooterForHomePageProps {
   /** Custom className */
   className?: string;
 
-  /** Number of columns for link grid (default: auto based on section count) */
-  gridColumns?: 2 | 3 | 4 | 5;
-
   /** Optional analytics tracking callback */
   onTrack?: (params: AnalyticsTrackingParams) => void;
 }
 
 /**
- * Get grid columns class based on section count.
- */
-function getGridColumnsClass(sectionCount: number, explicit?: number): string {
-  const cols = explicit || Math.min(sectionCount, 4);
-  switch (cols) {
-    case 2:
-      return 'md:grid-cols-2';
-    case 3:
-      return 'md:grid-cols-3';
-    case 4:
-      return 'md:grid-cols-4';
-    case 5:
-      return 'md:grid-cols-5';
-    default:
-      return 'md:grid-cols-4';
-  }
-}
-
-/**
  * AppFooterForHomePage - Full footer for home/landing pages.
  *
- * Features:
- * - Multiple link sections in a grid
- * - Logo and brand description
- * - Social media links
- * - System status indicator (optional)
- * - Version and copyright
- * - Dark mode support
+ * Displays link sections as horizontal rows with section title in bold,
+ * followed by links that wrap to additional lines as needed.
+ * Below the sitemap, shows app name, tagline, version, and copyright
+ * on a single wrapping line.
  *
  * @example
  * ```tsx
- * import { SystemStatusIndicator } from '@sudobility/devops-components';
- *
  * <AppFooterForHomePage
  *   logo={{ appName: 'My App' }}
  *   linkSections={[
@@ -125,25 +89,10 @@ function getGridColumnsClass(sectionCount: number, explicit?: number): string {
  *         { label: 'Pricing', href: '/pricing' },
  *       ],
  *     },
- *     {
- *       title: 'Company',
- *       links: [
- *         { label: 'About', href: '/about' },
- *         { label: 'Contact', href: '/contact' },
- *       ],
- *     },
  *   ]}
- *   socialLinks={{
- *     twitterUrl: 'https://twitter.com/myapp',
- *     discordUrl: 'https://discord.gg/myapp',
- *   }}
- *   statusIndicator={{
- *     statusPageUrl: 'https://status.example.com',
- *   }}
- *   StatusIndicatorComponent={SystemStatusIndicator}
  *   version="1.0.0"
  *   companyName="Sudobility Inc."
- *   description="Building the future of web3 communication"
+ *   description="Building the future"
  * />
  * ```
  */
@@ -162,13 +111,10 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
   LinkComponent = DefaultLinkComponent,
   isNetworkOnline = true,
   className,
-  gridColumns,
   onTrack,
 }) => {
   const year = copyrightYear || getCopyrightYear();
-  const gridClass = getGridColumnsClass(linkSections.length, gridColumns);
 
-  // Helper to track analytics events
   const track = useCallback(
     (label: string, params?: Record<string, unknown>) => {
       onTrack?.({
@@ -181,7 +127,6 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
     [onTrack]
   );
 
-  // Create a tracked link click handler
   const createTrackedLinkHandler = useCallback(
     (
       linkLabel: string,
@@ -200,96 +145,99 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
     [track]
   );
 
-  const companyLink = companyUrl ? (
-    <LinkComponent
-      href={companyUrl}
-      className={cn(ui.text.linkSubtle, ui.transition.default)}
-    >
-      {companyName}
-    </LinkComponent>
-  ) : undefined;
-
   return (
     <FooterContainer variant='full' className={cn(className)}>
-      <FooterGrid className={gridClass}>
+      <nav
+        role='navigation'
+        aria-label='Footer Navigation'
+        className='space-y-2'
+      >
         {linkSections.map((section, sectionIndex) => (
-          <FooterLinkSection
+          <div
             key={section.title || sectionIndex}
-            title={section.title}
+            className='flex flex-wrap items-baseline gap-x-4 gap-y-1'
           >
-            {section.links.map((link, linkIndex) => (
-              <FooterLink key={link.href || linkIndex}>
-                {link.onClick ? (
-                  <button
-                    onClick={createTrackedLinkHandler(
-                      link.label,
-                      link.href,
-                      section.title,
-                      link.onClick
-                    )}
-                    className='text-left'
-                  >
-                    {link.label}
-                  </button>
-                ) : (
-                  <LinkComponent
-                    href={link.href}
-                    onClick={createTrackedLinkHandler(
-                      link.label,
-                      link.href,
-                      section.title
-                    )}
-                  >
-                    {link.label}
-                  </LinkComponent>
-                )}
-              </FooterLink>
-            ))}
-          </FooterLinkSection>
-        ))}
-      </FooterGrid>
-
-      <FooterBottom>
-        <FooterBrand
-          description={description}
-          className='flex flex-col items-center'
-        >
-          <LinkComponent
-            href='/'
-            className='text-white hover:opacity-80 transition-opacity'
-          >
-            {logo.src ? (
-              <img
-                src={logo.src}
-                alt={logo.appName}
-                className='h-8 object-contain'
-              />
-            ) : (
-              <Logo size='md' showText={true} logoText={logo.appName} />
+            <span className='font-bold text-sm text-gray-300'>
+              {section.title}
+            </span>
+            {section.links.map((link, linkIndex) =>
+              link.onClick ? (
+                <button
+                  key={link.href || linkIndex}
+                  onClick={createTrackedLinkHandler(
+                    link.label,
+                    link.href,
+                    section.title,
+                    link.onClick
+                  )}
+                  className='text-sm text-gray-400 hover:text-white transition-colors'
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <LinkComponent
+                  key={link.href || linkIndex}
+                  href={link.href}
+                  onClick={createTrackedLinkHandler(
+                    link.label,
+                    link.href,
+                    section.title
+                  )}
+                  className='text-sm text-gray-400 hover:text-white transition-colors'
+                >
+                  {link.label}
+                </LinkComponent>
+              )
             )}
-          </LinkComponent>
-        </FooterBrand>
-        <div className='space-y-2'>
-          {version && <FooterVersion version={version} className='block' />}
-          <FooterCopyright
-            year={year}
-            companyName={companyName}
-            rightsText={rightsText}
-            companyLink={companyLink}
-            className='block'
-          />
+          </div>
+        ))}
+      </nav>
+
+      <div className='border-t border-gray-700 mt-8 pt-6'>
+        <div className='flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-400'>
+          <span className='font-semibold text-gray-200'>{logo.appName}</span>
+          {description && (
+            <>
+              <span className='text-gray-600'>·</span>
+              <span>{description}</span>
+            </>
+          )}
+          {version && (
+            <>
+              <span className='text-gray-600'>·</span>
+              <span>v{version}</span>
+            </>
+          )}
+          <span className='text-gray-600'>·</span>
+          <span>
+            © {year}{' '}
+            {companyUrl ? (
+              <LinkComponent
+                href={companyUrl}
+                className='text-gray-400 hover:text-white transition-colors'
+              >
+                {companyName}
+              </LinkComponent>
+            ) : (
+              companyName
+            )}
+            . {rightsText}
+          </span>
+          {statusIndicator && StatusIndicatorComponent && (
+            <>
+              <span className='text-gray-600'>·</span>
+              <StatusIndicatorComponent
+                statusPageUrl={statusIndicator.statusPageUrl}
+                apiEndpoint={statusIndicator.apiEndpoint}
+                refreshInterval={statusIndicator.refreshInterval || 60000}
+                size='sm'
+                version={version}
+                isNetworkOnline={isNetworkOnline}
+              />
+            </>
+          )}
         </div>
-        {statusIndicator && StatusIndicatorComponent && (
-          <StatusIndicatorComponent
-            statusPageUrl={statusIndicator.statusPageUrl}
-            apiEndpoint={statusIndicator.apiEndpoint}
-            refreshInterval={statusIndicator.refreshInterval || 60000}
-            size='sm'
-            version={version}
-            isNetworkOnline={isNetworkOnline}
-          />
-        )}
-      </FooterBottom>
+      </div>
 
       {socialLinks && (
         <div className='flex justify-center mt-4'>
