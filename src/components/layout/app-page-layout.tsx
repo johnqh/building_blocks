@@ -2,6 +2,7 @@ import React, { type ReactNode } from 'react';
 import { LayoutProvider, AspectFitView } from '@sudobility/components';
 import { cva } from 'class-variance-authority';
 import { cn } from '../../utils';
+import { ui } from '@sudobility/design';
 import {
   AppBreadcrumbs,
   type AppBreadcrumbsProps,
@@ -25,7 +26,7 @@ import type { MaxWidth, ContentPadding, BackgroundVariant } from '../../types';
 const layoutVariants = cva('flex flex-col', {
   variants: {
     background: {
-      default: 'bg-gray-50 dark:bg-gray-900',
+      default: ui.background.subtle,
       white: 'bg-white dark:bg-gray-900',
       gradient:
         'bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800',

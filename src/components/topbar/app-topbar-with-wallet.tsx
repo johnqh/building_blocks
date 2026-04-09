@@ -1,7 +1,7 @@
 import React, { type ReactNode, type ComponentType } from 'react';
 import { AppTopBar, type AppTopBarProps } from './app-topbar';
 import { cn } from '../../utils';
-import { GRADIENT_CLASSES } from '@sudobility/design';
+import { GRADIENT_CLASSES, buttonVariant, ui } from '@sudobility/design';
 
 /**
  * Wallet menu item for the connected wallet dropdown.
@@ -122,7 +122,10 @@ const DefaultConnectButton: React.FC<{
     className={cn(
       useGradient
         ? GRADIENT_CLASSES.headerButton
-        : 'px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors',
+        : cn(
+            'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+            buttonVariant('primary')
+          ),
       className
     )}
   >
@@ -141,12 +144,12 @@ const FallbackWalletDisplay: React.FC<{
 
   return (
     <div className='flex items-center gap-2'>
-      <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+      <span className={`text-sm font-medium ${ui.text.label}`}>
         {truncatedAddress}
       </span>
       <button
         onClick={() => onDisconnect()}
-        className='text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+        className={`text-xs ${ui.text.muted} hover:text-gray-700 dark:hover:text-gray-200`}
       >
         Disconnect
       </button>

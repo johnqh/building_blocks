@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { cn } from '../../utils';
+import { ui } from '@sudobility/design';
 import {
   DEFAULT_LANGUAGES,
   type LanguageConfig,
@@ -132,12 +133,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           aria-haspopup='listbox'
         >
           <span className='text-lg leading-none'>{currentLang?.flag}</span>
-          <span className='hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300'>
+          <span
+            className={`hidden sm:block text-sm font-medium ${ui.text.label}`}
+          >
             {currentLang?.name}
           </span>
           <ChevronDownIcon
             className={cn(
-              'h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform',
+              `h-4 w-4 ${ui.text.muted} transition-transform`,
               isOpen && 'rotate-180'
             )}
           />
@@ -147,8 +150,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           <div
             className={cn(
               'absolute right-0 mt-2 w-48 py-1 z-50',
-              'bg-white dark:bg-gray-800',
-              'border border-gray-200 dark:border-gray-700',
+              ui.background.surface,
+              `border ${ui.border.default}`,
               'rounded-lg shadow-lg'
             )}
             role='listbox'
@@ -169,9 +172,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 aria-selected={lang.code === currentLanguage}
               >
                 <span className='text-lg leading-none'>{lang.flag}</span>
-                <span className='text-sm text-gray-700 dark:text-gray-300'>
-                  {lang.name}
-                </span>
+                <span className={`text-sm ${ui.text.label}`}>{lang.name}</span>
               </button>
             ))}
           </div>
@@ -183,7 +184,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   // Full variant for settings pages
   return (
     <div ref={dropdownRef} className={cn('space-y-2', className)}>
-      <label className='text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2'>
+      <label className={`${ui.text.label} flex items-center gap-2`}>
         <span>{label}</span>
       </label>
 
@@ -192,8 +193,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             'flex items-center justify-between w-full px-3 py-2 text-left',
-            'bg-white dark:bg-gray-800',
-            'border border-gray-300 dark:border-gray-600',
+            ui.background.surface,
+            `border ${ui.border.default}`,
             'rounded-md',
             'hover:bg-gray-50 dark:hover:bg-gray-700',
             'transition-colors'
@@ -203,13 +204,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         >
           <div className='flex items-center gap-2'>
             <span className='text-lg leading-none'>{currentLang?.flag}</span>
-            <span className='text-sm text-gray-700 dark:text-gray-300'>
+            <span className={`text-sm ${ui.text.label}`}>
               {currentLang?.name}
             </span>
           </div>
           <ChevronDownIcon
             className={cn(
-              'h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform',
+              `h-4 w-4 ${ui.text.muted} transition-transform`,
               isOpen && 'rotate-180'
             )}
           />
@@ -219,8 +220,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           <div
             className={cn(
               'absolute left-0 right-0 mt-1 py-1 z-50',
-              'bg-white dark:bg-gray-800',
-              'border border-gray-200 dark:border-gray-700',
+              ui.background.surface,
+              `border ${ui.border.default}`,
               'rounded-md shadow-lg'
             )}
             role='listbox'
@@ -241,18 +242,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 aria-selected={lang.code === currentLanguage}
               >
                 <span className='text-lg leading-none'>{lang.flag}</span>
-                <span className='text-sm text-gray-700 dark:text-gray-300'>
-                  {lang.name}
-                </span>
+                <span className={`text-sm ${ui.text.label}`}>{lang.name}</span>
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {helperText && (
-        <p className='text-xs text-gray-500 dark:text-gray-400'>{helperText}</p>
-      )}
+      {helperText && <p className={`text-xs ${ui.text.muted}`}>{helperText}</p>}
     </div>
   );
 };

@@ -114,6 +114,21 @@ vi.mock('@sudobility/design', () => ({
       default: () => 'text-sm font-medium',
     },
   },
+  colors: {
+    component: {
+      alert: {
+        info: {
+          base: 'bg-blue-50 border-blue-200 text-blue-800',
+          dark: 'dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200',
+        },
+      },
+    },
+  },
+  ui: {
+    text: {
+      info: 'text-blue-700 dark:text-blue-300 font-medium',
+    },
+  },
 }));
 
 // Mock @heroicons/react

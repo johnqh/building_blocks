@@ -380,7 +380,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
             </button>
           ))}
           <div
-            className='border-t border-gray-200 dark:border-gray-700 my-1'
+            className={`border-t ${ui.border.default} my-1`}
             role='separator'
           />
           {/* Image sharing options (conditional) */}
@@ -422,7 +422,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
           )}
           {hasImageShare && (
             <div
-              className='border-t border-gray-200 dark:border-gray-700 my-1'
+              className={`border-t ${ui.border.default} my-1`}
               role='separator'
             />
           )}
@@ -437,7 +437,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
               focusedIndex === sharePlatforms.length + extraItemCount ? 0 : -1
             }
           >
-            <span className='text-sm text-gray-700 dark:text-gray-300'>
+            <span className={`text-sm ${ui.text.label}`}>
               {showCopiedFeedback ? 'Copied!' : 'Copy Link'}
             </span>
           </button>

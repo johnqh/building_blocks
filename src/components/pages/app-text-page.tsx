@@ -326,10 +326,10 @@ export const AppTextPage: React.FC<AppTextPageProps> = ({
               <div
                 className={`mt-8 p-4 ${colors.component.alert.info.base} ${colors.component.alert.info.dark} rounded-lg`}
               >
-                <h3 className='text-lg font-semibold text-blue-900 dark:text-blue-200 mb-2'>
+                <h3 className={`text-lg font-semibold ${ui.text.info} mb-2`}>
                   {text.contact.gdprNotice.title}
                 </h3>
-                <p className='text-blue-800 dark:text-blue-300'>
+                <p className={ui.text.info}>
                   {text.contact.gdprNotice.content}{' '}
                   {text.contact.info.dpoEmail && (
                     <a

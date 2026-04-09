@@ -7,7 +7,7 @@ import {
   SelectValue,
   Label,
 } from '@sudobility/components';
-import { textVariants } from '@sudobility/design';
+import { textVariants, colors, ui } from '@sudobility/design';
 
 /**
  * Theme options for appearance settings.
@@ -149,11 +149,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
           <h2 className={`${textVariants.heading.h4()} mb-2`}>
             {getText('heading')}
           </h2>
-          <p
-            className={`${textVariants.body.sm()} text-gray-600 dark:text-gray-400`}
-          >
-            {getText('description')}
-          </p>
+          <p className={textVariants.body.sm()}>{getText('description')}</p>
         </div>
 
         <div className='space-y-6'>
@@ -184,9 +180,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                 </SelectItem>
               </SelectContent>
             </Select>
-            <p
-              className={`${textVariants.body.xs()} text-gray-500 dark:text-gray-400`}
-            >
+            <p className={textVariants.body.xs()}>
               {getText('themeDescription')}
             </p>
           </div>
@@ -222,9 +216,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                 </SelectItem>
               </SelectContent>
             </Select>
-            <p
-              className={`${textVariants.body.xs()} text-gray-500 dark:text-gray-400`}
-            >
+            <p className={textVariants.body.xs()}>
               {getText('fontSizeDescription')}
             </p>
           </div>
@@ -232,11 +224,13 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
 
         {/* Information Box */}
         {showInfoBox && (
-          <div className='bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800'>
-            <h4 className='text-sm font-medium text-blue-900 dark:text-blue-100 mb-2'>
+          <div
+            className={`${colors.component.alert.info.base} ${colors.component.alert.info.dark} rounded-lg p-4 border`}
+          >
+            <h4 className={`${ui.text.info} text-sm mb-2`}>
               {getText('infoHeading')}
             </h4>
-            <p className='text-sm text-blue-700 dark:text-blue-300'>
+            <p className={`${ui.text.info} text-sm font-normal`}>
               {getText('infoDescription')}
             </p>
           </div>
