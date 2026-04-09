@@ -150,51 +150,54 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
       <nav
         role='navigation'
         aria-label='Footer Navigation'
-        className='space-y-2'
+        className='space-y-1'
       >
         {linkSections.map((section, sectionIndex) => (
           <div
             key={section.title || sectionIndex}
-            className='flex flex-wrap items-baseline gap-x-4 gap-y-1'
+            className='flex flex-wrap items-baseline gap-y-0.5'
           >
-            <span className='font-bold text-sm text-gray-300'>
+            <span className='font-bold text-xs text-gray-300 mr-2'>
               {section.title}
             </span>
-            {section.links.map((link, linkIndex) =>
-              link.onClick ? (
-                <button
-                  key={link.href || linkIndex}
-                  onClick={createTrackedLinkHandler(
-                    link.label,
-                    link.href,
-                    section.title,
-                    link.onClick
-                  )}
-                  className='text-sm text-gray-400 hover:text-white transition-colors'
-                >
-                  {link.label}
-                </button>
-              ) : (
-                <LinkComponent
-                  key={link.href || linkIndex}
-                  href={link.href}
-                  onClick={createTrackedLinkHandler(
-                    link.label,
-                    link.href,
-                    section.title
-                  )}
-                  className='text-sm text-gray-400 hover:text-white transition-colors'
-                >
-                  {link.label}
-                </LinkComponent>
-              )
-            )}
+            {section.links.map((link, linkIndex) => (
+              <React.Fragment key={link.href || linkIndex}>
+                {linkIndex > 0 && (
+                  <span className='text-gray-600 mx-1.5'>·</span>
+                )}
+                {link.onClick ? (
+                  <button
+                    onClick={createTrackedLinkHandler(
+                      link.label,
+                      link.href,
+                      section.title,
+                      link.onClick
+                    )}
+                    className='text-xs text-gray-400 hover:text-white transition-colors'
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <LinkComponent
+                    href={link.href}
+                    onClick={createTrackedLinkHandler(
+                      link.label,
+                      link.href,
+                      section.title
+                    )}
+                    className='text-xs text-gray-400 hover:text-white transition-colors'
+                  >
+                    {link.label}
+                  </LinkComponent>
+                )}
+              </React.Fragment>
+            ))}
           </div>
         ))}
       </nav>
 
-      <div className='border-t border-gray-700 mt-8 pt-6'>
-        <div className='flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-400'>
+      <div className='border-t border-gray-700 mt-4 pt-3'>
+        <div className='flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-xs text-gray-400'>
           <span className='font-semibold text-gray-200'>{logo.appName}</span>
           {description && (
             <>
@@ -240,7 +243,7 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
       </div>
 
       {socialLinks && (
-        <div className='flex justify-center mt-4'>
+        <div className='flex justify-center mt-3'>
           <FooterSocialLinks
             twitterUrl={socialLinks.twitterUrl}
             discordUrl={socialLinks.discordUrl}
