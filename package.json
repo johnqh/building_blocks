@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/building_blocks",
-  "version": "0.0.213",
+  "version": "0.0.214",
   "description": "Higher-level shared UI building blocks for Sudobility apps",
   "type": "module",
   "sideEffects": false,
@@ -96,7 +96,7 @@
     "@eslint/js": "^9.38.0",
     "@heroicons/react": "^2.2.0",
     "@sudobility/auth-components": "^1.0.10",
-    "@sudobility/auth_lib": "^0.0.69",
+    "@sudobility/auth_lib": "^0.0.70",
     "@sudobility/components": "^5.0.58",
     "@sudobility/design": "^1.1.29",
     "@sudobility/devops-components": "^2.0.19",
