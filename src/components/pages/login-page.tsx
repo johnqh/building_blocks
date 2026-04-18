@@ -34,6 +34,22 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 /**
+ * Apple logo SVG component
+ */
+function AppleIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox='0 0 24 24'
+      fill='currentColor'
+      aria-hidden='true'
+    >
+      <path d='M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z' />
+    </svg>
+  );
+}
+
+/**
  * Auth error info passed to onAuthError callback
  */
 export interface AuthErrorInfo {
@@ -87,12 +103,20 @@ export interface LoginPageProps {
    * Only used when `showGoogleSignIn` is true.
    */
   onGoogleSignIn?: () => Promise<void>;
+  /**
+   * Handler for Apple sign-in.
+   * Should perform the Apple OAuth flow; should throw on error.
+   * Only used when `showAppleSignIn` is true.
+   */
+  onAppleSignIn?: () => Promise<void>;
   /** Callback fired on successful authentication */
   onSuccess: () => void;
   /** Callback fired on auth errors - if provided, errors won't be shown inline */
   onAuthError?: (error: AuthErrorInfo) => void;
   /** Whether to show Google sign-in option (default: true) */
   showGoogleSignIn?: boolean;
+  /** Whether to show Apple sign-in option (default: false) */
+  showAppleSignIn?: boolean;
   /** Whether to show sign-up option (default: true) */
   showSignUp?: boolean;
   /** Custom text overrides for localization. Falls back to English defaults for any omitted keys. */
@@ -120,6 +144,7 @@ export interface LoginPageText {
   passwordPlaceholder: string;
   orContinueWith: string;
   signInWithGoogle: string;
+  signInWithApple: string;
   alreadyHaveAccount: string;
   dontHaveAccount: string;
 }
@@ -135,6 +160,7 @@ const defaultText: LoginPageText = {
   passwordPlaceholder: '',
   orContinueWith: 'Or continue with',
   signInWithGoogle: 'Sign in with Google',
+  signInWithApple: 'Sign in with Apple',
   alreadyHaveAccount: 'Already have an account?',
   dontHaveAccount: "Don't have an account?",
 };
@@ -227,10 +253,12 @@ export function LoginPage({
   onEmailSignIn,
   onEmailSignUp,
   onGoogleSignIn,
+  onAppleSignIn,
   onSuccess,
   onAuthError,
   text: textOverrides,
   showGoogleSignIn = true,
+  showAppleSignIn = false,
   showSignUp = true,
   className = '',
   colorVariant = 'primary',
@@ -247,6 +275,12 @@ export function LoginPage({
       console.warn(
         '[LoginPage] showGoogleSignIn is true but onGoogleSignIn handler is not provided. ' +
           'Google sign-in button will not be rendered. Provide onGoogleSignIn or set showGoogleSignIn to false.'
+      );
+    }
+    if (showAppleSignIn && !onAppleSignIn) {
+      console.warn(
+        '[LoginPage] showAppleSignIn is true but onAppleSignIn handler is not provided. ' +
+          'Apple sign-in button will not be rendered. Provide onAppleSignIn or set showAppleSignIn to false.'
       );
     }
   }
@@ -333,12 +367,31 @@ export function LoginPage({
     }
   };
 
+  const handleAppleSignIn = async () => {
+    if (!onAppleSignIn) return;
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await onAppleSignIn();
+      onSuccess();
+    } catch (err) {
+      handleAuthError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const text = { ...defaultText, ...textOverrides };
+
+  const showSocialSection =
+    (showGoogleSignIn && onGoogleSignIn) || (showAppleSignIn && onAppleSignIn);
 
   return (
     <div
       className={cn(
-        `min-h-screen flex items-center justify-center ${ui.background.subtle} py-12 px-4 sm:px-6 lg:px-8`,
+        `min-h-screen flex items-start justify-center ${ui.background.subtle} pt-12 pb-12 px-4 sm:px-6 lg:px-8`,
         className
       )}
     >
@@ -415,7 +468,7 @@ export function LoginPage({
               type='submit'
               disabled={isLoading}
               className={cn(
-                'w-full inline-flex items-center justify-center font-medium rounded-md px-4 py-2 text-sm',
+                'w-full inline-flex items-center justify-center font-medium rounded-md px-4 py-[13px] text-sm',
                 buttonVariant('primary'),
                 'disabled:opacity-50 disabled:cursor-not-allowed'
               )}
@@ -447,7 +500,7 @@ export function LoginPage({
             </button>
           </div>
 
-          {showGoogleSignIn && onGoogleSignIn && (
+          {showSocialSection && (
             <>
               <div className='relative'>
                 <div className='absolute inset-0 flex items-center'>
@@ -462,44 +515,38 @@ export function LoginPage({
                 </div>
               </div>
 
-              <div>
-                <button
-                  type='button'
-                  onClick={handleGoogleSignIn}
-                  disabled={isLoading}
-                  className={cn(
-                    'w-full inline-flex items-center justify-center font-medium rounded-md px-4 py-2 text-sm',
-                    buttonVariant('outline'),
-                    `${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
-                  )}
-                >
-                  {isLoading ? (
-                    <svg
-                      className='animate-spin -ml-1 mr-2 h-5 w-5'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      aria-hidden='true'
-                    >
-                      <circle
-                        className='opacity-25'
-                        cx='12'
-                        cy='12'
-                        r='10'
-                        stroke='currentColor'
-                        strokeWidth='4'
-                      />
-                      <path
-                        className='opacity-75'
-                        fill='currentColor'
-                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                      />
-                    </svg>
-                  ) : (
+              <div className='space-y-3'>
+                {showGoogleSignIn && onGoogleSignIn && (
+                  <button
+                    type='button'
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
+                    className={cn(
+                      'w-full inline-flex items-center justify-center font-medium rounded-md px-4 py-[13px] text-sm',
+                      buttonVariant('outline'),
+                      `${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
+                    )}
+                  >
                     <GoogleIcon className='h-5 w-5 mr-2' />
-                  )}
-                  {text.signInWithGoogle}
-                </button>
+                    {text.signInWithGoogle}
+                  </button>
+                )}
+
+                {showAppleSignIn && onAppleSignIn && (
+                  <button
+                    type='button'
+                    onClick={handleAppleSignIn}
+                    disabled={isLoading}
+                    className={cn(
+                      'w-full inline-flex items-center justify-center font-medium rounded-md px-4 py-[13px] text-sm',
+                      'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200',
+                      'disabled:opacity-50 disabled:cursor-not-allowed'
+                    )}
+                  >
+                    <AppleIcon className='h-5 w-5 mr-2' />
+                    {text.signInWithApple}
+                  </button>
+                )}
               </div>
             </>
           )}
