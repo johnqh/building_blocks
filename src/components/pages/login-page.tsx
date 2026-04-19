@@ -471,7 +471,7 @@ export function LoginPage({
               type='submit'
               disabled={isLoading}
               className={cn(
-                'w-full inline-flex items-center justify-center font-medium rounded-md text-sm',
+                'w-full inline-flex items-center justify-center font-medium rounded-md sm:text-sm',
                 buttonVariant('primary'),
                 'px-3 py-2 border border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
               )}
@@ -525,7 +525,7 @@ export function LoginPage({
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}
                     className={cn(
-                      'w-full inline-flex items-center justify-center font-medium rounded-md text-sm',
+                      'w-full inline-flex items-center justify-center font-medium rounded-md sm:text-sm',
                       buttonVariant('outline'),
                       `px-3 py-2 ${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
                     )}
@@ -541,7 +541,7 @@ export function LoginPage({
                     onClick={handleAppleSignIn}
                     disabled={isLoading}
                     className={cn(
-                      'w-full inline-flex items-center justify-center font-medium rounded-md text-sm',
+                      'w-full inline-flex items-center justify-center font-medium rounded-md sm:text-sm',
                       buttonVariant('outline'),
                       `px-3 py-2 ${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
                     )}
