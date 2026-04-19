@@ -473,7 +473,7 @@ export function LoginPage({
               className={cn(
                 'w-full inline-flex items-center justify-center font-medium rounded-md text-sm',
                 buttonVariant('primary'),
-                'px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                'px-3 py-2 border border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
               )}
             >
               {isLoading && (
