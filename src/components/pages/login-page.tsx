@@ -289,30 +289,29 @@ export function LoginPage({
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleSignInPending, setIsGoogleSignInPending] = useState(false);
-  const googleSignInStartTime = useRef<number | null>(null);
+  const [isPopupPending, setIsPopupPending] = useState(false);
+  const popupStartTime = useRef<number | null>(null);
 
   const colors = colorVariantClasses[colorVariant];
 
-  // Reset Google sign-in state when window regains focus
-  // This handles the case where browser opens a new tab instead of popup
+  // Reset loading state when window regains focus after a popup sign-in
+  // This handles the case where browser opens a new tab instead of popup,
+  // or the user closes the popup without completing sign-in
   useEffect(() => {
     const handleFocus = () => {
-      if (isGoogleSignInPending && googleSignInStartTime.current) {
-        // If more than 2 seconds have passed since sign-in started,
-        // and we're back in focus, the user likely closed the tab/popup
-        const elapsed = Date.now() - googleSignInStartTime.current;
+      if (isPopupPending && popupStartTime.current) {
+        const elapsed = Date.now() - popupStartTime.current;
         if (elapsed > 2000) {
           setIsLoading(false);
-          setIsGoogleSignInPending(false);
-          googleSignInStartTime.current = null;
+          setIsPopupPending(false);
+          popupStartTime.current = null;
         }
       }
     };
 
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, [isGoogleSignInPending]);
+  }, [isPopupPending]);
 
   const handleAuthError = (err: unknown) => {
     const firebaseError = err as { code?: string; message?: string };
@@ -352,8 +351,8 @@ export function LoginPage({
 
     setError(null);
     setIsLoading(true);
-    setIsGoogleSignInPending(true);
-    googleSignInStartTime.current = Date.now();
+    setIsPopupPending(true);
+    popupStartTime.current = Date.now();
 
     try {
       await onGoogleSignIn();
@@ -362,8 +361,8 @@ export function LoginPage({
       handleAuthError(err);
     } finally {
       setIsLoading(false);
-      setIsGoogleSignInPending(false);
-      googleSignInStartTime.current = null;
+      setIsPopupPending(false);
+      popupStartTime.current = null;
     }
   };
 
@@ -372,6 +371,8 @@ export function LoginPage({
 
     setError(null);
     setIsLoading(true);
+    setIsPopupPending(true);
+    popupStartTime.current = Date.now();
 
     try {
       await onAppleSignIn();
@@ -380,6 +381,8 @@ export function LoginPage({
       handleAuthError(err);
     } finally {
       setIsLoading(false);
+      setIsPopupPending(false);
+      popupStartTime.current = null;
     }
   };
 
