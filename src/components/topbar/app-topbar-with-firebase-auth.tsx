@@ -1,7 +1,5 @@
 import React, { type ReactNode, type ComponentType } from 'react';
 import { AppTopBar, type AppTopBarProps } from './app-topbar';
-import { cn } from '../../utils';
-import { GRADIENT_CLASSES } from '@sudobility/design';
 
 /**
  * Auth menu item for the authenticated user dropdown.
@@ -110,11 +108,7 @@ export const AppTopBarWithFirebaseAuth: React.FC<
       onLoginClick={onLoginClick}
       menuItems={authenticatedMenuItems}
       loginButtonText={loginButtonText}
-      loginButtonClassName={cn(
-        GRADIENT_CLASSES.headerButton,
-        'py-1.5',
-        loginButtonClassName
-      )}
+      loginButtonClassName={loginButtonClassName}
     />
   );
 
