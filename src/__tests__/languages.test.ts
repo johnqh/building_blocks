@@ -7,8 +7,8 @@ import {
 
 describe('Language Constants', () => {
   describe('DEFAULT_LANGUAGES', () => {
-    it('contains 16 languages', () => {
-      expect(DEFAULT_LANGUAGES).toHaveLength(16);
+    it('contains 15 languages', () => {
+      expect(DEFAULT_LANGUAGES).toHaveLength(15);
     });
 
     it('includes English as the first language', () => {
@@ -45,13 +45,12 @@ describe('Language Constants', () => {
       expect(codes).toContain('zh');
       expect(codes).toContain('ja');
       expect(codes).toContain('ko');
-      expect(codes).toContain('ar');
     });
   });
 
   describe('RTL_LANGUAGES', () => {
-    it('includes Arabic', () => {
-      expect(RTL_LANGUAGES).toContain('ar');
+    it('is empty (no RTL languages supported)', () => {
+      expect(RTL_LANGUAGES).toHaveLength(0);
     });
 
     it('is an array of strings', () => {
@@ -63,8 +62,8 @@ describe('Language Constants', () => {
   });
 
   describe('isRTL', () => {
-    it('returns true for Arabic', () => {
-      expect(isRTL('ar')).toBe(true);
+    it('returns false for Arabic (no longer supported)', () => {
+      expect(isRTL('ar')).toBe(false);
     });
 
     it('returns false for English', () => {

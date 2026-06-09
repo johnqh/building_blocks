@@ -1,7 +1,7 @@
 /**
  * @fileoverview Language configuration constants for i18n support.
  *
- * Provides a default set of 16 supported languages, RTL language detection,
+ * Provides a default set of 15 supported languages, RTL language detection,
  * and the LanguageConfig interface used throughout the building_blocks package.
  */
 
@@ -21,12 +21,11 @@ export interface LanguageConfig {
 }
 
 /**
- * Default set of 16 supported languages with their flags.
+ * Default set of 15 supported languages with their flags.
  * Apps can override this list by passing their own languages prop.
  */
 export const DEFAULT_LANGUAGES: LanguageConfig[] = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
@@ -46,7 +45,7 @@ export const DEFAULT_LANGUAGES: LanguageConfig[] = [
 /**
  * Languages that use right-to-left text direction.
  */
-export const RTL_LANGUAGES = ['ar'];
+export const RTL_LANGUAGES: string[] = [];
 
 /**
  * Check if a language code is RTL.
