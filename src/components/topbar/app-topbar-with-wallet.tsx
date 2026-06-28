@@ -149,7 +149,7 @@ const FallbackWalletDisplay: React.FC<{
       </span>
       <button
         onClick={() => onDisconnect()}
-        className={`text-xs ${ui.text.muted} hover:text-gray-700 dark:hover:text-gray-200`}
+        className={`text-xs ${ui.text.muted} hover:text-foreground dark:hover:text-muted-foreground`}
       >
         Disconnect
       </button>

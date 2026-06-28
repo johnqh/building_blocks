@@ -227,11 +227,11 @@ export const AppSitemapPage: React.FC<AppSitemapPageProps> = ({
                     className={`group flex items-start text-sm ${ui.text.linkSubtle} transition-colors`}
                   >
                     <ChevronRightIcon
-                      className={`w-4 h-4 mt-0.5 mr-2 flex-shrink-0 ${ui.text.muted} group-hover:text-blue-600 dark:group-hover:text-blue-400`}
+                      className={`w-4 h-4 mt-0.5 mr-2 flex-shrink-0 ${ui.text.muted} group-hover:text-primary dark:group-hover:text-primary`}
                     />
                     <div>
                       <span
-                        className={`font-medium ${ui.text.label} group-hover:text-blue-600 dark:group-hover:text-blue-400`}
+                        className={`font-medium ${ui.text.label} group-hover:text-primary dark:group-hover:text-primary`}
                       >
                         {link.label}
                       </span>

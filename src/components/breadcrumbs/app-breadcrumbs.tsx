@@ -159,27 +159,27 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
     {
       name: 'Twitter',
       url: createShareUrl.twitter(url, shareConfig.title, shareConfig.hashtags),
-      color: 'text-blue-400',
+      color: 'text-primary',
     },
     {
       name: 'Facebook',
       url: createShareUrl.facebook(url),
-      color: 'text-blue-600',
+      color: 'text-primary',
     },
     {
       name: 'LinkedIn',
       url: createShareUrl.linkedin(url),
-      color: 'text-blue-700',
+      color: 'text-primary',
     },
     {
       name: 'Reddit',
       url: createShareUrl.reddit(url, shareConfig.title),
-      color: 'text-orange-600',
+      color: 'text-warning',
     },
     {
       name: 'Telegram',
       url: createShareUrl.telegram(url, shareConfig.title),
-      color: 'text-blue-500',
+      color: 'text-primary',
     },
     {
       name: 'Email',
@@ -188,7 +188,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
         shareConfig.title,
         shareConfig.description
       ),
-      color: 'text-gray-600',
+      color: 'text-muted-foreground',
     },
   ];
 
@@ -331,13 +331,13 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
         ref={triggerRef}
         onClick={handleToggle}
         disabled={isPreparingShare}
-        className='flex items-center justify-center w-8 h-8 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+        className='flex items-center justify-center w-8 h-8 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
         aria-label='Share this page'
         aria-expanded={isOpen}
         aria-haspopup='menu'
       >
         {isPreparingShare ? (
-          <div className='w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin' />
+          <div className='w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
         ) : (
           <svg
             className='w-4 h-4'
@@ -370,7 +370,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
                 itemRefs.current[index] = el;
               }}
               onClick={() => handleSocialShare(platform.url)}
-              className='w-full flex items-center px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors focus:bg-gray-50 dark:focus:bg-gray-700 focus:outline-none'
+              className='w-full flex items-center px-3 py-1.5 hover:bg-muted cursor-pointer transition-colors focus:bg-muted focus:outline-none'
               role='menuitem'
               tabIndex={focusedIndex === index ? 0 : -1}
             >
@@ -390,11 +390,11 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
                 itemRefs.current[sharePlatforms.length] = el;
               }}
               onClick={handleWebShare}
-              className='w-full flex items-center px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors focus:bg-gray-50 dark:focus:bg-gray-700 focus:outline-none'
+              className='w-full flex items-center px-3 py-1.5 hover:bg-muted cursor-pointer transition-colors focus:bg-muted focus:outline-none'
               role='menuitem'
               tabIndex={focusedIndex === sharePlatforms.length ? 0 : -1}
             >
-              <span className='text-sm text-purple-600 dark:text-purple-400'>
+              <span className='text-sm text-accent-foreground'>
                 Share with Image
               </span>
             </button>
@@ -406,7 +406,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
                 itemRefs.current[idx] = el;
               }}
               onClick={handleDownloadImage}
-              className='w-full flex items-center px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors focus:bg-gray-50 dark:focus:bg-gray-700 focus:outline-none'
+              className='w-full flex items-center px-3 py-1.5 hover:bg-muted cursor-pointer transition-colors focus:bg-muted focus:outline-none'
               role='menuitem'
               tabIndex={
                 focusedIndex ===
@@ -415,9 +415,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
                   : -1
               }
             >
-              <span className='text-sm text-green-600 dark:text-green-400'>
-                Download Image
-              </span>
+              <span className='text-sm text-success'>Download Image</span>
             </button>
           )}
           {hasImageShare && (
@@ -431,7 +429,7 @@ const ShareDropdown: React.FC<{ shareConfig: ShareConfig }> = ({
               itemRefs.current[sharePlatforms.length + extraItemCount] = el;
             }}
             onClick={copyToClipboard}
-            className='w-full flex items-center px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors focus:bg-gray-50 dark:focus:bg-gray-700 focus:outline-none'
+            className='w-full flex items-center px-3 py-1.5 hover:bg-muted cursor-pointer transition-colors focus:bg-muted focus:outline-none'
             role='menuitem'
             tabIndex={
               focusedIndex === sharePlatforms.length + extraItemCount ? 0 : -1
@@ -464,10 +462,10 @@ const TalkToFounderButton: React.FC<{ config: TalkToFounderConfig }> = ({
       className={cn(
         'inline-flex items-center gap-1.5 px-2.5 h-8',
         'text-sm font-medium',
-        'text-blue-600 dark:text-blue-400',
-        'hover:text-blue-700 dark:hover:text-blue-300',
-        'bg-blue-50 dark:bg-blue-900/30',
-        'hover:bg-blue-100 dark:hover:bg-blue-900/50',
+        'text-primary',
+        'hover:text-primary dark:hover:text-primary',
+        'bg-primary/10',
+        'hover:bg-primary/20',
         'rounded-lg',
         'transition-colors'
       )}

@@ -157,13 +157,13 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
             key={section.title || sectionIndex}
             className='flex flex-wrap items-baseline gap-y-0.5'
           >
-            <span className='font-bold text-xs text-gray-300 mr-2'>
+            <span className='font-bold text-xs text-muted-foreground mr-2'>
               {section.title}
             </span>
             {section.links.map((link, linkIndex) => (
               <React.Fragment key={link.href || linkIndex}>
                 {linkIndex > 0 && (
-                  <span className='text-gray-600 mx-1.5'>·</span>
+                  <span className='text-muted-foreground mx-1.5'>·</span>
                 )}
                 {link.onClick ? (
                   <button
@@ -173,7 +173,7 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
                       section.title,
                       link.onClick
                     )}
-                    className='text-xs text-gray-400 hover:text-white transition-colors'
+                    className='text-xs text-muted-foreground hover:text-foreground transition-colors'
                   >
                     {link.label}
                   </button>
@@ -185,7 +185,7 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
                       link.href,
                       section.title
                     )}
-                    className='text-xs text-gray-400 hover:text-white transition-colors'
+                    className='text-xs text-muted-foreground hover:text-foreground transition-colors'
                   >
                     {link.label}
                   </LinkComponent>
@@ -196,28 +196,30 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
         ))}
       </nav>
 
-      <div className='border-t border-gray-700 mt-4 pt-3'>
-        <div className='flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-xs text-gray-400'>
-          <span className='font-semibold text-gray-200'>{logo.appName}</span>
+      <div className='border-t border-border mt-4 pt-3'>
+        <div className='flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground'>
+          <span className='font-semibold text-muted-foreground'>
+            {logo.appName}
+          </span>
           {description && (
             <>
-              <span className='text-gray-600'>·</span>
+              <span className='text-muted-foreground'>·</span>
               <span>{description}</span>
             </>
           )}
           {version && (
             <>
-              <span className='text-gray-600'>·</span>
+              <span className='text-muted-foreground'>·</span>
               <span>v{version}</span>
             </>
           )}
-          <span className='text-gray-600'>·</span>
+          <span className='text-muted-foreground'>·</span>
           <span>
             © {year}{' '}
             {companyUrl ? (
               <LinkComponent
                 href={companyUrl}
-                className='text-gray-400 hover:text-white transition-colors'
+                className='text-muted-foreground hover:text-foreground transition-colors'
               >
                 {companyName}
               </LinkComponent>
@@ -228,7 +230,7 @@ export const AppFooterForHomePage: React.FC<AppFooterForHomePageProps> = ({
           </span>
           {statusIndicator && StatusIndicatorComponent && (
             <>
-              <span className='text-gray-600'>·</span>
+              <span className='text-muted-foreground'>·</span>
               <StatusIndicatorComponent
                 statusPageUrl={statusIndicator.statusPageUrl}
                 apiEndpoint={statusIndicator.apiEndpoint}

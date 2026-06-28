@@ -223,13 +223,13 @@ describe('LoginPage', () => {
     render(<LoginPage {...defaultProps} colorVariant='blue' />);
 
     const title = screen.getByText('Test App');
-    expect(title).toHaveClass('text-blue-600');
+    expect(title).toHaveClass('text-primary');
   });
 
   it('uses primary color variant by default', () => {
     render(<LoginPage {...defaultProps} />);
 
     const title = screen.getByText('Test App');
-    expect(title).toHaveClass('text-blue-600');
+    expect(title).toHaveClass('text-primary');
   });
 });

@@ -184,32 +184,32 @@ const colorVariantClasses: Record<
   }
 > = {
   primary: {
-    title: 'text-blue-600',
-    toggleLink: 'text-blue-600 hover:text-blue-500',
+    title: 'text-primary',
+    toggleLink: 'text-primary hover:text-primary/80',
   },
   blue: {
-    title: 'text-blue-600',
-    toggleLink: 'text-blue-600 hover:text-blue-500',
+    title: 'text-primary',
+    toggleLink: 'text-primary hover:text-primary/80',
   },
   indigo: {
-    title: 'text-indigo-600',
-    toggleLink: 'text-indigo-600 hover:text-indigo-500',
+    title: 'text-primary',
+    toggleLink: 'text-primary hover:text-primary/80',
   },
   violet: {
-    title: 'text-violet-600',
-    toggleLink: 'text-violet-600 hover:text-violet-500',
+    title: 'text-accent-foreground',
+    toggleLink: 'text-accent-foreground hover:text-accent-foreground/80',
   },
   orange: {
-    title: 'text-orange-600',
-    toggleLink: 'text-orange-600 hover:text-orange-500',
+    title: 'text-warning',
+    toggleLink: 'text-warning hover:text-warning/80',
   },
   emerald: {
-    title: 'text-emerald-600',
-    toggleLink: 'text-emerald-600 hover:text-emerald-500',
+    title: 'text-success',
+    toggleLink: 'text-success hover:text-success/80',
   },
   rose: {
-    title: 'text-rose-600',
-    toggleLink: 'text-rose-600 hover:text-rose-500',
+    title: 'text-secondary-foreground',
+    toggleLink: 'text-secondary-foreground hover:text-secondary-foreground/80',
   },
 };
 

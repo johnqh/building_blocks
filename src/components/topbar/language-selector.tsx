@@ -125,7 +125,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             'flex items-center gap-2 px-3 py-2 h-10 rounded-lg',
-            'hover:bg-gray-100 dark:hover:bg-gray-700',
+            'hover:bg-muted',
             'transition-colors'
           )}
           aria-label='Select language'
@@ -163,10 +163,9 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 onClick={() => handleLanguageChange(lang.code)}
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2 text-left',
-                  'hover:bg-gray-100 dark:hover:bg-gray-700',
+                  'hover:bg-muted',
                   'transition-colors',
-                  lang.code === currentLanguage &&
-                    'bg-gray-100 dark:bg-gray-700 font-medium'
+                  lang.code === currentLanguage && 'bg-muted font-medium'
                 )}
                 role='option'
                 aria-selected={lang.code === currentLanguage}
@@ -196,7 +195,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             ui.background.surface,
             `border ${ui.border.default}`,
             'rounded-md',
-            'hover:bg-gray-50 dark:hover:bg-gray-700',
+            'hover:bg-muted',
             'transition-colors'
           )}
           aria-expanded={isOpen}
@@ -233,10 +232,9 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 onClick={() => handleLanguageChange(lang.code)}
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2 text-left',
-                  'hover:bg-gray-100 dark:hover:bg-gray-700',
+                  'hover:bg-muted',
                   'transition-colors',
-                  lang.code === currentLanguage &&
-                    'bg-gray-100 dark:bg-gray-700 font-medium'
+                  lang.code === currentLanguage && 'bg-muted font-medium'
                 )}
                 role='option'
                 aria-selected={lang.code === currentLanguage}

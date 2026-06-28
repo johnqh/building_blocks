@@ -230,7 +230,7 @@ describe('AppPageLayout', () => {
         </AppPageLayout>
       );
 
-      const layout = container.querySelector('.bg-white');
+      const layout = container.querySelector('.bg-background');
       expect(layout).toBeInTheDocument();
     });
 
