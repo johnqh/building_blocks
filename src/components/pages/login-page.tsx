@@ -8,7 +8,11 @@ import {
 } from '@sudobility/design';
 
 /**
- * Google logo SVG component
+ * Google logo SVG component.
+ *
+ * The hex fills below are Google's official, trademarked brand colors and must
+ * not be swapped for semantic design tokens — the mark is required to render in
+ * its exact brand palette regardless of theme.
  */
 function GoogleIcon({ className }: { className?: string }) {
   return (
