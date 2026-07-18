@@ -6,7 +6,6 @@ import React, {
   type ComponentType,
 } from 'react';
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
-import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils';
 import { ui } from '@sudobility/design';
 import type {
@@ -16,22 +15,27 @@ import type {
   LinkComponentProps,
 } from '../../types';
 
-const breadcrumbContainerVariants = cva('border-b', {
-  variants: {
-    variant: {
-      default: `${ui.background.surface} ${ui.border.default}`,
-      transparent: 'bg-transparent border-transparent',
-      subtle: `${ui.background.subtle} ${ui.border.default}`,
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
-});
+export type BreadcrumbContainerVariant = 'default' | 'transparent' | 'subtle';
 
-export interface AppBreadcrumbsProps extends VariantProps<
-  typeof breadcrumbContainerVariants
-> {
+// Evaluated per render (not at module load) so the theme-aware `ui` getters
+// reflect the theme configured via configureTheme() at app startup.
+const breadcrumbContainerClasses = (
+  variant: BreadcrumbContainerVariant
+): string => {
+  switch (variant) {
+    case 'transparent':
+      return 'border-b bg-transparent border-transparent';
+    case 'subtle':
+      return `border-b ${ui.background.subtle} ${ui.border.default}`;
+    default:
+      return `border-b ${ui.background.surface} ${ui.border.default}`;
+  }
+};
+
+export interface AppBreadcrumbsProps {
+  /** Container style variant */
+  variant?: BreadcrumbContainerVariant | null;
+
   /** Breadcrumb items */
   items: BreadcrumbItem[];
 
@@ -513,7 +517,12 @@ export const AppBreadcrumbs: React.FC<AppBreadcrumbsProps> = ({
   }
 
   return (
-    <div className={cn(breadcrumbContainerVariants({ variant }), className)}>
+    <div
+      className={cn(
+        breadcrumbContainerClasses(variant ?? 'default'),
+        className
+      )}
+    >
       <div className={cn('max-w-7xl mx-auto px-4 py-2', contentClassName)}>
         <div className='flex items-center justify-between'>
           {/* Breadcrumb trail */}
