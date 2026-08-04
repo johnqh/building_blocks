@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { LayoutProvider, AspectFitView } from '@sudobility/components';
+import { LayoutProvider, AspectFitView, type LayoutMode } from '@sudobility/components';
 import { cva } from 'class-variance-authority';
 import { cn } from '../../utils';
 import { ui } from '@sudobility/design';
@@ -122,8 +122,14 @@ export interface AppPageProps {
   /** Background variant */
   background?: BackgroundVariant;
 
-  /** Layout mode for LayoutProvider */
-  layoutMode?: 'standard';
+  /**
+   * Width mode for the whole page, handed to `LayoutProvider`.
+   *
+   * This is what the topbar, breadcrumbs and footer read for their own width,
+   * so it — not `maxWidth`, which only sizes the content area — is how a page
+   * goes wide or full without its chrome disagreeing with its content.
+   */
+  layoutMode?: LayoutMode;
 
   /** Custom className for the layout container */
   className?: string;

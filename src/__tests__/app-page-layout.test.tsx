@@ -188,6 +188,21 @@ describe('AppPageLayout', () => {
       expect(main.querySelector('.max-w-7xl')).toBeInTheDocument();
     });
 
+    it('layoutMode drives the whole page, chrome included', () => {
+      // maxWidth sizes only the content area; layoutMode goes to
+      // LayoutProvider, which the topbar and footer read for their own width.
+      // Setting only maxWidth is what leaves a logo indented while the content
+      // below it runs edge to edge.
+      render(
+        <AppPageLayout topBar={baseTopBar} page={{ layoutMode: 'full', maxWidth: 'full' }}>
+          <div>Content</div>
+        </AppPageLayout>
+      );
+
+      const main = screen.getByRole('main');
+      expect(main.querySelector('.max-w-7xl')).not.toBeInTheDocument();
+    });
+
     it('applies custom max width', () => {
       render(
         <AppPageLayout topBar={baseTopBar} page={{ maxWidth: '4xl' }}>

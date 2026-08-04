@@ -97,7 +97,7 @@
     "@heroicons/react": "^2.2.0",
     "@sudobility/auth-components": "^1.0.11",
     "@sudobility/auth_lib": "^0.0.88",
-    "@sudobility/components": "^5.0.97",
+    "@sudobility/components": "^5.2.0",
     "@sudobility/design": "^1.1.46",
     "@sudobility/devops-components": "^2.0.19",
     "@sudobility/di": "^1.5.58",
