@@ -1,5 +1,9 @@
 import React, { type ReactNode } from 'react';
-import { LayoutProvider, AspectFitView, type LayoutMode } from '@sudobility/components';
+import {
+  LayoutProvider,
+  AspectFitView,
+  type LayoutMode,
+} from '@sudobility/components';
 import { cva } from 'class-variance-authority';
 import { cn } from '../../utils';
 import { ui } from '@sudobility/design';

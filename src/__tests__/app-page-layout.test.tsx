@@ -194,7 +194,10 @@ describe('AppPageLayout', () => {
       // Setting only maxWidth is what leaves a logo indented while the content
       // below it runs edge to edge.
       render(
-        <AppPageLayout topBar={baseTopBar} page={{ layoutMode: 'full', maxWidth: 'full' }}>
+        <AppPageLayout
+          topBar={baseTopBar}
+          page={{ layoutMode: 'full', maxWidth: 'full' }}
+        >
           <div>Content</div>
         </AppPageLayout>
       );
