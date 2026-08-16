@@ -83,6 +83,16 @@ export interface GlobalSettingsPageProps {
    */
   appearanceT?: (key: string, fallback?: string) => string;
 
+  /**
+   * Max width in pixels for the settings detail panel, forwarded to
+   * `MasterDetailLayout`. When set, the panel stays full width while the space
+   * beside the navigation list is narrower than this, and caps at this width —
+   * centered in the leftover space — once there is room to spare.
+   *
+   * Omit to let the detail panel fill all the space the navigation list leaves.
+   */
+  detailMaxWidth?: number;
+
   /** Optional className for the container */
   className?: string;
 
@@ -101,6 +111,7 @@ export interface GlobalSettingsPageProps {
  * - Extensible via additionalSections prop
  * - Responsive master-detail layout
  * - Mobile-friendly with back navigation
+ * - Optional detailMaxWidth to cap and center the settings detail panel
  *
  * @example
  * ```tsx
@@ -110,6 +121,15 @@ export interface GlobalSettingsPageProps {
  *   fontSize={fontSize}
  *   onThemeChange={setTheme}
  *   onFontSizeChange={setFontSize}
+ * />
+ *
+ * // Capped and centered detail panel
+ * <GlobalSettingsPage
+ *   theme={theme}
+ *   fontSize={fontSize}
+ *   onThemeChange={setTheme}
+ *   onFontSizeChange={setFontSize}
+ *   detailMaxWidth={720}
  * />
  *
  * // With additional sections
@@ -139,6 +159,7 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   t,
   appearanceT,
   showAppearanceInfoBox = true,
+  detailMaxWidth,
   onTrack,
 }) => {
   // Development-only warnings for common misconfigurations
@@ -275,6 +296,7 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
       mobileView={mobileView}
       onBackToNavigation={handleBackToNavigation}
       masterWidth={280}
+      detailMaxWidth={detailMaxWidth}
       stickyMaster={true}
       enableAnimations={true}
     />

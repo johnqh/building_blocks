@@ -24,6 +24,7 @@ vi.mock('@sudobility/components', () => ({
     detailTitle,
     backButtonText,
     onBackToNavigation,
+    detailMaxWidth,
   }: {
     masterTitle: string;
     masterContent: React.ReactNode;
@@ -33,6 +34,7 @@ vi.mock('@sudobility/components', () => ({
     onBackToNavigation: () => void;
     mobileView?: string;
     masterWidth?: number;
+    detailMaxWidth?: number;
     stickyMaster?: boolean;
     enableAnimations?: boolean;
   }) => (
@@ -41,7 +43,7 @@ vi.mock('@sudobility/components', () => ({
         <h2>{masterTitle}</h2>
         {masterContent}
       </div>
-      <div data-testid='detail-panel'>
+      <div data-testid='detail-panel' data-detail-max-width={detailMaxWidth}>
         <button onClick={onBackToNavigation}>{backButtonText}</button>
         <h3>{detailTitle}</h3>
         {detailContent}
@@ -281,5 +283,22 @@ describe('GlobalSettingsPage', () => {
     render(<GlobalSettingsPage {...defaultProps} />);
 
     expect(screen.getByText('Back')).toBeInTheDocument();
+  });
+
+  it('forwards detailMaxWidth to the master-detail layout', () => {
+    render(<GlobalSettingsPage {...defaultProps} detailMaxWidth={720} />);
+
+    expect(screen.getByTestId('detail-panel')).toHaveAttribute(
+      'data-detail-max-width',
+      '720'
+    );
+  });
+
+  it('leaves detailMaxWidth unset when not provided', () => {
+    render(<GlobalSettingsPage {...defaultProps} />);
+
+    expect(screen.getByTestId('detail-panel')).not.toHaveAttribute(
+      'data-detail-max-width'
+    );
   });
 });
