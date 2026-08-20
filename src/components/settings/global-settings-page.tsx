@@ -89,7 +89,7 @@ export interface GlobalSettingsPageProps {
    * beside the navigation list is narrower than this, and caps at this width —
    * centered in the leftover space — once there is room to spare.
    *
-   * Omit to let the detail panel fill all the space the navigation list leaves.
+   * Omit to inherit the layout default (960px); pass 0 for no cap.
    */
   detailMaxWidth?: number;
 
@@ -295,7 +295,6 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
       detailTitle={currentSection.label}
       mobileView={mobileView}
       onBackToNavigation={handleBackToNavigation}
-      masterWidth={280}
       detailMaxWidth={detailMaxWidth}
       stickyMaster={true}
       enableAnimations={true}

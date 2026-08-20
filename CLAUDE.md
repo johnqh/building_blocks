@@ -1,5 +1,10 @@
 # building_blocks - AI Development Guide
 
+> **Git policy — never auto-commit or auto-push.** Leave your work in the working tree.
+> Run `git commit`, `git push`, `gh pr create`, or `scripts/push_all.sh` **only when the user
+> explicitly asks in that turn**. Approval for an earlier change does not carry forward, and
+> finishing a task is not permission to commit it.
+
 ## Overview
 
 `@sudobility/building_blocks` is a React component library providing higher-level, reusable UI building blocks for Sudobility applications. It builds on top of `@sudobility/components` and `@sudobility/design` to deliver production-ready app shells, navigation bars, footers, settings pages, subscription/pricing screens, and full app wrappers with Firebase auth, entity management, and i18n support.
@@ -398,3 +403,7 @@ Test patterns:
 **Tests failing after changes** -- Run `bun run typecheck` first to catch type errors. Check if test mocks need updating for new props.
 
 **Import errors from `@sudobility/building_blocks/firebase`** -- Ensure `@sudobility/auth-components`, `@sudobility/auth_lib`, and `@sudobility/di` are installed. These are optional peer dependencies required only for the `/firebase` entry point.
+
+## Git Workflow
+
+- Do not use feature branches for code changes. Always stay on the current branch.
