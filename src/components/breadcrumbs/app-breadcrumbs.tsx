@@ -53,6 +53,15 @@ export interface AppBreadcrumbsProps {
 
   /** Custom className for the inner content */
   contentClassName?: string;
+
+  /**
+   * Hide the breadcrumb bar below the `sm` breakpoint (default: true).
+   *
+   * Breadcrumbs duplicate navigation that mobile users reach through the top
+   * bar, so the bar is hidden on phones to give the page its vertical space
+   * back. Set to false to keep it visible at every width.
+   */
+  hideOnMobile?: boolean;
 }
 
 // Social media share URL generators
@@ -510,6 +519,7 @@ export const AppBreadcrumbs: React.FC<AppBreadcrumbsProps> = ({
   variant = 'default',
   className,
   contentClassName,
+  hideOnMobile = true,
 }) => {
   // Don't render if no items
   if (!items || items.length === 0) {
@@ -520,6 +530,7 @@ export const AppBreadcrumbs: React.FC<AppBreadcrumbsProps> = ({
     <div
       className={cn(
         breadcrumbContainerClasses(variant ?? 'default'),
+        hideOnMobile && 'hidden sm:block',
         className
       )}
     >

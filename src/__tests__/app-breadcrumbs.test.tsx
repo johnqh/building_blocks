@@ -63,6 +63,20 @@ describe('AppBreadcrumbs', () => {
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
+  it('hides the bar below the sm breakpoint by default', () => {
+    const { container } = render(<AppBreadcrumbs items={testItems} />);
+    expect(container.firstChild).toHaveClass('hidden');
+    expect(container.firstChild).toHaveClass('sm:block');
+  });
+
+  it('stays visible at every width when hideOnMobile is false', () => {
+    const { container } = render(
+      <AppBreadcrumbs items={testItems} hideOnMobile={false} />
+    );
+    expect(container.firstChild).not.toHaveClass('hidden');
+    expect(container.firstChild).not.toHaveClass('sm:block');
+  });
+
   it('applies content className', () => {
     const { container } = render(
       <AppBreadcrumbs items={testItems} contentClassName='content-custom' />
