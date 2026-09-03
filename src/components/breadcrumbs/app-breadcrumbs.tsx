@@ -6,6 +6,7 @@ import React, {
   type ComponentType,
 } from 'react';
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { useLayout } from '@sudobility/components';
 import { cn } from '../../utils';
 import { ui } from '@sudobility/design';
 import type {
@@ -521,6 +522,12 @@ export const AppBreadcrumbs: React.FC<AppBreadcrumbsProps> = ({
   contentClassName,
   hideOnMobile = true,
 }) => {
+  // Width follows the page's LayoutProvider mode, so the breadcrumb bar lines
+  // up with the topbar and content instead of pinning itself to a column.
+  // Outside a provider `useLayout()` reports 'standard', so standalone use is
+  // unchanged. Must precede the early return -- hooks cannot run conditionally.
+  const { containerClass } = useLayout();
+
   // Don't render if no items
   if (!items || items.length === 0) {
     return null;
@@ -534,7 +541,7 @@ export const AppBreadcrumbs: React.FC<AppBreadcrumbsProps> = ({
         className
       )}
     >
-      <div className={cn('max-w-7xl mx-auto px-4 py-2', contentClassName)}>
+      <div className={cn(containerClass, 'py-2', contentClassName)}>
         <div className='flex items-center justify-between'>
           {/* Breadcrumb trail */}
           <nav aria-label='Breadcrumb'>

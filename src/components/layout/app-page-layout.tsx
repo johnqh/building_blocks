@@ -117,7 +117,7 @@ function renderFooter(config: FooterConfig): ReactNode {
 
 /** Page-level layout and styling options. */
 export interface AppPageProps {
-  /** Max width for content area (default: '7xl') */
+  /** Max width for content area (default: 'full') */
   maxWidth?: MaxWidth;
 
   /** Content padding (default: 'md') */
@@ -132,6 +132,10 @@ export interface AppPageProps {
    * This is what the topbar, breadcrumbs and footer read for their own width,
    * so it — not `maxWidth`, which only sizes the content area — is how a page
    * goes wide or full without its chrome disagreeing with its content.
+   *
+   * Defaults to 'full', matching the `maxWidth` default: a page spans the
+   * browser width unless it asks not to. Pass 'standard' for the old
+   * max-w-7xl column.
    */
   layoutMode?: LayoutMode;
 
@@ -201,7 +205,7 @@ export interface AppPageLayoutProps {
  *     companyName: 'My Company',
  *     links: [{ label: 'Privacy', href: '/privacy' }],
  *   }}
- *   page={{ maxWidth: '7xl', background: 'default' }}
+ *   page={{ maxWidth: 'full', background: 'default' }}
  * >
  *   <h1>Page Content</h1>
  * </AppPageLayout>
@@ -215,10 +219,10 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   page,
 }) => {
   const {
-    maxWidth = '7xl',
+    maxWidth = 'full',
     contentPadding = 'md',
     background = 'default',
-    layoutMode = 'standard',
+    layoutMode = 'full',
     className,
     contentClassName,
     mainClassName,

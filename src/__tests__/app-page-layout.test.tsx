@@ -177,9 +177,25 @@ describe('AppPageLayout', () => {
   });
 
   describe('max width', () => {
-    it('applies max-w-7xl by default', () => {
-      render(
+    it('is full width by default, chrome included', () => {
+      // The default is 'full' for both maxWidth and layoutMode: a page spans
+      // the browser width unless it asks not to. Asserting over the whole
+      // container, not just <main>, is what catches the topbar or breadcrumb
+      // staying in a column while the content runs edge to edge.
+      const { container } = render(
         <AppPageLayout topBar={baseTopBar}>
+          <div>Content</div>
+        </AppPageLayout>
+      );
+
+      const main = screen.getByRole('main');
+      expect(main.querySelector('.max-w-full')).toBeInTheDocument();
+      expect(container.querySelector('.max-w-7xl')).not.toBeInTheDocument();
+    });
+
+    it('opts back into the narrow column with maxWidth 7xl', () => {
+      render(
+        <AppPageLayout topBar={baseTopBar} page={{ maxWidth: '7xl' }}>
           <div>Content</div>
         </AppPageLayout>
       );

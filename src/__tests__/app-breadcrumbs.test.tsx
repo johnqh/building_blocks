@@ -4,6 +4,14 @@ import { AppBreadcrumbs } from '../components/breadcrumbs/app-breadcrumbs';
 
 // Mock the BreadcrumbSection from @sudobility/components
 vi.mock('@sudobility/components', () => ({
+  // Mirrors LayoutContext's out-of-provider fallback, so these tests exercise
+  // the same widths a standalone AppBreadcrumbs gets in an app.
+  useLayout: () => ({
+    mode: 'standard',
+    containerClass: 'max-w-7xl mx-auto px-4',
+    maxWidthClass: 'max-w-7xl mx-auto',
+    paddingClass: 'px-4',
+  }),
   BreadcrumbSection: ({
     items,
   }: {
