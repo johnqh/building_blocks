@@ -177,11 +177,11 @@ describe('AppPageLayout', () => {
   });
 
   describe('max width', () => {
-    it('is full width by default, chrome included', () => {
-      // The default is 'full' for both maxWidth and layoutMode: a page spans
-      // the browser width unless it asks not to. Asserting over the whole
-      // container, not just <main>, is what catches the topbar or breadcrumb
-      // staying in a column while the content runs edge to edge.
+    it('spans the browser with chrome, and caps content at the reading width', () => {
+      // layoutMode defaults to 'full' so the topbar, breadcrumbs and footer
+      // span the browser, while maxWidth defaults to the reading width so body
+      // content does not run to an unreadable line length. A Section bleeds its
+      // band back out of this cap when it wants a full-width background.
       const { container } = render(
         <AppPageLayout topBar={baseTopBar}>
           <div>Content</div>
@@ -189,7 +189,7 @@ describe('AppPageLayout', () => {
       );
 
       const main = screen.getByRole('main');
-      expect(main.querySelector('.max-w-full')).toBeInTheDocument();
+      expect(main.querySelector('.max-w-5xl')).toBeInTheDocument();
       expect(container.querySelector('.max-w-7xl')).not.toBeInTheDocument();
     });
 

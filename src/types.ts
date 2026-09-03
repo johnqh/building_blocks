@@ -176,6 +176,8 @@ export type MaxWidth =
   | 'xl'
   | '2xl'
   | '4xl'
+  /** 64rem / 1024px -- the reading width, and the content default. */
+  | '5xl'
   | '7xl'
   | 'full';
 

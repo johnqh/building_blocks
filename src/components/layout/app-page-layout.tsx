@@ -47,6 +47,7 @@ const maxWidthClasses: Record<MaxWidth, string> = {
   xl: 'max-w-xl',
   '2xl': 'max-w-2xl',
   '4xl': 'max-w-4xl',
+  '5xl': 'max-w-5xl',
   '7xl': 'max-w-7xl',
   full: 'max-w-full',
 };
@@ -117,7 +118,14 @@ function renderFooter(config: FooterConfig): ReactNode {
 
 /** Page-level layout and styling options. */
 export interface AppPageProps {
-  /** Max width for content area (default: 'full') */
+  /**
+   * Max width for the content area (default: '5xl' -- 1024px).
+   *
+   * Caps body content at a readable line length while `layoutMode` keeps the
+   * chrome spanning the browser. A `Section` bleeds its band back out of this
+   * cap, so full-width backgrounds still work; pass 'full' to remove the cap
+   * for a page that manages its own width.
+   */
   maxWidth?: MaxWidth;
 
   /** Content padding (default: 'md') */
@@ -133,9 +141,10 @@ export interface AppPageProps {
    * so it — not `maxWidth`, which only sizes the content area — is how a page
    * goes wide or full without its chrome disagreeing with its content.
    *
-   * Defaults to 'full', matching the `maxWidth` default: a page spans the
-   * browser width unless it asks not to. Pass 'standard' for the old
-   * max-w-7xl column.
+   * Defaults to 'full': the chrome spans the browser width unless it asks not
+   * to. Note this is independent of `maxWidth`, which caps the content area at
+   * the reading width -- the chrome going wide is not the text going wide.
+   * Pass 'standard' for the old max-w-7xl column.
    */
   layoutMode?: LayoutMode;
 
@@ -205,7 +214,7 @@ export interface AppPageLayoutProps {
  *     companyName: 'My Company',
  *     links: [{ label: 'Privacy', href: '/privacy' }],
  *   }}
- *   page={{ maxWidth: 'full', background: 'default' }}
+ *   page={{ maxWidth: '5xl', background: 'default' }}
  * >
  *   <h1>Page Content</h1>
  * </AppPageLayout>
@@ -219,7 +228,7 @@ export const AppPageLayout: React.FC<AppPageLayoutProps> = ({
   page,
 }) => {
   const {
-    maxWidth = 'full',
+    maxWidth = '5xl',
     contentPadding = 'md',
     background = 'default',
     layoutMode = 'full',
