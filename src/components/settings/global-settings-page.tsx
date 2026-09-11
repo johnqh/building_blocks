@@ -93,6 +93,13 @@ export interface GlobalSettingsPageProps {
    */
   detailMaxWidth?: number;
 
+  /**
+   * Inset the settings detail panel, forwarded to `MasterDetailLayout`. For pages
+   * that drop their content padding so the navigation list runs to the page edge;
+   * the detail then needs its own gutter. Default: false.
+   */
+  detailPadding?: boolean;
+
   /** Optional className for the container */
   className?: string;
 
@@ -160,6 +167,7 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
   appearanceT,
   showAppearanceInfoBox = true,
   detailMaxWidth,
+  detailPadding = false,
   onTrack,
 }) => {
   // Development-only warnings for common misconfigurations
@@ -296,6 +304,7 @@ export const GlobalSettingsPage: React.FC<GlobalSettingsPageProps> = ({
       mobileView={mobileView}
       onBackToNavigation={handleBackToNavigation}
       detailMaxWidth={detailMaxWidth}
+      detailPadding={detailPadding}
       stickyMaster={true}
       enableAnimations={true}
     />
