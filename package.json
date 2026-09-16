@@ -31,7 +31,7 @@
     "lint:fix": "eslint . --ext ts,tsx --ignore-pattern 'dist' --ignore-pattern 'node_modules' --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\"",
-    "test": "vitest run",
+    "test:unit": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "prepublishOnly": "bun run build"
