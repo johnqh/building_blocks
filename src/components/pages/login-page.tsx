@@ -4,6 +4,7 @@ import {
   buttonVariant,
   focusRing,
   colors as designColors,
+  touchTargetClasses,
   ui,
 } from '@sudobility/design';
 
@@ -531,7 +532,7 @@ export function LoginPage({
                     className={cn(
                       'w-full inline-flex items-center justify-center font-medium rounded-md sm:text-sm',
                       buttonVariant('outline'),
-                      `px-3 py-2 ${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
+                      `${touchTargetClasses.minHeight} px-3 py-2 ${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
                     )}
                   >
                     <GoogleIcon className='h-5 w-5 mr-2' />
@@ -547,7 +548,7 @@ export function LoginPage({
                     className={cn(
                       'w-full inline-flex items-center justify-center font-medium rounded-md sm:text-sm',
                       buttonVariant('outline'),
-                      `px-3 py-2 ${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
+                      `${touchTargetClasses.minHeight} px-3 py-2 ${ui.background.surface} ${ui.text.label} disabled:opacity-50 disabled:cursor-not-allowed`
                     )}
                   >
                     <AppleIcon className='h-5 w-5 mr-2' />

@@ -4,9 +4,11 @@
  * Extends SudobilityApp with:
  * - Firebase AuthProviderWrapper for authentication (built-in default)
  * - ApiProvider for network/token management (built-in default)
+ * - Query cache reset when the signed-in user changes
  */
 import { ComponentType, ReactNode } from 'react';
 import { SudobilityApp, SudobilityAppProps } from './SudobilityApp';
+import { AuthQueryCacheReset } from './AuthQueryCacheReset';
 import { AuthProvider } from '@sudobility/auth-components';
 import {
   getFirebaseAuth,
@@ -229,7 +231,12 @@ export function SudobilityAppWithFirebaseAuth({
   const CombinedProviders: ComponentType<{ children: ReactNode }> = ({
     children,
   }) => {
-    let content = children;
+    let content: ReactNode = (
+      <>
+        <AuthQueryCacheReset />
+        {children}
+      </>
+    );
 
     // Wrap with AppProviders if provided
     if (AppProviders) {
