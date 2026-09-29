@@ -32,7 +32,6 @@ PROJECTS=(
     "../guard_worker:60"
     # Level 1: Depends only on level 0 packages
     "../di:0"
-    "../genui_types:0"
     "../mail_box_components:0"
     "../mail_box_components_rn:60"
     # Level 2: Depends on level 0 + level 1
@@ -48,8 +47,6 @@ PROJECTS=(
     "../auth_service:60"
     "../seo_lib:0"
     # Level 3: Depends on levels 0-2
-    "../genui:0"
-    "../genui_rn:0"
     "../di_web:0"
     "../di_rn:0"
     "../entity_pages:0"
@@ -59,8 +56,6 @@ PROJECTS=(
     "../ratelimit_pages:0"
     "../consumables_pages:60"
     # Level 4: Depends on levels 0-3
-    "../genui:0"
-    "../genui_rn:0"
     "../building_blocks:0"
     "../building_blocks_rn:60"
 )
