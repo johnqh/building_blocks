@@ -76,6 +76,12 @@ export interface LoginPageProps {
   onAppleSignIn?: () => Promise<void>;
   /** Callback fired on successful authentication */
   onSuccess: () => void;
+  /**
+   * Which form the page opens on (default: 'signIn'). A `/register` route
+   * passes 'signUp'. A mode the page has no way to do — sign-up without
+   * `onEmailSignUp`, reset without `onPasswordReset` — opens on signing in.
+   */
+  initialMode?: LoginViewMode;
   /** Callback fired on auth errors - if provided, errors won't be shown inline */
   onAuthError?: (error: AuthErrorInfo) => void;
   /** Whether to show Google sign-in option (default: true) */
@@ -211,6 +217,7 @@ export function LoginPage({
   onAppleSignIn,
   onSuccess,
   onAuthError,
+  initialMode = 'signIn',
   text: textOverrides,
   showGoogleSignIn = true,
   showAppleSignIn = false,
@@ -239,7 +246,15 @@ export function LoginPage({
       );
     }
   }
-  const [mode, setMode] = useState<LoginViewMode>('signIn');
+  const canSignUp = showSignUp && !!onEmailSignUp;
+  const [requestedMode, setMode] = useState<LoginViewMode>(initialMode);
+  // The heading has to say what the form is doing, and the form falls back to
+  // signing in for a mode it has no way to do.
+  const mode: LoginViewMode =
+    (requestedMode === 'signUp' && !canSignUp) ||
+    (requestedMode === 'resetPassword' && !onPasswordReset)
+      ? 'signIn'
+      : requestedMode;
   const colors = colorVariantClasses[colorVariant];
   const text = { ...defaultText, ...textOverrides };
   const heading =

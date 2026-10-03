@@ -69,6 +69,21 @@ describe('LoginPage', () => {
     expect(screen.getByText('Create your account')).toBeInTheDocument();
   });
 
+  it('opens on the form initialMode asks for', () => {
+    render(<LoginPage {...defaultProps} initialMode='signUp' />);
+
+    expect(screen.getByText('Create your account')).toBeInTheDocument();
+    expect(screen.getByText('Already have an account?')).toBeInTheDocument();
+  });
+
+  it('opens on signing in when it has no way to do the initialMode', () => {
+    render(
+      <LoginPage {...defaultProps} initialMode='signUp' showSignUp={false} />
+    );
+
+    expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
+  });
+
   it('hides sign-up toggle when showSignUp is false', () => {
     render(<LoginPage {...defaultProps} showSignUp={false} />);
 
