@@ -233,3 +233,25 @@ describe('LoginPage', () => {
     expect(title).toHaveClass('text-primary');
   });
 });
+
+describe('LoginPage password reset', () => {
+  it('offers it only with a handler, and heads the page for it', async () => {
+    const user = userEvent.setup();
+    const onPasswordReset = vi.fn().mockResolvedValue(undefined);
+    const { unmount } = render(<LoginPage {...defaultProps} />);
+    expect(
+      screen.queryByRole('button', { name: 'Forgot password?' })
+    ).not.toBeInTheDocument();
+    unmount();
+
+    render(<LoginPage {...defaultProps} onPasswordReset={onPasswordReset} />);
+    await user.type(screen.getByLabelText('Email address'), 'ada@example.com');
+    await user.click(screen.getByRole('button', { name: 'Forgot password?' }));
+    expect(screen.getByText('Reset your password')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Send reset link' }));
+    expect(onPasswordReset).toHaveBeenCalledWith('ada@example.com');
+    expect(defaultProps.onSuccess).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Back to sign in' }));
+    expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
+  });
+});
