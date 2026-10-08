@@ -29,6 +29,7 @@ PROJECTS=(
     "../types:0"
     "../seo_lib:0"
     "../design_system:0"
+    "../windows_canvas_rn:0"
     "../guard_worker:60"
     # Level 1: Depends only on level 0 packages
     "../di:0"
